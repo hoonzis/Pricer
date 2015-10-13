@@ -10,8 +10,8 @@ assembly_info:
 before_build:
 - nuget restore
 
-build:
+build_script:
   cmd: build.cmd CompileApp
  
-test:
+test_script:
   cmd: build.cmd NUnitTest
