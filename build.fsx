@@ -20,24 +20,6 @@ Target "Clean" (fun _ ->
     CleanDirs [buildDir; testDir; deployDir]
 )
 
-Target "SetVersions" (fun _ ->
-    CreateCSharpAssemblyInfo "./src/app/Calculator/Properties/AssemblyInfo.cs"
-        [Attribute.Title "Calculator Command line tool"
-         Attribute.Description "Sample project for FAKE - F# MAKE"
-         Attribute.Guid "A539B42C-CB9F-4a23-8E57-AF4E7CEE5BAA"
-         Attribute.Product "Calculator"
-         Attribute.Version version
-         Attribute.FileVersion version]
-
-    CreateCSharpAssemblyInfo "./src/app/CalculatorLib/Properties/AssemblyInfo.cs"
-        [Attribute.Title "Calculator library"
-         Attribute.Description "Sample project for FAKE - F# MAKE"
-         Attribute.Guid "EE5621DB-B86B-44eb-987F-9C94BCC98441"
-         Attribute.Product "Calculator"
-         Attribute.Version version
-         Attribute.FileVersion version]
-)
-
 Target "CompileApp" (fun _ ->
     [@"OptionsPricing/OptionsPricing.fsproj"]
       |> MSBuildRelease buildDir "Build"
@@ -66,11 +48,10 @@ Target "Zip" (fun _ ->
 
 // Dependencies
 "Clean"
-  ==> "SetVersions"
   ==> "CompileApp"
   ==> "CompileTest"
   ==> "NUnitTest"
   ==> "Zip"
-
+  
 // start build
 RunTargetOrDefault "CompileTest"
