@@ -1,0 +1,4 @@
+[Fake]
+linuxPrefix = "mono"
+command = "build.cmd"
+build = "build.fsx"
