@@ -5,6 +5,7 @@ paket.exe
 build.fsx_*
 build/*
 test/*
+deploy/*
 
 # User-specific files
 *.suo
