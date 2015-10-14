@@ -12,13 +12,16 @@ let buildDir  = @".\build\"
 let testDir   = @".\test\"
 let deployDir = @".\deploy\"
 let packagesDir = @".\packages"
+let packagingDir = @".\packaging"
+
 let authors = ["Jan Fajfr"]
 let projectName = "Pricer"
 let projectSummary = "Library which contains several methods to price options and estimate historical volatility"
 let projectDescription = "Pricer for options and other financial products"
 
 // version info
-let version = "0.2"  // or retrieve from CI server
+//I will have to add AssemblyInfo and upgrade version from it
+let version = "0.6.0"
 let nugetKey = getBuildParamOrDefault "nugetKey" ""
 
 // Targets
@@ -38,7 +41,7 @@ Target "CompileTest" (fun _ ->
       |> Log "TestBuild-Output: "
 )
 
-Target "NUnitTest" (fun _ ->
+Target "Test" (fun _ ->
     !! (testDir + @"\OptionsPricingTests.dll")
       |> NUnit (fun p ->
                  {p with
@@ -48,19 +51,27 @@ Target "NUnitTest" (fun _ ->
 
 
 Target "CreatePackage" (fun _ ->
-    trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
-    NuGet (fun p ->
-        {p with
-            Authors = authors
-            Project = projectName
-            Description = projectDescription
-            OutputPath = deployDir
-            Summary = projectSummary
-            WorkingDir = buildDir
-            Version = version
-            AccessKey = nugetKey
-            Publish = true })
-            "OptionsPricing.nuspec"
+  let net45Dir = packagingDir @@ "lib/net45/"
+
+  CleanDirs [net45Dir]
+
+  CopyFile net45Dir (buildDir @@ "OptionsPricing.dll")
+  CopyFile net45Dir (buildDir @@ "OptionsPricing.XML")
+  CopyFile net45Dir (buildDir @@ "OptionsPricing.pdb")
+
+  trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
+  NuGet (fun p ->
+      {p with
+          Authors = authors
+          Project = projectName
+          Description = projectDescription
+          OutputPath = deployDir
+          Summary = projectSummary
+          WorkingDir = packagingDir
+          Version = version
+          AccessKey = nugetKey
+          Publish = hasBuildParam "nugetkey" })
+          "OptionsPricing.nuspec"
 )
 
 Target "Zip" (fun _ ->
@@ -73,13 +84,13 @@ Target "Zip" (fun _ ->
 "Clean"
   ==> "CompileApp"
   ==> "CompileTest"
-  ==> "NUnitTest"
+  ==> "Test"
   ==> "Zip"
   ==> "CreatePackage"
 
 "CompileApp"
   ==> "CompileTest"
-  ==> "NUnitTest"
+  ==> "Test"
   ==> "CreatePackage"
 
 // start build
