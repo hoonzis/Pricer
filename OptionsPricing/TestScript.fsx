@@ -12,12 +12,15 @@ open MathNet.Numerics.Statistics
 
 let option = {
     Strike = 250.0
-    Expiry = new DateTime(2015,12,12)
+    Expiry = DateTime.Now.AddDays(90.)
     Direction = 1.0
     Kind = Call
     Style = American
     PurchaseDate = DateTime.Now
 }
+
+//get current price, volatility and interest free rate for VOD from London Stock Exchange
+let stock = Stocks.stockInfo LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
 
 let testFloatingWindows =
     let ticker,data = MarketData.stock LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
@@ -28,8 +31,12 @@ let testFloatingWindows =
         Chart.Line fiveDaysAvg
     ]
 
+let testPricing =
+    let bsPrice = Options.blackScholes stock option
+    let binomialPrice = Options.binomial stock option 2000
+    printf "BlackScholes price: %f with delta: %f, Binomial Pricing: %f with delta: %f" bsPrice.Premium bsPrice.Delta binomialPrice.Premium binomialPrice.Delta
+
 let testButterflyChart =
-    let stock = Stocks.stockInfo LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
     let strategy = StrategiesExamples.callSpread stock
     let strategyData,legsData = Options.getStrategyData strategy
     let strategyLine = Chart.Line(strategyData,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
