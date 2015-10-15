@@ -9,7 +9,7 @@ open System.Net
 open System.IO
 
 
-module Stocks =  
+module Stocks =
 
     let openingPrice tick = tick.Open
     let closingPrice tick = tick.Close
@@ -18,11 +18,11 @@ module Stocks =
     let closingVsOpenVolEstimate (data:seq<Tick>) =
         let ab = data |> Seq.sortBy tradingDay
                       |> Seq.pairwise
-                      |> Seq.map (fun (tick0,tick1) -> 
+                      |> Seq.map (fun (tick0,tick1) ->
                             if tick0.Open.IsNone || tick1.Open.IsNone then failwith "We don't have opening values"
                             (log tick1.Close/tick1.Open.Value, log tick1.Open.Value/tick0.Close)
                         )
-        
+
         let statsA = DescriptiveStatistics(ab|>Seq.map(fun(a,b)->a),false)
         let statsB = DescriptiveStatistics(ab|>Seq.map(fun(a,b)->b),false)
         let tradingDays = float statsA.Count
@@ -34,7 +34,7 @@ module Stocks =
              |> Seq.pairwise
              |> Seq.map (fun (tick0,tick1) -> log (tick1.Close/tick0.Close))
 
-    let estimateVolFromReturns (logRatios:IEnumerable<float>) = 
+    let estimateVolFromReturns (logRatios:IEnumerable<float>) =
         let stats = DescriptiveStatistics(logRatios,false)
         let dailyVolatility = stats.StandardDeviation
         let tradingDays = float stats.Count
@@ -47,7 +47,7 @@ module Stocks =
             | CloseVsClose -> estimateVolFromReturns (closingLogRatios stockData) |> fst
             | CloseVsOpen -> closingVsOpenVolEstimate stockData
 
-    let randomPrice drift volatility dt initial (dist:Normal) = 
+    let randomPrice drift volatility dt initial (dist:Normal) =
         // Calculate parameters of the exponential
         let driftExp = (drift - 0.5 * pown volatility 2) * dt
         let randExp = volatility * (sqrt dt)
@@ -55,7 +55,7 @@ module Stocks =
         // Recursive loop that actually generates the price
         let rec loop price = seq {
             yield price
-            let price = price * exp (driftExp + randExp * dist.Sample()) 
+            let price = price * exp (driftExp + randExp * dist.Sample())
             yield! loop price }
 
         // Return path starting at 'initial'
@@ -70,10 +70,8 @@ module Stocks =
         let firstClose = data |> Seq.minBy tradingDay |> closingPrice
         let randoms = randomPrice drift vol 0.005 firstClose dist
         Seq.zip dates randoms
-    
-    
 
-    let stockInfo exchange ticker startDate endDate = 
+    let stockInfo exchange ticker startDate endDate =
         let name,data = MarketData.stock exchange ticker startDate endDate
         let (vol, drift) = data |> List.ofSeq |> closingLogRatios |> estimateVolFromReturns
         {
@@ -81,9 +79,9 @@ module Stocks =
             Volatility = vol
             CurrentPrice = data |> Seq.maxBy tradingDay |> closingPrice
         }
-      
+
     let floatingAvg (n:int) (data:seq<Tick>) =
-        data |> Seq.windowed n
+        data |> Seq.sortBy tradingDay |> Seq.windowed n
              |> Seq.map (fun window -> (window |> Seq.head |> tradingDay), (window |> Seq.last |> tradingDay), window |> Seq.averageBy closingPrice)
              |> Seq.map (fun (windowStart, windowEnd,avg) -> windowStart.AddDays(float (windowEnd- windowStart).Days),avg)
 
