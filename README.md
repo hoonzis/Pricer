@@ -1,5 +1,5 @@
 # Pricer
-[![Nuget Package](https://img.shields.io/nuget/v/fluentnest.svg)](https://www.nuget.org/packages/Pricer)
+[![Nuget Package](https://img.shields.io/nuget/v/pricer.svg)](https://www.nuget.org/packages/Pricer)
 [![Build status](https://ci.appveyor.com/api/projects/status/rqvploew3rhe8b3e?svg=true)](https://ci.appveyor.com/project/hoonzis/pricer)
 Pricing of options and other financial products. This small library can be used to price options and generate payoff charts.
 
