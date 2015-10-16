@@ -1,9 +1,14 @@
 # Pricer
 [![Nuget Package](https://img.shields.io/nuget/v/pricer.svg)](https://www.nuget.org/packages/Pricer)
 [![Build status](https://ci.appveyor.com/api/projects/status/rqvploew3rhe8b3e?svg=true)](https://ci.appveyor.com/project/hoonzis/pricer)
-Pricing of options and other financial products. This small library can be used to price options and generate payoff charts.
 
-The library contains a model for describing options and stocks parameters which are necessary. Besides the options description one needs the stock's volatility and current price and interest free rate. The library uses free data from Quandl to get it for stocks.
+Small library that can be used to price options (Black Scholes and Binomial pricing), generate payoff charts and maybe analyze stock prices.
+
+Half of the code was already implemented by Tomas Petricek in the [Financial Computing in F# series](http://www.tryfsharp.org/Learn/financial-computing). I have added binomial pricing, different algorithm to estimate the volatility and some plumbing. The only greek returned by the pricing for now is *Delta* (for both BS and binomial pricer).
+
+Options pricing
+---------------
+The library contains a model for describing options and stocks. Besides the options description one needs the stock's volatility, current price and interest free rate.  
 
 ```
 let stock = {
@@ -27,8 +32,7 @@ let binomialPrice = Options.binomial stock option 2000
 
 Binomial pricing takes also the depth of the binomial tree as parameter, the result is *Pricing* record which contains the *Premium* and *Delta*.
 
-Alternatively you can obtain the historical volatility and current price from small referential data module which uses free [Quandl API](https://www.quandl.com/). The bellow example uses trading data for last 60 days.
-
+Alternatively you can obtain the historical volatility and current price from small referential data module which uses free [Quandl API](https://www.quandl.com/). The bellow example uses trading data for last 60 days. The library uses free data from Quandl to estimate the volatility for stocks. The rate for now is fixed.
 ```
 let stock = Stocks.stockInfo LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
 ```
@@ -58,7 +62,7 @@ Chart.Combine [
     Chart.Line(fiveDaysAvg,Name="5 days avg")
 ] |> Chart.WithLegend true
 ```
-There are several ways of estimating the historical volatility of the stock. The standard and simplest method is Close To Close estimation when log returns based on closing prices are closed. There is also a second mode for pricing volatility which uses opening prices, both described in [this blog](http://blog.quantitations.com/stochastic%20processes/2012/12/30/estimating-stock-volatility/)
+There are several ways of estimating the historical volatility of the stock. The standard and simplest method is Close To Close estimation when log returns based on closing prices are compared. There is also a second mode for pricing volatility which uses opening prices, both described in [this blog](http://blog.quantitations.com/stochastic%20processes/2012/12/30/estimating-stock-volatility/)
 ```
 let ticker,data = MarketData.stock EURONEXT "ATI" (Some (DateTime.Now.AddDays -180.0)) (Some DateTime.Now)
 let vol = Stocks.estimateVol CloseVsClose data
