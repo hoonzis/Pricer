@@ -56,7 +56,7 @@
     <Compile Include="Stocks.fs" />
     <Compile Include="Options.fs" />
     <Compile Include="StrategiesExamples.fs" />
-    <Content Include="packages.config" />
+    <Content Include="paket.references" />
     <Content Include="app.config" />
     <EmbeddedResource Include="lsesinglestock.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -100,4 +100,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\.paket\paket.targets" />
 </Project>

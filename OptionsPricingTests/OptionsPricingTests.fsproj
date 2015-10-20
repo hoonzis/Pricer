@@ -49,7 +49,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Content Include="paket.references" />
     <Content Include="app.config" />
     <Compile Include="OptionsTests.fs" />
     <Compile Include="StocksTests.fs" />
@@ -92,4 +92,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\.paket\paket.targets" />
 </Project>
