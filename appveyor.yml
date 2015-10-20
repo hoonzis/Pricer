@@ -8,6 +8,7 @@ assembly_info:
   assembly_informational_version: "{version}"
 
 before_build:
+  cmd: .paket\paket.bootstrapper.exe
   cmd: .paket\paket.exe restore
 
 build_script:
