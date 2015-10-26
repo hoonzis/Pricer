@@ -58,6 +58,8 @@ type LegData = {
     LegData: float*float list
 }
 
+//this type holds the configuration for binomial pricing model
+//
 type BinomialPricing = {
         Periods : int
         Down : float
@@ -112,12 +114,41 @@ module Options =
         let counter = pricing.Periods-2
         for step = counter downto 0 do
             for j in 0 .. step do
-                oValues.[j] <- pricing.PUp*oValues.[j+1]+pricing.PDown*oValues.[j]*(1.0/pricing.Rate)
+                oValues.[j] <- (pricing.PUp*oValues.[j+1]+pricing.PDown*oValues.[j])*(1.0/pricing.Rate)
                 if pricing.Option.Style = American then
                     prices.[j] <- pricing.Down*prices.[j+1]
                     oValues.[j] <- max oValues.[j] (optionValue j)
         let delta = (oValues.[1] - oValues.[1]) / (pricing.Ref*pricing.Up - pricing.Ref*pricing.Down)
         oValues.[0],delta
+
+
+ 
+
+    let step (derPrice:float list) (pricing:BinomialPricing) =
+        let newPrices = derPrice 
+                        |> Seq.pairwise
+                        |> Seq.fold (fun derPrice' (down,up)-> derPrice' @ [(pricing.PUp*up+pricing.PDown*down)*(1.0/pricing.Rate)])[]
+        newPrices
+
+    let rec reducePrices (derPrice:float list) (pricing:BinomialPricing) =
+        match derPrice with
+                | [single] -> single
+                | prices -> reducePrices (step prices pricing) pricing
+
+    let binomialPricingFunc (pricing:BinomialPricing) =    
+        
+        let prices = generateEndNodePrices2 pricing.Ref pricing.Up pricing.Periods
+        let optionValue = 
+            match pricing.Option.Kind with
+                    | Call -> fun i -> max 0.0 (prices.[i] - pricing.Option.Strike)
+                    | Put -> fun i -> max 0.0 (pricing.Option.Strike - prices.[i])
+        
+        let oValues = Array.zeroCreate pricing.Periods
+        oValues.[0]<- optionValue 0
+        for i in 1 ..pricing.Periods-1 do
+            oValues.[i]<- optionValue i
+        
+        reducePrices (oValues |> List.ofSeq) pricing
 
     let buildLeg kind strike direction style expiry = 
         {
@@ -149,16 +180,18 @@ module Options =
         }
 
         let premium,delta = binomialPricing pricing
-        {   
+        {
             Premium = premium
             Delta = delta
         }
 
     let binomial (stock:StockInfo) (option:OptionLeg) (steps:int) = 
+        //we need to construct the binomial pricing model, using the CRR (Cox, Ross and Rubinstein)
+        //the original model is composed of 3 parameters p,u,d. 
+        //u - up probability, d - down probability. p is the technical probability
+        //here we have PUp and PDown, for further simplifacation of the calculations
         let deltaT = option.TimeToExpiry/float steps
-        let sqrDT = sqrt deltaT
-        let up = exp(stock.Volatility*sqrDT)
-        let down1 = exp(-stock.Volatility*sqrDT)
+        let up = exp(stock.Volatility*sqrt deltaT)
         let down = 1.0/up
         let R = exp (stock.Rate*deltaT)
         let p_up = (R-down)/(up-down)

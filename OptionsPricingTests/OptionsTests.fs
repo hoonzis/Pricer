@@ -64,12 +64,12 @@ type OptionsTests() =
 
         
     [<Test>]
-    member this.``binomial pricing European call in BS setting`` () =        
+    member this.``binomial pricing European call in BS setting`` () =    
         let price = Options.binomial stock europeanCall 1000
         price.Premium |> should equal 2.7287226062956242
 
     [<Test>]
-    member this.``binomial pricing American call in BS setting`` () =        
+    member this.``binomial pricing American call in BS setting`` () = 
         let price = Options.binomial stock americanCall 1000
         price.Premium |> should equal 2.7287226062956242
         
@@ -164,3 +164,30 @@ type OptionsTests() =
         
         //we have 3 points - min,max and the only strike
         strategy |> should haveLength 3
+
+    [<Test>]
+    member this.``single binomial step test`` () =
+        let derPrices = [1.;2.;2.;4.]
+        let pricing = {
+            Periods = 100
+            Down = 0.6
+            Up = 1.4
+            PUp = 0.6
+            PDown = 0.4
+            Option = europeanCall
+            Rate = 1.0
+            Ref = 100.0
+        }
+
+        //in real world the R will be => exp (stock.Rate*deltaT)
+
+        //the computation of the continuation of the derivative price
+        //dPrice <- (downPrice*pDown + upPrice*pUp)*exp(-r*deltaT)
+        //in the model Rate<-exp(r*deltaT)
+        let newPrices = Options.step derPrices pricing 
+        newPrices |> should haveLength 3
+        //first element => (1*0.4 + 2*0.6)1/1
+        //second element => (2*0.4 + 2*0.6)1/1
+        //third element => (2*0.4 + 4*0.6)1/1
+        newPrices |> should equal [1.6;2.0;3.2]
+        
