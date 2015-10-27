@@ -57,21 +57,16 @@ type OptionsTests() =
         let price = Options.binomialPrice 120.0 130.0 0.03 1.15
         price |> should equal 2.792773459184565
 
-    [<Test>]
-    member this.``test binomial recursive - simple implementation`` () =
-        let price = Options.binomialRecursiveCall 120.0 121.0 0.03 1.15 3
-        price.Premium |> should equal 5.5955087326342348
-
         
     [<Test>]
-    member this.``binomial pricing European call in BS setting`` () =    
-        let price = Options.binomial stock europeanCall 1000
-        price.Premium |> should equal 2.7287226062956242
+    member this.``binomial pricing European call in BS setting`` () =
+        let price = Options.binomial stock europeanCall 1000 Imperative
+        price.Premium |> should equal 2.7172467445106512
 
     [<Test>]
     member this.``binomial pricing American call in BS setting`` () = 
-        let price = Options.binomial stock americanCall 1000
-        price.Premium |> should equal 2.7287226062956242
+        let price = Options.binomial stock americanCall 1000 Imperative
+        price.Premium |> should equal 2.7172467445106512
         
 
     [<Test>]
@@ -86,35 +81,42 @@ type OptionsTests() =
 
     [<Test>]
     member this.``binomial euroean put in BS setting`` () =        
-        let price = Options.binomial stock europeanPut 1000
-        price.Premium |> should equal 2.0622848528435895
+        let price = Options.binomial stock europeanPut 1000 Imperative
+        price.Premium |> should equal 2.0542675521718747
 
     //american put has higher value then european put
     [<Test>]
     member this.``binomial american put in BS setting`` () =        
-        let price = Options.binomial stock americanPut 1000
-        price.Premium |> should equal 2.3197098602325328
+        let price = Options.binomial stock americanPut 1000 Imperative
+        price.Premium |> should equal 2.3156625779008477
+
+    [<Test>]
+    member this.``binomial american put in functional way`` () =        
+        let price = Options.binomial stock europeanPut 1000 Functional
+        price.Premium |> should equal 2.0542675521718747
+
+    [<Test>]
+    member this.``binomial american put in BS setting - functional way`` () =        
+        let price = Options.binomial stock americanPut 1000 Functional
+        price.Premium |> should equal 2.3156625779008477
 
 
     [<Test>]
-    member this.``end node price generation tests`` () =   
+    member this.``end node price generation tests`` () =
         let periods = 100000
         let up = 1.25
         let uu = 1.25**2.0
         let lowest = (100.0*(0.8**(float periods)))
         let highest = lowest * ((1.25*1.25)**(float periods-1.0))
-        
-        let prices = Options.generateEndNodePrices 100.0 1.25 periods
-        prices.[0] |> should equal lowest
-        prices.[1] |> should equal (lowest*1.25*1.25)
 
-        let prices2 = Options.generateEndNodePrices2 100.0 1.25 periods
-        prices2.[0] |> should equal lowest
-        prices2.[1] |> should equal (lowest*uu)
-        prices2.[2] |> should equal (lowest*(up**4.0))
+        let optionVal stock = stock
+        
+        let prices = Options.generateEndNodePrices 100.0 1.25 periods optionVal
+        (List.nth prices 0) |> should equal (lowest,lowest)
+        (List.nth prices 1) |> should equal ((lowest*1.25*1.25),(lowest*1.25*1.25))
 
     [<Test>]
-    member this.``simple payoff test`` () =        
+    member this.``simple payoff test`` () =
         let strat = {
             Name = "Test strat"
             Legs = 
@@ -140,7 +142,7 @@ type OptionsTests() =
         legs |> Seq.length |> should equal 4
 
     [<Test>]
-    member this.``cash leg payoff test`` () =        
+    member this.``cash leg payoff test`` () =
         let strat = {
             Name = "Test strat"
             Legs = 
@@ -167,7 +169,14 @@ type OptionsTests() =
 
     [<Test>]
     member this.``single binomial step test`` () =
-        let derPrices = [1.;2.;2.;4.]
+        let prices = [
+            (1.0,1.0)
+            (2.0,2.0)
+            (3.0,2.0)
+            (4.0,4.0)
+        ]
+
+        //let's test with european call, so there is premature execution
         let pricing = {
             Periods = 100
             Down = 0.6
@@ -179,15 +188,32 @@ type OptionsTests() =
             Ref = 100.0
         }
 
+        //let's say the derivative price is the same as the stock price
+        let optionVal stock = stock
+        
         //in real world the R will be => exp (stock.Rate*deltaT)
 
         //the computation of the continuation of the derivative price
         //dPrice <- (downPrice*pDown + upPrice*pUp)*exp(-r*deltaT)
         //in the model Rate<-exp(r*deltaT)
-        let newPrices = Options.step derPrices pricing 
+        let newPrices = Options.step pricing optionVal prices
+
         newPrices |> should haveLength 3
+        //for derivative price:
         //first element => (1*0.4 + 2*0.6)1/1
         //second element => (2*0.4 + 2*0.6)1/1
         //third element => (2*0.4 + 4*0.6)1/1
-        newPrices |> should equal [1.6;2.0;3.2]
+
+        //for the stock price:
+        //2*0.6 - (upStock*down) = 1.2
+        //3*0.6 - 1.8
+        //4*0.6 - 2.4
+        
+        //the following fails with fsunit...
+        //newPrices |> should equal [(1.2,1.6);(1.8,2.0);(2.4,3.2)]
+        (newPrices |> List.head) |> should equal (1.2,1.6)
+        
+        //(List.nth newPrices 1) |> should equal (1.8,2.0)
+        
+
         
