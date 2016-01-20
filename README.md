@@ -6,8 +6,7 @@ Small library that can be used to price options (Black Scholes and Binomial pric
 
 Half of the code was already implemented by Tomas Petricek in the [Financial Computing in F# series](http://www.tryfsharp.org/Learn/financial-computing). I have added binomial pricing, different algorithm to estimate the volatility and some plumbing. The only greek returned by the pricing for now is *Delta* (for both BS and binomial pricer).
 
-Options pricing
----------------
+#### Options pricing
 The library contains a model for describing options and stocks. Besides the options description one needs the stock's volatility, current price and interest free rate.  
 
 ```
@@ -37,8 +36,7 @@ Alternatively you can obtain the historical volatility and current price from sm
 let stock = Stocks.stockInfo LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
 ```
 
-Payoff charts data generation
------------------------------
+#### Payoff charts data generation
 You can generate payoff charts data for any strategy. Strategy is composed of legs which can be already priced. The library also contains method to generate example strategies that just accept the *Stock* as parameter. Here is how to visualize the result of priced strategy.
 ```
 let strategy = StrategiesExamples.callSpread stock
@@ -49,9 +47,9 @@ let allLines = legsLines |> Seq.append [strategyLine]
 let chart = Chart.Combine allLines |> Chart.WithLegend(true)
 ```
 
-Stock price and volatility
---------------------------
+#### Stock price and volatility
 You can also use the library only to get the stock data and perform some basics analysis, like for instance floating averages:
+
 ```
 let ticker,data = MarketData.stock LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
 let tenDaysAvg = Stocks.floatingAvg 10 data
@@ -63,8 +61,19 @@ Chart.Combine [
 ] |> Chart.WithLegend true
 ```
 There are several ways of estimating the historical volatility of the stock. The standard and simplest method is Close To Close estimation when log returns based on closing prices are compared. There is also a second mode for pricing volatility which uses opening prices, both described in [this blog](http://blog.quantitations.com/stochastic%20processes/2012/12/30/estimating-stock-volatility/)
+
 ```
 let ticker,data = MarketData.stock EURONEXT "ATI" (Some (DateTime.Now.AddDays -180.0)) (Some DateTime.Now)
 let vol = Stocks.estimateVol CloseVsClose data
 let vol2 = Stocks.estimateVol CloseVsOpen data
+```
+
+#### Building & Contributing
+Pricer uses FAKE as it's build system. Fake is included in the repository and a proxy *build.cmd* script runs any of fake tasks and passes the parameters.
+
+```
+# Compile the project
+build
+# Compiles and runs tests
+build Test
 ```
