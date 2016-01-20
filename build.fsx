@@ -6,7 +6,6 @@ open Fake.AssemblyInfoFile
 
 RestorePackages()
 
-
 // Directories
 let buildDir  = @".\build\"
 let testDir   = @".\test\"
