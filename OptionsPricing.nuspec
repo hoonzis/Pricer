@@ -16,7 +16,6 @@
       <group>
         <dependency id="FSharp.Data" version="2.2.5"/>
         <dependency id="MathNet.Numerics" version="3.8.0"/>
-        <dependency id="FSharp.Charting" version="0.90.12"/>
       </group>
     </dependencies>
   </metadata>
