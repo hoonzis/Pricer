@@ -15,12 +15,12 @@ let packagingDir = @".\packaging"
 
 let authors = ["Jan Fajfr"]
 let projectName = "Pricer"
-let projectSummary = "Library which contains several methods to price options and estimate historical volatility"
+let projectSummary = "Library with several methods to price options and estimate historical volatility"
 let projectDescription = "Pricer for options and other financial products"
 
 // version info
 //I will have to add AssemblyInfo fsharp style and upgrade version from it
-let version = "0.8.0"
+let version = "0.13.0"
 let nugetKey = getBuildParamOrDefault "nugetKey" ""
 
 // Targets
@@ -50,13 +50,13 @@ Target "Test" (fun _ ->
 
 
 Target "CreatePackage" (fun _ ->
-  let net45Dir = packagingDir @@ "lib/net45/"
+  let net4Dir = packagingDir @@ "lib/net40/"
 
-  CleanDirs [net45Dir]
+  CleanDirs [net4Dir]
 
-  CopyFile net45Dir (buildDir @@ "OptionsPricing.dll")
-  CopyFile net45Dir (buildDir @@ "OptionsPricing.XML")
-  CopyFile net45Dir (buildDir @@ "OptionsPricing.pdb")
+  CopyFile net4Dir (buildDir @@ "OptionsPricing.dll")
+  CopyFile net4Dir (buildDir @@ "OptionsPricing.XML")
+  CopyFile net4Dir (buildDir @@ "OptionsPricing.pdb")
 
   trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
   NuGet (fun p ->
