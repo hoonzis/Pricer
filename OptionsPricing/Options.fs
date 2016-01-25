@@ -222,6 +222,15 @@ module Options =
             Delta = delta
         }
 
+    let europeanBSPrice (rate:decimal) (direction:float) (ref:decimal) (vol:decimal) (strike:decimal) (expiry:DateTime) (legType:OptionKind) = 
+        let leg = buildLeg legType (float strike) direction European expiry
+        let stockInfo = { 
+            Rate = float rate
+            Volatility = float vol
+            CurrentPrice = float ref
+        }
+        blackScholes stockInfo leg
+
     let addPricing option pricing = 
         {
             Definition = option

@@ -1,6 +1,6 @@
 ﻿#r "bin/Debug/OptionsPricing.dll"
-#load "../packages/FSharp.Charting.0.90.12/FSharp.Charting.fsx"
-#r "../packages/MathNet.Numerics.3.8.0/lib/net40/MathNet.Numerics.dll"
+#load "../packages/FSharp.Charting/FSharp.Charting.fsx"
+#r "../packages/MathNet.Numerics/lib/net40/MathNet.Numerics.dll"
 
 open System
 open OptionsPricing
@@ -37,11 +37,6 @@ let testFloatingWindows =
         Chart.Line(tenDaysAvg,Name="10 days avg")
         Chart.Line(fiveDaysAvg,Name="5 days avg")
     ] |> Chart.WithLegend true
-
-let testPricing =
-    let bsPrice = Options.blackScholes stock option
-    let binomialPrice = Options.binomial stock option 2000
-    printf "BlackScholes price: %f with delta: %f, Binomial Pricing: %f with delta: %f" bsPrice.Premium bsPrice.Delta binomialPrice.Premium binomialPrice.Delta
 
 let testStrategy =
     let strategy = StrategiesExamples.callSpread stock
