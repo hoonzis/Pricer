@@ -73,6 +73,12 @@ type OptionsTests() =
     member this.``black sholes euroean call`` () =        
         let price = Options.blackScholes stock europeanCall
         price.Premium |> should equal 2.8237329844670001
+        
+    [<Test>]
+    member this.``black sholes euroean call - volatility 0`` () =      
+        let updatedStock = { stock with Volatility = 0.0 }  
+        let price = Options.blackScholes updatedStock europeanCall
+        price.Premium |> should equal 0.85318400656242943
 
     [<Test>]
     member this.``black sholes euroean put`` () =        
