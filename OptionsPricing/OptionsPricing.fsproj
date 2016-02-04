@@ -67,6 +67,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="euronextdataset.json" />
+    <Compile Include="Binomial.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

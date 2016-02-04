@@ -54,18 +54,18 @@ type OptionsTests() =
 
     [<Test>]
     member this.``test simple binomial`` () =
-        let price = Options.binomialPrice 120.0 130.0 0.03 1.15
+        let price = Binomial.binomialPrice 120.0 130.0 0.03 1.15
         price |> should equal 2.792773459184565
 
         
     [<Test>]
     member this.``binomial pricing European call in BS setting`` () =
-        let price = Options.binomial stock europeanCall 1000 Imperative
+        let price = Binomial.binomial stock europeanCall 1000 Imperative
         price.Premium |> should equal 2.7172467445106512
 
     [<Test>]
     member this.``binomial pricing American call in BS setting`` () = 
-        let price = Options.binomial stock americanCall 1000 Imperative
+        let price = Binomial.binomial stock americanCall 1000 Imperative
         price.Premium |> should equal 2.7172467445106512
         
 
@@ -87,23 +87,23 @@ type OptionsTests() =
 
     [<Test>]
     member this.``binomial euroean put in BS setting`` () =        
-        let price = Options.binomial stock europeanPut 1000 Imperative
+        let price = Binomial.binomial stock europeanPut 1000 Imperative
         price.Premium |> should equal 2.0542675521718747
 
     //american put has higher value then european put
     [<Test>]
     member this.``binomial american put in BS setting`` () =        
-        let price = Options.binomial stock americanPut 1000 Imperative
+        let price = Binomial.binomial stock americanPut 1000 Imperative
         price.Premium |> should equal 2.3156625779008477
 
     [<Test>]
     member this.``binomial american put in functional way`` () =        
-        let price = Options.binomial stock europeanPut 1000 Functional
+        let price = Binomial.binomial stock europeanPut 1000 Functional
         price.Premium |> should equal 2.0542675521718747
 
     [<Test>]
     member this.``binomial american put in BS setting - functional way`` () =        
-        let price = Options.binomial stock americanPut 1000 Functional
+        let price = Binomial.binomial stock americanPut 1000 Functional
         price.Premium |> should equal 2.3156625779008477
 
 
@@ -117,7 +117,7 @@ type OptionsTests() =
 
         let optionVal stock = stock
         
-        let prices = Options.generateEndNodePrices 100.0 1.25 periods optionVal
+        let prices = Binomial.generateEndNodePrices 100.0 1.25 periods optionVal
         (List.nth prices 0) |> should equal (lowest,lowest)
         (List.nth prices 1) |> should equal ((lowest*1.25*1.25),(lowest*1.25*1.25))
 
@@ -202,7 +202,7 @@ type OptionsTests() =
         //the computation of the continuation of the derivative price
         //dPrice <- (downPrice*pDown + upPrice*pUp)*exp(-r*deltaT)
         //in the model Rate<-exp(r*deltaT)
-        let newPrices = Options.step pricing optionVal prices
+        let newPrices = Binomial.step pricing optionVal prices
 
         newPrices |> should haveLength 3
         //for derivative price:
