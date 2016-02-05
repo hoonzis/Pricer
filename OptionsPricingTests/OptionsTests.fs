@@ -227,5 +227,16 @@ type OptionsTests() =
         
         //(List.nth newPrices 1) |> should equal (1.8,2.0)
         
+    [<Test>]
+    member this.``getting strategy data of strategy with no legs`` () =
+        let strategy = {
+            Stock = stock
+            Name = "Test"
+            Legs = List.empty
+        }
 
+        let strategyData,legsData = Options.getStrategyData strategy
+        strategyData |> should haveLength 0
+        legsData |> List.ofSeq |> should haveLength 0
+        
         

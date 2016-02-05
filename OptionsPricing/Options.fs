@@ -136,14 +136,16 @@ module Options =
 
     //only some x points are interesting - precisely all the strikes
     let getInterestingPoints strategy =
-        let strikes = strategy.Legs |> List.map (fun s -> 
-            match s.Definition with
-                | Cash cl -> cl.Strike
-                | Option ol -> ol.Strike
-        )
-        let min = 0.5*(strikes |> Seq.min)
-        let max = 1.5*(strikes |> Seq.max)
-        ([min] @ strikes @ [max]) |> List.sort
+        if strategy.Legs |> Seq.isEmpty then []
+        else
+            let strikes = strategy.Legs |> List.map (fun s -> 
+                match s.Definition with
+                    | Cash cl -> cl.Strike
+                    | Option ol -> ol.Strike
+            )
+            let min = 0.5*(strikes |> Seq.min)
+            let max = 1.5*(strikes |> Seq.max)
+            ([min] @ strikes @ [max]) |> List.sort
 
     let getStrategyData (strategy:Strategy) = 
         let payOffs = strategy.Legs |> Seq.map (fun leg ->
