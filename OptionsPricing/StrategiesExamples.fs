@@ -67,8 +67,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let collar stock = 
-        {
+    let collar stock = {
             Name = "Collar"
             Legs = [ 
                     //sell 1 out of money call
@@ -79,7 +78,25 @@ module StrategiesExamples =
                     {
                         Definition = Cash { 
                             Direction = 1.0
-                            Strike = stock.CurrentPrice
+                            Price = stock.CurrentPrice
+                        }
+                        Pricing = None
+                    }
+            ]
+            Stock = stock
+        }
+
+    let coveredCall stock = 
+        {
+            Name = "Covered Call"
+            Legs = [ 
+                    //sell 1 out of money call
+                    buildOptionLeg -1.0 (stock.CurrentPrice*1.2) expiry Call
+                    //long some shares
+                    {
+                        Definition = Cash { 
+                            Direction = 1.0
+                            Price = stock.CurrentPrice
                         }
                         Pricing = None
                     }
@@ -168,6 +185,7 @@ module StrategiesExamples =
         collar stock
         condor stock
         boxOption stock
+        coveredCall stock
     ]
 
     let exampleStock = {

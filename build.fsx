@@ -20,7 +20,7 @@ let projectDescription = "Pricer for options and other financial products"
 
 // version info
 //I will have to add AssemblyInfo fsharp style and upgrade version from it
-let version = "0.13.0"
+let version = "0.15.0"
 let nugetKey = getBuildParamOrDefault "nugetKey" ""
 
 // Targets

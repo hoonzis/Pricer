@@ -11,7 +11,6 @@ type OptionStyle =
     | American
     | European
 
-
 type OptionLeg = 
     {
         Direction : float
@@ -27,7 +26,7 @@ type OptionLeg =
 
 type CashLeg = {
     Direction: float
-    Strike:float
+    Price:float
 }
     
 type LegInfo = 
@@ -58,8 +57,6 @@ type LegData = {
 }
 
 
-
-
 module Options = 
     
     let normal = Normal()
@@ -74,19 +71,19 @@ module Options =
             PurchaseDate = DateTime.Now
         }
 
-    let optionValue option ref = 
+    let optionValue option stockPrice =
         match option.Kind with
-                | Call -> max 0.0 (ref - option.Strike)
-                | Put -> max 0.0 (option.Strike - ref)
+                | Call -> max 0.0 (stockPrice - option.Strike)
+                | Put -> max 0.0 (option.Strike - stockPrice)
     
-    let legPayoff leg pricing ref =
+    let legPayoff leg pricing stockPrice =
         match leg with
-            | Cash cashLeg -> (ref - cashLeg.Strike)
-            | Option optionLeg -> optionValue optionLeg ref - pricing.Premium
+            | Cash cashLeg -> stockPrice - cashLeg.Price
+            | Option optionLeg -> optionValue optionLeg stockPrice - pricing.Premium
         
     
     let cashPricing (leg:CashLeg) = {
-        Premium = leg.Strike
+        Premium = leg.Price
         Delta = 1.0
     }
 
@@ -127,39 +124,42 @@ module Options =
         }
         blackScholes stockInfo leg
 
-    
-
-    let getLegPricing stock leg =
+    let legPricing stock leg =
         match leg.Definition with
             | Cash cashLeg -> cashPricing cashLeg
             | Option optionLeg -> blackScholes stock optionLeg
 
     //only some x points are interesting - precisely all the strikes
     let getInterestingPoints strategy =
-        if strategy.Legs |> Seq.isEmpty then []
+        if strategy.Legs |> Seq.isEmpty then Seq.empty
         else
-            let strikes = strategy.Legs |> List.map (fun s -> 
-                match s.Definition with
-                    | Cash cl -> cl.Strike
-                    | Option ol -> ol.Strike
+            let strikes = strategy.Legs |> List.map (fun leg -> 
+                match leg.Definition with
+                    | Cash cashLeg -> cashLeg.Price
+                    | Option optionLeg -> optionLeg.Strike
             )
             let min = 0.5*(strikes |> Seq.min)
             let max = 1.5*(strikes |> Seq.max)
-            ([min] @ strikes @ [max]) |> List.sort
+            seq { 
+                yield min
+                yield! strikes
+                yield max
+            }
 
     let getStrategyData (strategy:Strategy) = 
+        let getLegPricing leg = 
+            match leg.Pricing with
+                | Some pricing -> pricing
+                | None -> legPricing strategy.Stock leg
+
         let payOffs = strategy.Legs |> Seq.map (fun leg ->
-            let legPricing = 
-                match leg.Pricing with
-                        | Some pricing -> pricing
-                        | None -> getLegPricing strategy.Stock leg
-            
-            let pricedLeg = { leg with Pricing = Some legPricing }
-            let payoffCalculator = legPayoff pricedLeg.Definition legPricing
+            let pricing = getLegPricing leg
+            let pricedLeg = { leg with Pricing = Some pricing }
+            let payoffCalculator = legPayoff leg.Definition pricing
             pricedLeg, payoffCalculator
         )
         
         let interestingPoints = getInterestingPoints strategy
-        let strategyData = [for ref in interestingPoints -> ref, payOffs |> Seq.sumBy (fun (leg,payOff) -> payOff ref)]
-        let legsData = payOffs |> Seq.map (fun (leg,payOff) -> leg,[for ref in interestingPoints -> ref, payOff ref])
-        (strategyData, legsData)
+        let strategyData = [for stockPrice in interestingPoints do yield stockPrice, payOffs |> Seq.sumBy (fun (leg,payOff) -> payOff stockPrice)]
+        let legsData = payOffs |> Seq.map (fun (leg,payOff) -> leg,[for stockPrice in interestingPoints  do yield stockPrice, payOff stockPrice])
+        strategyData, legsData

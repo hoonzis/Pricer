@@ -161,7 +161,7 @@ type OptionsTests() =
                 [
                     {
                         Definition = Cash {
-                            Strike = 1.0
+                            Price = 1.0
                             Direction = 1.0
                         }
                         Pricing = None
@@ -174,7 +174,7 @@ type OptionsTests() =
         let leg,legData = legs |> Seq.head
         match leg.Definition with
                 | Option ol -> ol.Kind |> should equal Call
-                | Cash cl -> cl.Strike |> should equal 1.0
+                | Cash cl -> cl.Price |> should equal 1.0
         
         //we have 3 points - min,max and the only strike
         strategy |> should haveLength 3
