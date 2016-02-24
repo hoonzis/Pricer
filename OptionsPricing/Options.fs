@@ -3,21 +3,21 @@
 open System
 open MathNet.Numerics.Distributions
 
-type OptionKind = 
+type OptionKind =
     | Call
     | Put
 
-type OptionStyle = 
+type OptionStyle =
     | American
     | European
 
-type OptionLeg = 
+type OptionLeg =
     {
         Direction : float
         Strike : float
         Expiry : DateTime
         Kind : OptionKind
-        Style: OptionStyle 
+        Style: OptionStyle
         PurchaseDate: DateTime
     }
     member this.BuyVsSell = if this.Direction < 0.0 then "Sell" else "Buy"
@@ -28,8 +28,8 @@ type CashLeg = {
     Direction: float
     Price:float
 }
-    
-type LegInfo = 
+
+type LegInfo =
     | Cash of CashLeg
     | Option of OptionLeg
     member this.Name = match this with
@@ -57,11 +57,11 @@ type LegData = {
 }
 
 
-module Options = 
-    
+module Options =
+
     let normal = Normal()
 
-    let buildLeg kind strike direction style expiry = 
+    let buildLeg kind strike direction style expiry =
         {
             Strike=strike
             Kind = Call
@@ -75,25 +75,25 @@ module Options =
         match option.Kind with
                 | Call -> max 0.0 (stockPrice - option.Strike)
                 | Put -> max 0.0 (option.Strike - stockPrice)
-    
+
     let legPayoff leg pricing stockPrice =
         match leg with
-            | Cash cashLeg -> stockPrice - cashLeg.Price
-            | Option optionLeg -> optionValue optionLeg stockPrice - pricing.Premium
-        
-    
+            | Cash cashLeg -> cashLeg.Direction * (stockPrice - cashLeg.Price)
+            | Option optionLeg -> optionLeg.Direction * (optionValue optionLeg stockPrice - pricing.Premium)
+
+
     let cashPricing (leg:CashLeg) = {
         Premium = leg.Price
         Delta = 1.0
     }
 
     let blackScholes (stock:StockInfo) (option:OptionLeg) =
-        let price,delta = 
+        let price,delta =
             // We can only calculate if the option concerns the future
             if option.TimeToExpiry > 0.0 then
                 // Calculate d1 and d2 and pass them to cumulative distribution
-                let d1 = 
-                    ( log(stock.CurrentPrice / option.Strike) + 
+                let d1 =
+                    ( log(stock.CurrentPrice / option.Strike) +
                         (stock.Rate + 0.5 * pown stock.Volatility 2) * option.TimeToExpiry ) /
                     ( stock.Volatility * sqrt option.TimeToExpiry )
                 let d2 = d1 - stock.Volatility * sqrt option.TimeToExpiry
@@ -115,9 +115,9 @@ module Options =
             Delta = delta
         }
 
-    let europeanBSPrice (rate:decimal) (direction:float) (ref:decimal) (vol:decimal) (strike:decimal) (expiry:DateTime) (legType:OptionKind) = 
+    let europeanBSPrice (rate:decimal) (direction:float) (ref:decimal) (vol:decimal) (strike:decimal) (expiry:DateTime) (legType:OptionKind) =
         let leg = buildLeg legType (float strike) direction European expiry
-        let stockInfo = { 
+        let stockInfo = {
             Rate = float rate
             Volatility = float vol
             CurrentPrice = float ref
@@ -133,21 +133,21 @@ module Options =
     let getInterestingPoints strategy =
         if strategy.Legs |> Seq.isEmpty then Seq.empty
         else
-            let strikes = strategy.Legs |> List.map (fun leg -> 
+            let strikes = strategy.Legs |> List.map (fun leg ->
                 match leg.Definition with
                     | Cash cashLeg -> cashLeg.Price
                     | Option optionLeg -> optionLeg.Strike
             )
             let min = 0.5*(strikes |> Seq.min)
             let max = 1.5*(strikes |> Seq.max)
-            seq { 
+            seq {
                 yield min
-                yield! strikes
+                yield! (strikes |> Seq.sort)
                 yield max
             }
 
-    let getStrategyData (strategy:Strategy) = 
-        let getLegPricing leg = 
+    let getStrategyData (strategy:Strategy) =
+        let getLegPricing leg =
             match leg.Pricing with
                 | Some pricing -> pricing
                 | None -> legPricing strategy.Stock leg
@@ -158,7 +158,7 @@ module Options =
             let payoffCalculator = legPayoff leg.Definition pricing
             pricedLeg, payoffCalculator
         )
-        
+
         let interestingPoints = getInterestingPoints strategy
         let strategyData = [for stockPrice in interestingPoints do yield stockPrice, payOffs |> Seq.sumBy (fun (leg,payOff) -> payOff stockPrice)]
         let legsData = payOffs |> Seq.map (fun (leg,payOff) -> leg,[for stockPrice in interestingPoints  do yield stockPrice, payOff stockPrice])

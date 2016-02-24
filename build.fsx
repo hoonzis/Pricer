@@ -20,7 +20,7 @@ let projectDescription = "Pricer for options and other financial products"
 
 // version info
 //I will have to add AssemblyInfo fsharp style and upgrade version from it
-let version = "0.15.0"
+let version = "0.18.0"
 let nugetKey = getBuildParamOrDefault "nugetKey" ""
 
 // Targets
@@ -49,28 +49,30 @@ Target "Test" (fun _ ->
 )
 
 
+let updateNugetPackage p =  {
+    p with
+        Authors = authors
+        Project = projectName
+        Description = projectDescription
+        OutputPath = deployDir
+        Summary = projectSummary
+        WorkingDir = packagingDir
+        Version = version
+        AccessKey = nugetKey
+        Publish = hasBuildParam "nugetkey"
+    }
+
+let copyFiles net4Dir =
+    CopyFile net4Dir (buildDir @@ "OptionsPricing.dll")
+    CopyFile net4Dir (buildDir @@ "OptionsPricing.XML")
+    CopyFile net4Dir (buildDir @@ "OptionsPricing.pdb")
+
 Target "CreatePackage" (fun _ ->
-  let net4Dir = packagingDir @@ "lib/net40/"
-
-  CleanDirs [net4Dir]
-
-  CopyFile net4Dir (buildDir @@ "OptionsPricing.dll")
-  CopyFile net4Dir (buildDir @@ "OptionsPricing.XML")
-  CopyFile net4Dir (buildDir @@ "OptionsPricing.pdb")
-
-  trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
-  NuGet (fun p ->
-      {p with
-          Authors = authors
-          Project = projectName
-          Description = projectDescription
-          OutputPath = deployDir
-          Summary = projectSummary
-          WorkingDir = packagingDir
-          Version = version
-          AccessKey = nugetKey
-          Publish = hasBuildParam "nugetkey" })
-          "OptionsPricing.nuspec"
+    let net4Dir = packagingDir @@ "lib/net40/"
+    CleanDirs [net4Dir]
+    copyFiles net4Dir
+    trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
+    NuGet updateNugetPackage "OptionsPricing.nuspec"
 )
 
 Target "Zip" (fun _ ->
