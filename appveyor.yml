@@ -11,7 +11,7 @@ before_build:
   cmd: prebuild.cmd
 
 build_script:
-  cmd: build.cmd CompileApp
+  cmd: build.cmd CompilePricer
 
 test_script:
   cmd: build.cmd Test
