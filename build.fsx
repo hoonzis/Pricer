@@ -28,20 +28,26 @@ Target "Clean" (fun _ ->
     CleanDirs [buildDir; testDir; deployDir]
 )
 
-Target "CompileApp" (fun _ ->
-    [@"OptionsPricing/OptionsPricing.fsproj"]
+Target "CompilePricer" (fun _ ->
+    [@"Pricer/Pricer.fsproj"]
       |> MSBuildRelease buildDir "Build"
       |> Log "AppBuild-Output: "
 )
 
+Target "CompileMarketData" (fun _ ->
+    [@"Pricer.Tests\Pricer.Tests.fsproj"]
+      |> MSBuildDebug testDir "Build"
+      |> Log "TestBuild-Output: "
+)
+
 Target "CompileTest" (fun _ ->
-    [@"OptionsPricingTests\OptionsPricingTests.fsproj"]
+    [@"Pricer.Tests\Pricer.Tests.fsproj"]
       |> MSBuildDebug testDir "Build"
       |> Log "TestBuild-Output: "
 )
 
 Target "Test" (fun _ ->
-    !! (testDir + @"\OptionsPricingTests.dll")
+    !! (testDir + @"\Pricer.Tests.dll")
       |> NUnit (fun p ->
                  {p with
                    DisableShadowCopy = true;
@@ -63,16 +69,16 @@ let updateNugetPackage p =  {
     }
 
 let copyFiles net4Dir =
-    CopyFile net4Dir (buildDir @@ "OptionsPricing.dll")
-    CopyFile net4Dir (buildDir @@ "OptionsPricing.XML")
-    CopyFile net4Dir (buildDir @@ "OptionsPricing.pdb")
+    CopyFile net4Dir (buildDir @@ "Pricer.dll")
+    CopyFile net4Dir (buildDir @@ "Pricer.XML")
+    CopyFile net4Dir (buildDir @@ "Pricer.pdb")
 
 Target "CreatePackage" (fun _ ->
     let net4Dir = packagingDir @@ "lib/net40/"
     CleanDirs [net4Dir]
     copyFiles net4Dir
     trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
-    NuGet updateNugetPackage "OptionsPricing.nuspec"
+    NuGet updateNugetPackage "Pricer.nuspec"
 )
 
 Target "Zip" (fun _ ->
@@ -83,13 +89,15 @@ Target "Zip" (fun _ ->
 // Dependenciesf
 
 "Clean"
-  ==> "CompileApp"
+  ==> "CompilePricer"
+  ==> "CompileMarketData"
   ==> "CompileTest"
   ==> "Test"
   ==> "Zip"
   ==> "CreatePackage"
 
-"CompileApp"
+"CompilePricer"
+  ==> "CompileMarketData"
   ==> "CompileTest"
   ==> "Test"
   ==> "CreatePackage"
