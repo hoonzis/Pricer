@@ -52,7 +52,7 @@ let chartData data strategy =
     match data with
         | SingleYear (strategyData, legsData) ->
             let strategyLine = Chart.Line(strategyData,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
-            let legsLines = legsData |> Seq.mapi (fun i (leg,legData) -> Chart.Line(legData,leg.Definition.Name))
+            let legsLines = legsData |> Seq.mapi (fun i (leg,legData) -> Chart.Line(legData,(sprintf "Leg %i %s" i leg.Definition.Name)))
             let allLines = legsLines |> Seq.append [strategyLine]
             let chart = Chart.Combine allLines |> Chart.WithLegend(true)
             chart

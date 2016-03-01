@@ -87,7 +87,7 @@ module Options =
             Direction = direction
             Expiry = expiry
             Style = European
-            PurchaseDate = DateTime.Now
+            PurchaseDate = buyingDate
         }
 
     let optionValue option stockPrice =

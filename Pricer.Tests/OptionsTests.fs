@@ -90,7 +90,16 @@ type OptionsTests() =
         let buyingDate = DateTime.Now.Date
         let exp = buyingDate.AddDays(30.0)
         let quickPrice = Options.europeanBSPrice 0.03m 1.0 230m 0.05m 231m exp Put buyingDate
-        quickPrice.Premium |> should equal 1.0818440568021117
+        quickPrice.Premium |> should equal 1.1121748574738319
+        quickPrice.Delta |> should equal 0.45086688431953909
+
+    [<Test>]
+    member this.``black sholes quick price put from now with fixed dates``() =
+        let buyingDate = new DateTime(2014, 1, 1)
+        let exp = new DateTime(2014, 4, 1)
+        let quickPrice = Options.europeanBSPrice 0.0125m 1.0 10m 0.01m 10m exp Put buyingDate
+        quickPrice.Premium |> should equal 0.038859227821443021
+        quickPrice.Delta |> should equal 0.73341925514973461
 
     [<Test>]
     member this.``binomial euroean put in BS setting`` () =        
