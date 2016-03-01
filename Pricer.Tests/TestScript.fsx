@@ -57,8 +57,8 @@ let chartData data strategy =
             let chart = Chart.Combine allLines |> Chart.WithLegend(true)
             chart
         | MultiYear (strategyPerYear) ->
-            let allYearLines = strategyPerYear |> Seq.map (fun strategyData -> 
-                Chart.Line(strategyData,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
+            let allYearLines = strategyPerYear |> Seq.mapi (fun i strategyData -> 
+                Chart.Line(strategyData,(sprintf "year %i %s" i strategy.Name)) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
             )
 
             let chart = Chart.Combine allYearLines |> Chart.WithLegend(true)
