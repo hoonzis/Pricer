@@ -87,9 +87,10 @@ type OptionsTests() =
     
     [<Test>]
     member this.``black sholes quick price put from now with expiry in 30 days from now``() =
-        let exp = DateTime.Now.AddDays(30.0)
-        let quickPrice = Options.europeanBSPrice 0.03m 1.0 230m 0.05m 231m exp Put
-        quickPrice.Premium |> should (equalWithin 0.3) 1.08
+        let buyingDate = DateTime.Now.Date
+        let exp = buyingDate.AddDays(30.0)
+        let quickPrice = Options.europeanBSPrice 0.03m 1.0 230m 0.05m 231m exp Put buyingDate
+        quickPrice.Premium |> should equal 1.0818440568021117
 
     [<Test>]
     member this.``binomial euroean put in BS setting`` () =        

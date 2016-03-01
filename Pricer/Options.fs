@@ -80,7 +80,7 @@ module Options =
 
     let normal = Normal()
 
-    let buildLeg kind strike direction style expiry =
+    let buildLeg kind strike direction style expiry buyingDate =
         {
             Strike=strike
             Kind = Call
@@ -141,8 +141,8 @@ module Options =
             Delta = delta
         }
 
-    let europeanBSPrice (rate:decimal) (direction:float) (ref:decimal) (vol:decimal) (strike:decimal) (expiry:DateTime) (legType:OptionKind) =
-        let leg = buildLeg legType (float strike) direction European expiry
+    let europeanBSPrice (rate:decimal) (direction:float) (ref:decimal) (vol:decimal) (strike:decimal) (expiry:DateTime) (legType:OptionKind) (buyingDate: DateTime) =
+        let leg = buildLeg legType (float strike) direction European expiry buyingDate
         let stockInfo = {
             Rate = float rate
             Volatility = float vol
