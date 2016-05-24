@@ -1,12 +1,10 @@
-﻿namespace Pricer
+﻿namespace Pricer.MarketData
 
 open System
-open System.Globalization
 open System.Collections.Generic
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.Distributions
-open System.Net
-open System.IO
+open Pricer
 
 
 module Stocks =

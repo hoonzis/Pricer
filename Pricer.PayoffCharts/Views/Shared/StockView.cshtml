@@ -1,0 +1,18 @@
+﻿<div data-bind="with: stock">
+    <form class="form-horizontal">
+        <div class="form-group" data-bind="with:comboViewModel">
+            <label class="col-sm-5 control-label" for="inputTicker">Stock</label>
+            <div data-bind="event: { keydown: onKeyPress }" class="col-sm-7">
+                <input type="text" class="form-control col-sm-7" id="inputTicker" data-bind="value: searchText, valueUpdate: 'afterkeydown', hasfocus: searchHasFocus" placeholder="Type name or ticker">
+                <span data-bind="visible:loading">loading...</span>
+                <div class="spdropdown" data-bind="visible: dropdownVisible, __cb__clickedIn: dropdownVisible">
+                    <!-- ko foreach: dropdownItems -->
+                    <div data-bind="click: $parent.selected.bind($parent), event: { mouseover: $parent.active.bind($parent), mouseout: $parent.inactive.bind($parent) }, css: { spactive: navigated, sphighlighted: active }">
+                        <span data-bind="text:item.name"></span>
+                    </div>
+                    <!-- /ko -->
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

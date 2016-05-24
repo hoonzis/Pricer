@@ -35,13 +35,19 @@ Target "CompilePricer" (fun _ ->
 )
 
 Target "CompileMarketData" (fun _ ->
-    [@"Pricer.Tests\Pricer.Tests.fsproj"]
+    [@"Pricer.MarketData\Pricer.MarketData.fsproj"]
+      |> MSBuildDebug testDir "Build"
+      |> Log "TestBuild-Output: "
+)
+
+Target "CompilePayoffCharts" (fun _ ->
+    [@"Pricer.PayoffCharts.Tests\Pricer.PayoffCharts.Tests.fsproj"]
       |> MSBuildDebug testDir "Build"
       |> Log "TestBuild-Output: "
 )
 
 Target "CompileTest" (fun _ ->
-    [@"Pricer.Tests\Pricer.Tests.fsproj"]
+    [@"Pricer.Tests\Pricer.Tests.fsproj"; @"Pricer.MarketData.Tests\Pricer.MarketData.Tests.fsproj";@"Pricer.PayoffCharts.Tests\Pricer.PayoffCharts.Tests.fsproj"]
       |> MSBuildDebug testDir "Build"
       |> Log "TestBuild-Output: "
 )
@@ -101,6 +107,7 @@ Target "Zip" (fun _ ->
   ==> "CompileTest"
   ==> "Test"
   ==> "CreatePackage"
+  ==> "CompilePayoffCharts"
 
 // start build
-RunTargetOrDefault "CompileTest"
+RunTargetOrDefault "Test"

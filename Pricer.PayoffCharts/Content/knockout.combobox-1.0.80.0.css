@@ -1,0 +1,177 @@
+.combobox { 
+    position: relative;
+    display: inline-block;
+}
+.combobox input {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box 
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 0 none;
+	margin: 0;
+	outline: medium none;
+	background-color: #FFFFFF;
+	padding: 2px 4px 3px;
+	height: 30px;
+	display: inline-block;
+	overflow: hidden;
+	line-height: 28px;
+	margin: 0 0 2px;
+    border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+	border-color: #cccccc;
+    box-shadow: 0 1px 2px #EEEEEE inset;
+	transition: box-shadow 0.2s ease 0s;
+	transition: border-color 0.2s ease 0s;
+}
+.combobox input:hover { 
+	border-color: #A0A0A0;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
+	transition: box-shadow 0.2s ease 0s;
+	transition: border-color 0.2s ease 0s;
+}
+.combobox input:focus { 
+    border-color: #4D90FE;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) inset;
+    outline: medium none;
+	transition: box-shadow 0.2s ease 0s;
+	transition: border-color 0.2s ease 0s;
+}
+.combobox .btn {
+	height: 30px;
+    filter: none;
+    opacity: 1;
+	border: 1px solid;
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: bold;
+	display: inline-block;
+	outline: 0 none;
+	vertical-align: top;
+	white-space: nowrap;
+	word-wrap: normal;
+	background-size: 60px 60px;
+	background-color: #E0E0E0;
+    background-image: -moz-linear-gradient(center top , #FAFAFA 0pt, #c9c9c9 100%);
+	border-color: #CCCCCC #CCCCCC #AAAAAA;
+    box-shadow: 0 0 1px #FFFFFF inset;
+    text-shadow: 0 1px 0 #FFFFFF;
+	border-radius: 3px 3px 3px 3px;
+	transition: all 0.2s ease 0s;
+}
+
+.combobox .btn-arrow {
+	border-color-left: #CCC;
+	border-left: 0 none;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+	transition: all 0.2s ease 0s;
+}
+.combobox .btn:hover {
+	background-position: 30px; 
+	background-color: #E0E0E0;
+	transition: all 0.4s ease 0s;
+}
+.combobox .btn:focus {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20) inset;
+	background-color: #E0E0E0;
+	background-position: 30px; 
+	border-bottom-color: #ccc;
+	transition: all 0.2s ease 0s;
+}
+.combobox .btn-arrow .caret {
+    margin-left: 0;
+    margin-top: 3px;
+}
+.caret {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #000000;
+    content: "";
+    display: inline-block;
+    height: 0;
+    vertical-align: top;
+    width: 0;
+}
+
+.combobox .dropdown-menu {
+	position: absolute;
+	top: 30px;
+	background-color: #fff;
+	box-shadow:0 5px 10px rgba(0, 0, 0, 0.2);
+	border: 1px solid #CCCCCC;
+	z-index: 1000;
+	border-radius: 7px;
+	max-height: 500px;
+	padding: 7px 0;
+	min-width: 160px;
+	transition: all 0.2s ease-in-out;
+	overflow-y: auto;
+}
+.combobox .dropdown-menu > div {
+	padding: 5px 10px;
+	white-space: normal;
+    word-wrap: break-word;
+}
+
+.active, .highlighted {
+    background-color: #0081C2;
+    background-image: linear-gradient(to bottom, #0088CC, #0077B3);
+	color: #fff;
+}
+
+.highlighted:hover {
+    cursor: pointer;
+}
+
+.combobox .nav {
+	text-align: center;
+	border-top: 1px solid #DDDDDD;
+}
+.counter {
+	margin-bottom: 0.4em;
+	font-size: 70%;
+	text-transform: uppercase;
+}
+.pagination ul {
+	list-style-type: none;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	display: inline-block;
+}
+.pagination li {
+	display: inline-block;
+	border-color: #DDDDDD;
+	border-style: solid;
+	border-width: 1px 1px 1px 0;
+	line-height: 20px;
+	padding: 4px 12px;
+	background-color: #fff;
+	cursor: pointer;
+	color: #0088CC;
+}
+.pagination li:hover {
+	color: #999999;
+	background-color: #F5F5F5;
+	transition: all 0.3s ease-in-out;
+}
+.pagination li.current {
+	background-color: #efefef;
+	color: #888888;
+	background-color: #;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.20) inset;
+	border-bottom-color: #ccc;
+	transition: all 0.2s ease-in-out;
+}
+.pagination li:first-child {
+    border-bottom-left-radius: 4px;
+    border-left-width: 1px;
+    border-top-left-radius: 4px;
+}
+.pagination li:last-child {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+}
+

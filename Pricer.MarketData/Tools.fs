@@ -1,4 +1,4 @@
-﻿namespace Pricer
+﻿namespace Pricer.MarketData
 
 open Microsoft.FSharp.Reflection
 

@@ -1,11 +1,11 @@
 ﻿namespace Pricer
 
 open System
-open MathNet.Numerics.Distributions
 
 type OptionKind =
     | Call
     | Put
+    member this.Name = match this with | Call -> "Call" | Put -> "Put"
 
 type OptionStyle =
     | American
@@ -22,7 +22,7 @@ type OptionLeg =
     }
     member this.BuyVsSell = if this.Direction < 0.0 then "Sell" else "Buy"
     member this.TimeToExpiry = (float (this.Expiry - this.PurchaseDate).Days)/365.0
-    member this.Name = sprintf "%s %s %.2f" this.BuyVsSell (Tools.caseString this.Kind) this.Strike
+    member this.Name = sprintf "%s %s %.2f" this.BuyVsSell this.Kind.Name this.Strike
 
 type CashLeg = {
     Direction: float
@@ -78,8 +78,6 @@ type StrategyData =
 
 module Options =
 
-    let normal = Normal()
-
     let buildLeg kind strike direction style expiry buyingDate =
         {
             Strike=strike
@@ -123,8 +121,8 @@ module Options =
                         (stock.Rate + 0.5 * pown stock.Volatility 2) * option.TimeToExpiry ) /
                     ( stock.Volatility * sqrt option.TimeToExpiry )
                 let d2 = d1 - stock.Volatility * sqrt option.TimeToExpiry
-                let N1 = normal.CumulativeDistribution(d1)
-                let N2 = normal.CumulativeDistribution(d2)
+                let N1 = SimpleMath.cdf(d1)
+                let N2 = SimpleMath.cdf(d2)
 
                 let discountedStrike = option.Strike * exp (-stock.Rate * option.TimeToExpiry)
                 let call = stock.CurrentPrice * N1 - discountedStrike * N2

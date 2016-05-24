@@ -1,4 +1,4 @@
-﻿module OptionsTests
+﻿module Pricer.Tests
 
 open Pricer
 open System

@@ -51,6 +51,7 @@
     <None Include="App.config" />
     <Compile Include="StocksTests.fs" />
     <None Include="MarketTests.fsx" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pricer.MarketData\Pricer.MarketData.fsproj">

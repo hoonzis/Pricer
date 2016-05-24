@@ -7,13 +7,13 @@ open FSharp.Data
 open System.Net
 open Pricer
 
-type LseStocks = JsonProvider<"lsedataset.json",EmbeddedResource="OptionsPricing,lsedataset.json">
-type SingleLseStock = JsonProvider<"lsesinglestock.json",EmbeddedResource="OptionsPricing,lsesinglestock.json">
-type SingleEuroNextStock = JsonProvider<"euronextsinglestock.json",EmbeddedResource="OptionsPricing,euronextsinglestock.json">
+type LseStocks = JsonProvider<"lsedataset.json",EmbeddedResource="Pricer.MarketData,lsedataset.json">
+type SingleLseStock = JsonProvider<"lsesinglestock.json",EmbeddedResource="Pricer.MarketData,lsesinglestock.json">
+type SingleEuroNextStock = JsonProvider<"euronextsinglestock.json",EmbeddedResource="Pricer.MarketData,euronextsinglestock.json">
 
 module MarketProviders =
     let mutable authKey = ""
-    let  mutable allStocks = new List<Exchange*string*string>()
+    let mutable allStocks = new List<Exchange*string*string>()
 
     let getWebStream (url:string) =
           let req = WebRequest.Create(url)

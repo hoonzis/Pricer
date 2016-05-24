@@ -9,8 +9,8 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Pricer.MarketData</RootNamespace>
     <AssemblyName>Pricer.MarketData</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Pricer.MarketData</Name>
     <TargetFrameworkProfile />
@@ -59,6 +59,7 @@
   -->
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Tools.fs" />
     <Compile Include="MarketProviders.fs" />
     <EmbeddedResource Include="lsesinglestock.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -72,7 +73,9 @@
     <EmbeddedResource Include="euronextdataset.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <Compile Include="Stocks.fs" />
     <Compile Include="StockAnalysis.fs" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -82,8 +85,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Pricer\Pricer.fsproj">
       <Name>Pricer</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
@@ -109,17 +110,6 @@
       <ItemGroup>
         <Reference Include="MathNet.Numerics">
           <HintPath>..\packages\MathNet.Numerics\lib\net40\MathNet.Numerics.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
-      <ItemGroup>
-        <Reference Include="System.Threading">
-          <HintPath>..\packages\TaskParallelLibrary\lib\Net35\System.Threading.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

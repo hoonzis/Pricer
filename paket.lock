@@ -1,16 +1,54 @@
 NUGET
   remote: http://api.nuget.org/v3/index.json
   specs:
+    Antlr (3.5.0.2) - framework: >= net40
+    d3 (3.5.6) - framework: >= net40
+    Dynamitey (1.0.2) - framework: >= net40
     FSharp.Charting (0.90.12) - framework: >= net40
+    FSharp.Core (3.1.2.1) - framework: >= net40
     FSharp.Data (2.2.5) - framework: >= net40
+    FSharp.Interop.Dynamic (3.0.0) - framework: >= net40
+      Dynamitey (>= 1.0.2.0)
+      FSharp.Core (>= 3.1.2.1)
     FsUnit (1.3.1) - framework: >= net40
       NUnit (2.6.4)
-    FsUnit.Sample (1.3.1) - framework: >= net40
-      FsUnit
+    FsWebAddRegistryEntries (0.1.1) - framework: >= net40
+    jQuery (2.1.4) - framework: >= net40
+    Knockout.Combobox (1.0.80) - framework: >= net40
+      knockoutjs (>= 3.0.0)
+    Knockout.Validation (2.0.3) - framework: >= net40
+      knockoutjs (>= 2.3.0)
+    knockoutjs (3.3.0) - framework: >= net40
     MathNet.Numerics (3.8.0) - framework: >= net40
-      TaskParallelLibrary (>= 1.0.2856) - framework: >= net35
+    Microsoft.AspNet.Mvc (5.2.3) - framework: >= net40
+      Microsoft.AspNet.Razor (>= 3.2.3 < 3.3.0)
+      Microsoft.AspNet.WebPages (>= 3.2.3 < 3.3.0)
+    Microsoft.AspNet.Razor (3.2.3) - framework: >= net40
+    Microsoft.AspNet.Web.Optimization (1.1.3) - framework: >= net40
+      Microsoft.Web.Infrastructure (>= 1.0.0)
+      WebGrease (>= 1.5.2)
+    Microsoft.AspNet.WebApi (5.2.3) - framework: >= net40
+      Microsoft.AspNet.WebApi.WebHost (>= 5.2.3 < 5.3.0)
+    Microsoft.AspNet.WebApi.Client (5.2.3) - framework: >= net40
+      Newtonsoft.Json (>= 6.0.4) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
+    Microsoft.AspNet.WebApi.Core (5.2.3) - framework: >= net40
+      Microsoft.AspNet.WebApi.Client (>= 5.2.3)
+    Microsoft.AspNet.WebApi.WebHost (5.2.3) - framework: >= net40
+      Microsoft.AspNet.WebApi.Core (>= 5.2.3 < 5.3.0)
+    Microsoft.AspNet.WebPages (3.2.3) - framework: >= net40
+      Microsoft.AspNet.Razor (>= 3.2.3 < 3.3.0)
+      Microsoft.Web.Infrastructure (>= 1.0.0.0)
+    Microsoft.Web.Infrastructure (1.0.0) - framework: >= net40
+    MSBuild.Extension.Pack (1.6.0) - framework: >= net40
+    Newtonsoft.Json (7.0.1)
     NUnit (2.6.4) - framework: >= net40
-    TaskParallelLibrary (1.0.2856) - framework: >= net40
+    WebGrease (1.6.0) - framework: >= net40
+      Antlr (>= 3.4.1.9004)
+      Newtonsoft.Json (>= 5.0.4)
   remote: https://www.nuget.org/api/v2
   specs:
     NuGet.CommandLine (2.8.6)
+GITHUB
+  remote: hoonzis/KoExtensions
+  specs:
+    src/KoExtensions.js (4577d39b1e8684798d9d7a5ab8d623f40c6b2c2e)
