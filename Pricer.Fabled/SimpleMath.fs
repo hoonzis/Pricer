@@ -1,9 +1,9 @@
-﻿namespace Pricer
+﻿namespace Pricer.Fabled
 
 module SimpleMath =
     
     let signOf(x:double) = 
-        if x < 0.0 then 1.0 else -1.0
+        if x < 0.0 then -1.0 else 1.0
 
     let cdf(x:double) = 
         let a1 = 0.254829592

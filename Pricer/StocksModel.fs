@@ -15,7 +15,7 @@ type Exchange =
     | EURONEXT
 
 [<CLIMutable>]
-type Stock = {
+type StockRefData = {
     Exchange: Exchange
     Ticker: string
 }

@@ -6,6 +6,7 @@ open System.Linq
 open System.Net.Http
 open System.Web.Http
 open Pricer
+open Pricer.Full
 open Pricer.PayoffCharts.Model
 
 [<RoutePrefix("api/pricing")>]
@@ -14,7 +15,8 @@ type PricingController() =
 
     //given complete strategy  (stock and legs, returns the payoff chart data)
     member x.Put([<FromBody>] strategy:Strategy) : IHttpActionResult = 
-        let data = Options.getStrategyData strategy
+        let payoffsGenerator = new PayoffsGenerator(new FullPricer())
+        let data = payoffsGenerator.getStrategyData strategy
 
         let buildLines (data:(Leg*(float*float) list) seq)= 
             data |> Seq.map (fun (leg,linedata) -> 

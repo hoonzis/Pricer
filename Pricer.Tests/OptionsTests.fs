@@ -6,6 +6,7 @@ open System.Reflection
 open System.IO
 open FsUnit
 open NUnit.Framework
+open Pricer.Full
 
 let stock = {
     Volatility = 0.05
@@ -51,6 +52,12 @@ let americanPut = {
 
 [<TestFixture>]
 type OptionsTests() = 
+    
+    let mathProvider = new MathNetProvider()
+    let bsPricer = new BsPricer(mathProvider)
+    let fullPricer = new FullPricer()
+    let payoffGenerator = new PayoffsGenerator(fullPricer)
+    
 
     [<Test>]
     member this.``test simple binomial`` () =
@@ -71,25 +78,25 @@ type OptionsTests() =
 
     [<Test>]
     member this.``black sholes euroean call`` () =        
-        let price = Options.blackScholes stock europeanCall
+        let price = bsPricer.blackScholes stock europeanCall
         price.Premium |> should equal 2.8237329844670001
         
     [<Test>]
     member this.``black sholes euroean call - volatility 0`` () =      
         let updatedStock = { stock with Volatility = 0.0 }  
-        let price = Options.blackScholes updatedStock europeanCall
+        let price = bsPricer.blackScholes updatedStock europeanCall
         price.Premium |> should equal 0.85318400656242943
 
     [<Test>]
     member this.``black sholes euroean put`` () =        
-        let price = Options.blackScholes stock europeanPut
+        let price = bsPricer.blackScholes stock europeanPut
         price.Premium |> should equal 1.9705489779045706
     
     [<Test>]
     member this.``black sholes quick price put from now with expiry in 30 days from now``() =
         let buyingDate = DateTime.Now.Date
         let exp = buyingDate.AddDays(30.0)
-        let quickPrice = Options.europeanBSPrice 0.03m 1.0 230m 0.05m 231m exp Put buyingDate
+        let quickPrice = fullPricer.europeanPrice 0.03m 1.0 230m 0.05m 231m exp Put buyingDate
         quickPrice.Premium |> should equal 1.1121748574738319
         quickPrice.Delta |> should equal 0.45086688431953909
 
@@ -97,7 +104,7 @@ type OptionsTests() =
     member this.``black sholes quick price put from now with fixed dates``() =
         let buyingDate = new DateTime(2014, 1, 1)
         let exp = new DateTime(2014, 4, 1)
-        let quickPrice = Options.europeanBSPrice 0.0125m 1.0 10m 0.01m 10m exp Put buyingDate
+        let quickPrice = fullPricer.europeanPrice 0.0125m 1.0 10m 0.01m 10m exp Put buyingDate
         quickPrice.Premium |> should equal 0.038859227821443021
         quickPrice.Delta |> should equal 0.73341925514973461
 
@@ -134,8 +141,8 @@ type OptionsTests() =
         let optionVal stock = stock
         
         let prices = Binomial.generateEndNodePrices 100.0 1.25 periods optionVal
-        (List.nth prices 0) |> should equal (lowest,lowest)
-        (List.nth prices 1) |> should equal ((lowest*1.25*1.25),(lowest*1.25*1.25))
+        prices.[0] |> should equal (lowest,lowest)
+        prices.[1] |> should equal ((lowest*1.25*1.25),(lowest*1.25*1.25))
 
     [<Test>]
     member this.``simple payoff test`` () =
@@ -150,7 +157,7 @@ type OptionsTests() =
                 ]
             Stock = stock
         }
-        let strategyData = Options.getStrategyData strat
+        let strategyData = payoffGenerator.getStrategyData strat
         match strategyData with
                 | SingleYear (strategy, legs) -> 
                     legs |> Seq.length |> should equal 1
@@ -163,7 +170,7 @@ type OptionsTests() =
     [<Test>]
     member this.``butterlfy payoff tests`` () =        
         let strat = StrategiesExamples.butterfly stock
-        let strategyData = Options.getStrategyData strat
+        let strategyData = payoffGenerator.getStrategyData strat
         match strategyData with
                 | SingleYear (strategy, legs) -> 
                     legs |> Seq.length |> should equal 4
@@ -186,7 +193,7 @@ type OptionsTests() =
                 ]
             Stock = stock
         }
-        let strategyData = Options.getStrategyData strat
+        let strategyData = payoffGenerator.getStrategyData strat
         match strategyData with
                 | SingleYear (strategy, legs) -> 
                     legs |> Seq.length |> should equal 1
@@ -257,7 +264,7 @@ type OptionsTests() =
             Legs = List.empty
         }
 
-        let strategyData = Options.getStrategyData strategy
+        let strategyData = payoffGenerator.getStrategyData strategy
         match strategyData with
                 | SingleYear (strategy, legsData) ->  strategy |> List.ofSeq |> should haveLength 0
                 | _ -> failwith "Wrong"

@@ -111,12 +111,6 @@
       <Paket>True</Paket>
     </Content>
     <Compile Include="AssemblyInfo.fs" />
-    <Content Include="Web.config.install.xdt">
-      <Paket>True</Paket>
-    </Content>
-    <Content Include="Web.config.uninstall.xdt">
-      <Paket>True</Paket>
-    </Content>
     <Content Include="Content\knockout.combobox-1.0.80.0.css">
       <Paket>True</Paket>
     </Content>
@@ -231,6 +225,11 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Pricer.Full\Pricer.Full.fsproj">
+      <Name>Pricer.Full</Name>
+      <Project>{27cf805c-aa6b-4789-8ab7-0614e746cb14}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Pricer.MarketData\Pricer.MarketData.fsproj">
       <Name>Pricer.MarketData</Name>
       <Project>{92331c77-9e57-441e-8e50-d19ccff2d9c9}</Project>

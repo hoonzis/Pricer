@@ -8,12 +8,17 @@ open System.Web.Http
 open Pricer
 open Pricer.PayoffCharts.Model
 open Pricer.MarketData
+open Pricer.Full
 
 /// Retrieves values.
 [<RoutePrefix("api/analyzer")>]
 type AnalyzerController() =
     inherit ApiController()
     
+    let fullPricer = new FullPricer()
+
+    let pricer = fullPricer :> IPricer
+
     let combine alist blist =
         alist |> Seq.map (fun el -> blist |> Seq.map(fun el2 -> el, el2)) |> Seq.collect id
 
@@ -29,11 +34,11 @@ type AnalyzerController() =
     let optionPrices stock kind style = 
         let expiries = [for day in 0 .. 8 -> DateTime.Now.AddDays(float day*3.0)]
         let strikes = [for ref in 0.9*stock.CurrentPrice ..stock.CurrentPrice*1.1 -> ref]
-   
+         
         expiries |> List.map (fun expiry -> 
             let data = strikes |> List.map (fun strike ->
                 let option = buildOption strike style expiry kind
-                strike,(Options.blackScholes stock option).Premium
+                strike,(pricer.priceOption stock option).Premium
             )
             {
                 Linename = expiry.ToString("d")
@@ -65,7 +70,7 @@ type AnalyzerController() =
 
         combinations |> Seq.map (fun (strike, exp) ->
             let option = buildOption strike European exp Call
-            let pricing = Options.blackScholes stock option
+            let pricing = pricer.priceOption stock option
             {
                 Definition = Option option
                 Pricing = Some pricing

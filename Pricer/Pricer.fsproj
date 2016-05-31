@@ -51,8 +51,9 @@
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <ItemGroup>
     <Compile Include="StocksModel.fs" />
-    <Compile Include="SimpleMath.fs" />
-    <Compile Include="Options.fs" />
+    <Compile Include="OptionsModel.fs" />
+    <Compile Include="BsPricer.fs" />
+    <Compile Include="PayoffsGenerator.fs" />
     <Compile Include="StrategiesExamples.fs" />
     <Content Include="paket.references" />
     <Content Include="app.config" />

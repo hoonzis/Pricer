@@ -5,14 +5,15 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>9ca2367d-c15c-4e58-ad06-7d4c11f739c7</ProjectGuid>
+    <ProjectGuid>27cf805c-aa6b-4789-8ab7-0614e746cb14</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Pricer.Charts</RootNamespace>
-    <AssemblyName>Pricer.Charts</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>Pricer.Full</RootNamespace>
+    <AssemblyName>Pricer.Full</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Pricer.Charts</Name>
+    <Name>Pricer.Full</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Pricer.Charts.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Pricer.Full.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Pricer.Charts.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Pricer.Full.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -50,8 +51,9 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Compile Include="MathNetProvider.fs" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="FinCharts.fs" />
+    <Compile Include="FullPricer.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

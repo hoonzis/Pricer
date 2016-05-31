@@ -17,7 +17,7 @@ let stock = {
 
 let getEmbeddedResourceFile (filename:string) = 
     //just to get the right assembly, use any type from th assembly
-    let assembly = typeof<Stock>.Assembly
+    let assembly = typeof<StockRefData>.Assembly
     let allResources = assembly.GetManifestResourceNames();
     let assemblyName = assembly.GetName()
     let file  = allResources |> Array.find (fun x->x = filename)

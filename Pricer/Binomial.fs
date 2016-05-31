@@ -17,7 +17,7 @@ type BinomialPricing = {
 }
 
 module Binomial =
-
+    
     let binomialPrice (ref:float) (strike:float) (rate:float) (up:float) =
         let down = 1.0/up
         let q = (exp (-rate)-down) / (up - down) 
@@ -79,7 +79,7 @@ module Binomial =
             |> List.ofSeq
 
     let binomialPricingFunc (pricing:BinomialPricing) =
-        let optionValue = Options.optionValue pricing.Option
+        let optionValue = BasicOptions.optionValue pricing.Option
         let prices = generateEndNodePrices pricing.Ref pricing.Up pricing.Periods optionValue
         
         let reductionStep = step pricing optionValue

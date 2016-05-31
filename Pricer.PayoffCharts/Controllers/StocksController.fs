@@ -22,6 +22,6 @@ type StocksController() =
         let examples = StrategiesExamples.exampleStrategies |> Seq.map (fun s->s.Name)
         x.Ok(examples) :> _
 
-    member x.Put(stock:Stock) : IHttpActionResult =
+    member x.Put(stock:StockRefData) : IHttpActionResult =
         let stockInfo = MarketProviders.stock stock.Exchange stock.Ticker None None
         x.Ok(stockInfo) :> _

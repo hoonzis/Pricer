@@ -1,0 +1,1 @@
+fable Pricer.Fabled.fsproj --refs Pricer=..\CompiledJs\Pricer\ -o ../CompiledJs/Pricer.Fabled

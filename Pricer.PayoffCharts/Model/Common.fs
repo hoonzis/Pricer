@@ -38,7 +38,7 @@ type PayOffAnalysis = {
 type StockAnalysisQuery = {
     StockInfo : StockInfo
     Type: RequestType
-    Stock: Stock
+    Stock: StockRefData
 }
 
 type StrategyQuery = {
