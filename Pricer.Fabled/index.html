@@ -1,0 +1,63 @@
+﻿<!doctype html>
+<html data-framework="vue">
+	<head>
+		<meta charset="utf-8">
+		<title>Payoff Charts</title>
+		<style> [v-cloak] { display: none; } </style>
+	</head>
+    <body>
+    <div class="todoapp">
+        <ul>
+            <li v-for="strategy in strategies">
+                <p>{{ strategy.name }}</p>
+            </li>
+        </ul>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Direction</th>
+                <th>Kind</th>
+                <th>Strike</th>
+                <th>Expiry</th>
+                <th>Price</th>
+                <th>Delta</th>
+                <th><button type="submit" class="btn btn-primary btn-xs" data-bind="enable:!isBusy(), click: addLeg">Add Leg</button></th>
+            </tr>
+            </thead>
+            <tbody data-bind="foreach:legs">
+            <tr>
+                <td><select class="form-control" data-bind="options: directions,value:direction" id="directions"></select></td>
+                <td><select class="form-control" data-bind="options: legTypes,value:kind"></select></td>
+                <td><input type="text" class="form-control form-control-inline" placeholder="Strike" data-bind="value: strike" id="strike"></td>
+                <td><input type="text" class="form-control form-control-inline" placeholder="Expiry" data-bind="visible:isOption,datepicker: expiry" id="expiry"></td>
+                <td><span data-bind="formattedValue:premium, rounding:2"></span></td>
+                <td><span data-bind="formattedValue:delta, rounding:2"></span></td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-xs" aria-label="Left Align" data-bind="click:remove">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+	<script src="node_modules/core-js/client/core.min.js"></script>
+	<script src="node_modules/vue/dist/vue.js"></script>
+	<script src="node_modules/requirejs/require.js"></script>
+    <script>
+        requirejs.config({
+            // Set the baseUrl to the path of the compiled JS code
+            baseUrl: 'Pricer.Fabled',
+            paths: {
+                // Explicit path to core lib (relative to baseUrl, omit .js)
+                'fable-core': '../node_modules/fable-core/fable-core.min'
+            }
+        });
+        // Load the entry file of the app (use array, omit .js)
+        requirejs(["app"]);
+    </script>
+
+	</body>
+</html>

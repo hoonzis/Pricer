@@ -1,6 +1,4 @@
-﻿namespace Pricer.Fabled
-
-module SimpleMath =
+﻿module SimpleMath =
     
     let signOf(x:double) = 
         if x < 0.0 then -1.0 else 1.0

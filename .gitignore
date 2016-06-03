@@ -19,6 +19,7 @@ tools/FAKE/*
 *.userprefs
 
 # Build results
+CompiledJs/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
