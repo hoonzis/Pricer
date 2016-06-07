@@ -4,6 +4,7 @@ open System
 open Pricer
 open Fable.Core
 open Fable.Import
+open Pricer.StrategiesExamples
 
 let option = {
     Strike = 250.0
@@ -31,14 +32,35 @@ type LegViewModel(l:Leg) =
                 | _ -> 0.0
 
 type StrategyViewModel(strat:Strategy) =
-    let strategy = strat
-
-    member __.legs = strat.Legs |> List.map (fun l -> new LegViewModel(l))
+    let mutable strategy: Strategy = strat
+    member __.legs = strategy.Legs |> List.map (fun l -> new LegViewModel(l))
     member __.name = strat.Name
-    
+    member self.addLeg() = 
+        let newLeg = {
+            Definition = Option {
+                Direction = 1.0
+                Strike = 100.0
+                Expiry = new DateTime()
+                Kind = Call
+                Style = European
+                PurchaseDate = DateTime.Now
+            }
+            Pricing = None
+        }
+        strategy <- {strategy with Legs = strategy.Legs @ [newLeg]} 
 
 type StategyListViewModel(strategyList: Strategy list) = 
-    let strategies: StrategyViewModel list = strategyList |> List.map (fun s -> new StrategyViewModel(s))
+    let mutable selectedStrategy: StrategyViewModel option = None
+    let mutable strategies = strategyList 
+                                |> List.map (fun s -> new StrategyViewModel(s)) 
+                                |> Array.ofList
+    member self.select strat = selectedStrategy <- Some strat
+
+    member self.selectedName = 
+        match selectedStrategy with
+                | Some strat -> strat.name
+                | _ -> "No strategy selected"
+
 
 // This helper uses JS reflection to convert a class instance
 // to the options' format required by Vue

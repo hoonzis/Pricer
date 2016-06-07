@@ -9,38 +9,50 @@
     <div class="todoapp">
         <ul>
             <li v-for="strategy in strategies">
-                <p>{{ strategy.name }}</p>
+                <p v-on:onclick="select(strategy)">{{ strategy.name }}</p>
+                <button @click="select(strategy)">Select</button>
             </li>
         </ul>
 
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Direction</th>
-                <th>Kind</th>
-                <th>Strike</th>
-                <th>Expiry</th>
-                <th>Price</th>
-                <th>Delta</th>
-                <th><button type="submit" class="btn btn-primary btn-xs" data-bind="enable:!isBusy(), click: addLeg">Add Leg</button></th>
-            </tr>
-            </thead>
-            <tbody data-bind="foreach:legs">
-            <tr>
-                <td><select class="form-control" data-bind="options: directions,value:direction" id="directions"></select></td>
-                <td><select class="form-control" data-bind="options: legTypes,value:kind"></select></td>
-                <td><input type="text" class="form-control form-control-inline" placeholder="Strike" data-bind="value: strike" id="strike"></td>
-                <td><input type="text" class="form-control form-control-inline" placeholder="Expiry" data-bind="visible:isOption,datepicker: expiry" id="expiry"></td>
-                <td><span data-bind="formattedValue:premium, rounding:2"></span></td>
-                <td><span data-bind="formattedValue:delta, rounding:2"></span></td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-xs" aria-label="Left Align" data-bind="click:remove">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div v-if="selectedStrategy">
+            <p>{{selectedName}}</p>
+           
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Direction</th>
+                        <th>Kind</th>
+                        <th>Strike</th>
+                        <th>Expiry</th>
+                        <th>Price</th>
+                        <th>Delta</th>
+                        <th><button type="submit" class="btn btn-primary btn-xs" @click="selectedStrategy.addLeg">Add Leg</button></th>
+                    </tr>
+                </thead>
+                <tbody v-for="leg in selectedStrategy.legs">
+                    <tr>
+                        <td>
+                            <select class="form-control" v-model="leg.direction" id="direction">
+                                <option>Buy</option>
+                                <option>Sell</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control" v-model="leg.kind">
+                            </select></td>
+                        <td><input type="text" class="form-control form-control-inline" placeholder="Strike" v-model="leg.strike" id="strike"></td>
+                        <td><input type="text" class="form-control form-control-inline" placeholder="Expiry" v-model="leg.expiry" id="expiry"></td>
+                        <td><span data-bind="formattedValue:premium, rounding:2"></span></td>
+                        <td><span data-bind="formattedValue:delta, rounding:2"></span></td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-xs" aria-label="Left Align" data-bind="click:remove">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 	<script src="node_modules/core-js/client/core.min.js"></script>

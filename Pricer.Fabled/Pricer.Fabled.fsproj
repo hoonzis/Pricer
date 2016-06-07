@@ -57,6 +57,7 @@
     <Compile Include="App.fs" />
     <Compile Include="SimpleMath.fs" />
     <None Include="index.html" />
+    <None Include="build.cmd" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fable.Core">
