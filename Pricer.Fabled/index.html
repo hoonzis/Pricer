@@ -9,8 +9,7 @@
     <div class="todoapp">
         <ul>
             <li v-for="strategy in strategies">
-                <p v-on:onclick="select(strategy)">{{ strategy.name }}</p>
-                <button @click="select(strategy)">Select</button>
+                <a href="#" v-on:click="select(strategy)">{{ strategy.name }}</a>               
             </li>
         </ul>
 
@@ -26,7 +25,7 @@
                         <th>Expiry</th>
                         <th>Price</th>
                         <th>Delta</th>
-                        <th><button type="submit" class="btn btn-primary btn-xs" @click="selectedStrategy.addLeg">Add Leg</button></th>
+                        <th><button type="submit" class="btn btn-primary btn-xs" @click="selectedStrategy.addLeg()">Add Leg</button></th>
                     </tr>
                 </thead>
                 <tbody v-for="leg in selectedStrategy.legs">
