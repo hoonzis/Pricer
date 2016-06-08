@@ -64,6 +64,21 @@ module Main =
                     Pricing = leg.Pricing
                 }
                 leg <- newLeg
+        member __.expiry
+            with get() = 
+                match leg.Definition with  
+                        | Option option -> option.Expiry.ToString()
+                        | _ -> ""
+            and set(s:string) = 
+                let date = DateTime.Parse(s)
+                let newLegDefinition = match leg.Definition with  
+                                                  | Option option -> { option with Expiry = date}
+                                                  | _ -> failwith "we should not be able to modify strike while not working on option"
+                let newLeg = {
+                    Definition = Option newLegDefinition
+                    Pricing = leg.Pricing
+                }
+                leg <- newLeg
                 
     type StrategyViewModel(strat) =
         let mutable strategy: Strategy = strat
