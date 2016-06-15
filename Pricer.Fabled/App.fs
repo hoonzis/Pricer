@@ -1,28 +1,18 @@
-﻿module PricerApp
+﻿namespace Pricer.Fabled
 
 open System
 open Pricer
 open Fable.Core
 open Fable.Import
+open Fable.Providers.Regex
 open Pricer.StrategiesExamples
 
-let option = {
-    Strike = 250.0
-    Expiry = DateTime.Now.AddDays(90.)
-    Direction = 1.0
-    Kind = Call
-    Style = European
-    PurchaseDate = DateTime.Now
-}
 
-let examples = StrategiesExamples.exampleStrategies
-
-// Use this dummy module to hold references to Vue and Router objects
-// exposed globally by loading the corresponding libraries with HTML script tags
 [<Erase>]
 module Lib =
     let [<Global>] Vue: obj = failwith "JS only"
     let [<Global>] Router: obj = failwith "JS only"
+
 
 // This helper uses JS reflection to convert a class instance
 // to the options' format required by Vue
@@ -47,6 +37,9 @@ module VueHelper =
         createNew Lib.Vue extraOpts
 
 module Main =
+    let dateToString (date:DateTime) = 
+        sprintf "%i-%0i-%0i" date.Year date.Month date.Day
+
     type LegViewModel(l:Leg) = 
         let mutable leg = l
         member __.strike
@@ -67,13 +60,17 @@ module Main =
         member __.expiry
             with get() = 
                 match leg.Definition with  
-                        | Option option -> option.Expiry.ToString()
+                        | Option option -> dateToString option.Expiry
                         | _ -> ""
             and set(s:string) = 
-                let date = DateTime.Parse(s)
+                let values = s.Split("-".ToCharArray())
+                let intSplitted (i:int) (values: string array) =
+                    int values.[i]
+
+                let date = new DateTime(intSplitted 0 values,intSplitted 1 values, intSplitted 2 values)
                 let newLegDefinition = match leg.Definition with  
-                                                  | Option option -> { option with Expiry = date}
-                                                  | _ -> failwith "we should not be able to modify strike while not working on option"
+                                                    | Option option -> { option with Expiry = date}
+                                                    | _ -> failwith "we should not be able to modify strike while not working on option"
                 let newLeg = {
                     Definition = Option newLegDefinition
                     Pricing = leg.Pricing
@@ -141,5 +138,5 @@ module Main =
             } 
         ]
 
-    let vm = StrategyListViewModel(examples)
+    let vm = StrategyListViewModel(StrategiesExamples.exampleStrategies)
     let app = VueHelper.createFromObj(vm, extraOpts)

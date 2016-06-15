@@ -8,9 +8,9 @@ type FullPricer()=
     let bsPricer = new BsPricer(new MathNetProvider())
 
     interface IPricer with
-        member this.priceOption stock option = failwith "implement"
+        member this.priceOption stock option = bsPricer.blackScholes stock option
 
-        member this.priceCash cash = failwith "implement"
+        member this.priceCash cash = bsPricer.cashPricing cash
 
         member this.priceConvert stock option = failwith "implement"
 

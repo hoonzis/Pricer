@@ -3,13 +3,13 @@
 open System
 
 type BsPricer(math:IMathProvider) = 
-    let cashPricing (leg:CashLeg) = {
+    member this.cashPricing (leg:CashLeg) = {
         Premium = leg.Price
         Delta = 1.0
     }
 
     // dummy pricing for CBs
-    let convertiblePricing (stock:StockInfo) (leg:ConvertibleLeg) = {
+    member this.convertiblePricing (stock:StockInfo) (leg:ConvertibleLeg) = {
         Premium = leg.ReferencePrice
         Delta = 0.45
     }
@@ -41,3 +41,5 @@ type BsPricer(math:IMathProvider) =
             Premium = price
             Delta = delta
         }
+
+    

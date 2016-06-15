@@ -1,7 +1,7 @@
 {
     "module": "amd",
     "sourceMaps": true,
-    "projFile": "./mario.fsx",
+    "projFile": "Pricer.Fabled.fsproj",
     "outDir": "out",
     "scripts": {
         "prebuild": "npm install"
