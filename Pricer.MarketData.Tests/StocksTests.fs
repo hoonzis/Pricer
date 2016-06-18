@@ -1,6 +1,6 @@
 ﻿module StocksTests
 
-open Pricer
+open Pricer.Core
 open Pricer.MarketData
 open System
 open System.Reflection

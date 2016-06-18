@@ -59,6 +59,7 @@
   -->
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="MarketDataModel.fs" />
     <Compile Include="Tools.fs" />
     <Compile Include="MarketProviders.fs" />
     <EmbeddedResource Include="lsesinglestock.json">
@@ -85,8 +86,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\Pricer\Pricer.fsproj">
-      <Name>Pricer</Name>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pricer\Pricer.Core.fsproj">
+      <Name>Pricer.Core</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
       <Private>True</Private>
     </ProjectReference>

@@ -1,6 +1,12 @@
-﻿namespace Pricer.Fabled.SimpleMath
+﻿namespace Pricer.Fabled
 
 open System
+open Pricer.Core
+
+
+namespace Pricer.Fabled
+
+open Pricer.Core
 
 module SimpleMath = 
     let signOf(x:double) = 
@@ -22,3 +28,9 @@ module SimpleMath =
  
         let result = (signOf x)*y
         result
+
+type SimpleMathProvider() =
+
+    interface IMathProvider with
+        member this.cdf x =  SimpleMath.cdf x
+    

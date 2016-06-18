@@ -54,11 +54,14 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <ItemGroup>
-    <Compile Include="App.fs" />
     <Compile Include="SimpleMath.fs" />
+    <Compile Include="SimplePricer.fs" />
+    <Compile Include="Fable.Import.D3.fs" />
+    <Compile Include="App.fs" />
     <None Include="index.html" />
     <None Include="build.cmd" />
     <None Include="package.json" />
+    <Compile Include="Charting.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fable.Core">
@@ -74,8 +77,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\Pricer\Pricer.fsproj">
-      <Name>Pricer</Name>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pricer\Pricer.Core.fsproj">
+      <Name>Pricer.Core</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
       <Private>True</Private>
     </ProjectReference>

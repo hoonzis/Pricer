@@ -1,4 +1,4 @@
-﻿namespace Pricer.Full.AssemblyInfo
+﻿namespace Pricer.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices

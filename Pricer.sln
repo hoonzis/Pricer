@@ -8,7 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{B5890C
 		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer", "Pricer\Pricer.fsproj", "{BDC61E99-5A38-4EB0-9738-A1EEE82D76AC}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Core", "Pricer\Pricer.Core.fsproj", "{BDC61E99-5A38-4EB0-9738-A1EEE82D76AC}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Tests", "Pricer.Tests\Pricer.Tests.fsproj", "{7A45BE5E-1F24-41C6-8105-09B326926C0F}"
 EndProject
@@ -30,7 +30,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.PayoffCharts.Tests",
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Fabled", "Pricer.Fabled\Pricer.Fabled.fsproj", "{1E44403B-7834-4842-91B1-53A5FA731C58}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Full", "Pricer.Full\Pricer.Full.fsproj", "{27CF805C-AA6B-4789-8AB7-0614E746CB14}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer", "Pricer.Full\Pricer.fsproj", "{27CF805C-AA6B-4789-8AB7-0614E746CB14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

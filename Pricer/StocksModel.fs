@@ -1,4 +1,4 @@
-﻿namespace Pricer
+﻿namespace Pricer.Core
 
 open System
 
@@ -9,24 +9,3 @@ type StockInfo =
         Volatility: float
         CurrentPrice: float
     }
-
-type Exchange = 
-    | LSE
-    | EURONEXT
-
-[<CLIMutable>]
-type StockRefData = {
-    Exchange: Exchange
-    Ticker: string
-}
-
-type Tick = {
-    Date:DateTime
-    Close:float
-    Open: float option
-}
-
-type VolatilityEstimationMethod = 
-    | CloseVsClose
-    | CloseVsOpen
-

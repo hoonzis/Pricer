@@ -6,7 +6,7 @@ open System.Linq
 open System.Net.Http
 open System.Web.Http
 open Pricer
-open Pricer.Full
+open Pricer.Core
 open Pricer.PayoffCharts.Model
 
 [<RoutePrefix("api/pricing")>]

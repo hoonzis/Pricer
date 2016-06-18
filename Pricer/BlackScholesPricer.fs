@@ -1,19 +1,9 @@
-﻿namespace Pricer
+﻿namespace Pricer.Core
 
 open System
 
-type BsPricer(math:IMathProvider) = 
-    member this.cashPricing (leg:CashLeg) = {
-        Premium = leg.Price
-        Delta = 1.0
-    }
-
-    // dummy pricing for CBs
-    member this.convertiblePricing (stock:StockInfo) (leg:ConvertibleLeg) = {
-        Premium = leg.ReferencePrice
-        Delta = 0.45
-    }
-
+type BlackScholesPricer(math:IMathProvider) = 
+    
     member this.blackScholes (stock:StockInfo) (option:OptionLeg) =
         let price,delta =
             // We can only calculate if the option concerns the future

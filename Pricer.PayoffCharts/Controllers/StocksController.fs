@@ -6,7 +6,7 @@ open System.Collections.Generic
 open System.Linq
 open System.Net.Http
 open System.Web.Http
-open Pricer
+open Pricer.Core
 open Pricer.MarketData
 
 [<RoutePrefix("api/stocks")>]

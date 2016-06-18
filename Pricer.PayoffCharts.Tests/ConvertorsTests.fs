@@ -4,7 +4,7 @@
 open System
 open System.Reflection
 open System.IO
-open Pricer
+open Pricer.Core
 open FsUnit
 open NUnit.Framework
 open Pricer.PayoffCharts.Convertors

@@ -1,4 +1,4 @@
-﻿namespace Pricer
+﻿namespace Pricer.Core
 
 type Implementation =
     | Functional 

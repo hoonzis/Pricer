@@ -1,6 +1,6 @@
-﻿namespace Pricer.Full
+﻿namespace Pricer
 
-open Pricer
+open Pricer.Core
 open MathNet.Numerics.Distributions
 
 type MathNetProvider() = 

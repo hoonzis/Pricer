@@ -1,6 +1,7 @@
 namespace Pricer.PayoffCharts.Model
 
-open Pricer
+open Pricer.Core
+open Pricer.MarketData
 open System
 
 type RequestType =
@@ -12,11 +13,6 @@ type ChartLine<'a> = {
     Linename:string
     Values: ('a*double) list
 }
-
-type Payoff = {
-    Data : ChartLine<double>
-}
-
 
 type OptionAnalysisData = {
     Calls : ChartLine<double> seq

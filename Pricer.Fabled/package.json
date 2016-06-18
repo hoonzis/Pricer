@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "^2.4.0",
+    "d3": "^3.5.17",
     "fable-core": "0.0.21",
     "fable-import-d3": "^0.0.1",
     "requirejs": "^2.2.0",
@@ -21,6 +22,7 @@
     "fable": ">=0.2.11"
   },
   "devDependencies": {
+    "fable-import-d3": "0.0.1",
     "fable-providers-regex": "0.0.1"
   }
 }

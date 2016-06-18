@@ -11,6 +11,8 @@ type LseStocks = JsonProvider<"lsedataset.json",EmbeddedResource="Pricer.MarketD
 type SingleLseStock = JsonProvider<"lsesinglestock.json",EmbeddedResource="Pricer.MarketData,lsesinglestock.json">
 type SingleEuroNextStock = JsonProvider<"euronextsinglestock.json",EmbeddedResource="Pricer.MarketData,euronextsinglestock.json">
 
+
+
 module MarketProviders =
     let mutable authKey = ""
     let mutable allStocks = new List<Exchange*string*string>()

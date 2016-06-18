@@ -59,8 +59,8 @@
       <Project>{92331c77-9e57-441e-8e50-d19ccff2d9c9}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pricer\Pricer.fsproj">
-      <Name>Pricer</Name>
+    <ProjectReference Include="..\Pricer\Pricer.Core.fsproj">
+      <Name>Pricer.Core</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
       <Private>True</Private>
     </ProjectReference>

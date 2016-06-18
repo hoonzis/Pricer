@@ -8,7 +8,7 @@ open System.Web.Http
 open Pricer
 open Pricer.PayoffCharts.Model
 open Pricer.MarketData
-open Pricer.Full
+open Pricer.Core
 
 /// Retrieves values.
 [<RoutePrefix("api/analyzer")>]

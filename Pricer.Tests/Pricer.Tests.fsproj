@@ -73,13 +73,13 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pricer.Full\Pricer.Full.fsproj">
-      <Name>Pricer.Full</Name>
+    <ProjectReference Include="..\Pricer.Full\Pricer.fsproj">
+      <Name>Pricer</Name>
       <Project>{27cf805c-aa6b-4789-8ab7-0614e746cb14}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pricer\Pricer.fsproj">
-      <Name>Pricer</Name>
+    <ProjectReference Include="..\Pricer\Pricer.Core.fsproj">
+      <Name>Pricer.Core</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
       <Private>True</Private>
     </ProjectReference>

@@ -1,12 +1,10 @@
 ﻿namespace Pricer.Fabled
 
 open System
-open Pricer
+open Pricer.Core
 open Fable.Core
 open Fable.Import
 open Fable.Providers.Regex
-open Pricer.StrategiesExamples
-
 
 [<Erase>]
 module Lib =
@@ -39,74 +37,87 @@ module VueHelper =
 module Main =
     let dateToString (date:DateTime) = 
         sprintf "%i-%0i-%0i" date.Year date.Month date.Day
+    
+    let pricer = new SimplePricer()
+    let payoffsGenerator = new PayoffsGenerator(pricer)
+
 
     type LegViewModel(l:Leg) = 
         let mutable leg = l
-        member __.strike
-            with get() = 
-                 match leg.Definition with  
-                        | Option option -> option.Strike.ToString()
-                        | _ -> ""
-            and set(s:string) = 
-                let strike = float s
-                let newLegDefinition = match leg.Definition with  
-                                                  | Option option -> { option with Strike = strike}
-                                                  | _ -> failwith "we should not be able to modify strike while not working on option"
-                let newLeg = {
-                    Definition = Option newLegDefinition
-                    Pricing = leg.Pricing
+        let mutable strike = 0.0
+        let mutable expiry = "test"
+        let mutable kind = "Option"
+        let mutable direction = "Buy"       
+        
+        let getDirection direction = if direction = 1.0 then "Buy" else "Sell"
+        let getKind kind = if kind = Put then "Put" else "Call"
+        do 
+            match l.Definition with
+                    | Option opt -> 
+                        strike <- opt.Strike
+                        expiry <- opt.Expiry |> dateToString
+                        direction <- opt.Direction |> getDirection
+                        kind <- opt.Kind |> getKind
+                    | Cash cash -> 
+                        kind <- "Cash"
+                        direction <- cash.Direction |> getDirection
+                    | _ -> ()
+        
+        member __.getLeg = 
+            if kind = "Cash" then 
+                {
+                    Definition = Cash { 
+                        Direction = 1.0
+                        Price = strike
+                    }
+                    Pricing = None
                 }
-                leg <- newLeg
-        member __.expiry
-            with get() = 
-                match leg.Definition with  
-                        | Option option -> dateToString option.Expiry
-                        | _ -> ""
-            and set(s:string) = 
-                let values = s.Split("-".ToCharArray())
-                let intSplitted (i:int) (values: string array) =
-                    int values.[i]
+            else
+                {
+                    Definition = Option { 
+                        Direction = 1.0
+                        Expiry = DateTime.Now
+                        Strike = strike
+                        PurchaseDate = DateTime.Now
+                        Kind = if kind = "Put" then Put else Call
+                        Style = European
+                    }
+                    Pricing = None
+                }    
 
-                let date = new DateTime(intSplitted 0 values,intSplitted 1 values, intSplitted 2 values)
-                let newLegDefinition = match leg.Definition with  
-                                                    | Option option -> { option with Expiry = date}
-                                                    | _ -> failwith "we should not be able to modify strike while not working on option"
-                let newLeg = {
-                    Definition = Option newLegDefinition
-                    Pricing = leg.Pricing
-                }
-                leg <- newLeg
-                
-    type StrategyViewModel(strat) =
-        let mutable strategy: Strategy = strat
-
-        let mutable newLeg: Leg = {
-            Definition = Option {
-                Direction = 1.0
-                Strike = 100.0
-                Expiry = new DateTime()
-                Kind = Call
-                Style = European
-                PurchaseDate = DateTime.Now
+    type StrategyViewModel(strategy) =
+        let mutable legs = strategy.Legs |> List.map (fun l -> LegViewModel(l)) |> Array.ofList
+        
+        let buildStrategy = 
+            {
+                Name = strategy.Name
+                Legs = legs |> Seq.map (fun l -> l.getLeg) |> List.ofSeq
+                Stock = strategy.Stock
             }
-            Pricing = None
-        }
-        member __.legs = strategy.Legs |> List.map (fun l -> LegViewModel(l)) |> Array.ofList
         member __.name = strategy.Name
         
-        member __.Strategy
-            with get() = strategy
-            and set(v) = strategy <- v
-
         member __.addLeg(event) = 
-            // let newLegs = strategy.Strategy.Legs @ [newLeg]
-            let newLegs = [
-                yield! strategy.Legs
-                yield newLeg
-            ]
-            
-            let newStrategy = {strategy with Legs = newLegs } 
-            strategy <- newStrategy
+            let  newLeg: Leg = {
+                Definition = Option {
+                    Direction = 1.0
+                    Strike = 100.0
+                    Expiry = DateTime.Now
+                    Kind = Call
+                    Style = European
+                    PurchaseDate = DateTime.Now
+                }
+                Pricing = None
+            }
+
+            legs <- (legs |> Array.append [|new LegViewModel(newLeg)|])
+
+        member __.generatePayoff() = 
+            let newStrategy = buildStrategy
+            let data = payoffsGenerator.getStrategyData newStrategy
+            ()
+
+
+
 
     type StrategyListViewModel(examples) = 
         let mutable strategies = examples |> List.map (fun s -> new StrategyViewModel(s)) |> Array.ofList

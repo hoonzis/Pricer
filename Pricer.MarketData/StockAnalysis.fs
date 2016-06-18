@@ -6,7 +6,7 @@ open System.IO
 open System.Collections.Generic
 open FSharp.Data
 open System.Net
-open Pricer
+open Pricer.Core
 open MathNet.Numerics.Distributions
 
 module StockAnalysis = 

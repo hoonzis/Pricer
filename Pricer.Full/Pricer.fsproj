@@ -8,11 +8,11 @@
     <ProjectGuid>27cf805c-aa6b-4789-8ab7-0614e746cb14</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Pricer.Full</RootNamespace>
-    <AssemblyName>Pricer.Full</AssemblyName>
+    <AssemblyName>Pricer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Pricer.Full</Name>
+    <Name>Pricer</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -64,8 +64,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\Pricer\Pricer.fsproj">
-      <Name>Pricer</Name>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pricer\Pricer.Core.fsproj">
+      <Name>Pricer.Core</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
       <Private>True</Private>
     </ProjectReference>
