@@ -68,14 +68,14 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Pricer.Core\Pricer.Core.fsproj">
+      <Name>Pricer.Core</Name>
+      <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Pricer.PayoffCharts\Pricer.PayoffCharts.fsproj">
       <Name>Pricer.PayoffCharts</Name>
       <Project>{9bf0bcbe-78b5-4dca-852b-65724518da41}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Pricer\Pricer.Core.fsproj">
-      <Name>Pricer.Core</Name>
-      <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

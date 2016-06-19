@@ -2,7 +2,7 @@
     "module": "amd",
     "sourceMaps": true,
     "projFile": "Pricer.Fabled.fsproj",
-    "outDir": "out",
+    "outDir": "..CompiledJs/Pricer.Fabled",
     "scripts": {
         "prebuild": "npm install"
     }

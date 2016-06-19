@@ -3,11 +3,6 @@
 open System
 open Pricer.Core
 
-
-namespace Pricer.Fabled
-
-open Pricer.Core
-
 module SimpleMath = 
     let signOf(x:double) = 
         if x < 0.0 then -1.0 else 1.0

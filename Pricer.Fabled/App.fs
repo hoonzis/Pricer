@@ -87,14 +87,8 @@ module Main =
 
     type StrategyViewModel(strategy) =
         let mutable legs = strategy.Legs |> List.map (fun l -> LegViewModel(l)) |> Array.ofList
-        
-        let buildStrategy = 
-            {
-                Name = strategy.Name
-                Legs = legs |> Seq.map (fun l -> l.getLeg) |> List.ofSeq
-                Stock = strategy.Stock
-            }
-        member __.name = strategy.Name
+        let mutable name = strategy.Name
+        let mutable stock = strategy.Stock
         
         member __.addLeg(event) = 
             let  newLeg: Leg = {
@@ -112,10 +106,13 @@ module Main =
             legs <- (legs |> Array.append [|new LegViewModel(newLeg)|])
 
         member __.generatePayoff() = 
-            let newStrategy = buildStrategy
+            let newStrategy = {
+                Name = name
+                Legs = legs |> Seq.map (fun l -> l.getLeg) |> List.ofSeq
+                Stock = stock
+            }
             let data = payoffsGenerator.getStrategyData newStrategy
-            ()
-
+            Charting.drawPayoff data
 
 
 
@@ -124,11 +121,6 @@ module Main =
         let mutable selectedStrategy: StrategyViewModel option = None
 
         member self.select strat = selectedStrategy <- Some strat
-        member self.selectedName = 
-            match selectedStrategy with
-                    | Some strat -> strat.name
-                    | _ -> "No strategy selected"
-                   
         
     type Directives =
         abstract ``todo-focus``: obj option -> unit

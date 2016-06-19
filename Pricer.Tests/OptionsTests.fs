@@ -54,7 +54,7 @@ let americanPut = {
 type OptionsTests() = 
     
     let mathProvider = new MathNetProvider()
-    let bsPricer = new BsPricer(mathProvider)
+    let bsPricer = new BlackScholesPricer(mathProvider)
     let fullPricer = new FullPricer()
     let payoffGenerator = new PayoffsGenerator(fullPricer)
     

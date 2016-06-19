@@ -4,7 +4,8 @@
 		<meta charset="utf-8">
 		<title>Payoff Charts</title>
 		<style> [v-cloak] { display: none; } </style>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link href="node_modules/nvd3/build/nv.d3.css" rel="stylesheet">
 	</head>
     <body>
     <div class="todoapp">
@@ -13,7 +14,7 @@
 
         <div class="col-md-9">
             <div class="panel panel-default" v-if="selectedStrategy">
-                <div class="panel-heading">{{selectedName}}</div>
+                <div class="panel-heading">{{selectedStrategy.name}}</div>
                 <div class="panel-body">
                     <table class="table">
                         <thead>
@@ -55,8 +56,10 @@
                         </tbody>
                     </table>
                     <div class="col-md-2 col-md-offset-8">
-                        <button type="submit" class="btn btn-primary" @click="selectedStrategy.generatePayoff">Generate Payoff</button>
+                        <button type="submit" class="btn btn-primary" @click="selectedStrategy.generatePayoff()">Generate Payoff</button>
                     </div>
+
+                    <div id="payoffchart" style="width: 300px;height:300px"></div>
                 </div>
             </div>
         </div>
@@ -109,11 +112,15 @@
             baseUrl: 'Pricer.Fabled',
             paths: {
                 // Explicit path to core lib (relative to baseUrl, omit .js)
-                'fable-core': '../node_modules/fable-core/fable-core.min'
+                'fable-core': '../node_modules/fable-core/fable-core.min',
+                'd3': '../node_modules/d3/d3.min',
+                'nvd3': '../node_modules/nvd3/build/nv.d3'
             }
         });
         // Load the entry file of the app (use array, omit .js)
-        requirejs(["app"]);
+        requirejs(['d3'], function () {
+            requirejs(["app", "nvd3"]);
+        });
     </script>
 
 	</body>
