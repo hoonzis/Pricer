@@ -67,9 +67,6 @@
     <Reference Include="Fable.Core">
       <HintPath>node_modules\fable-core\Fable.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Fable.Providers.Regex">
-      <HintPath>node_modules\fable-providers-regex\Fable.Providers.Regex.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>

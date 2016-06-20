@@ -4,7 +4,6 @@ open System
 open Pricer.Core
 open Fable.Core
 open Fable.Import
-open Fable.Providers.Regex
 
 [<Erase>]
 module Lib =
@@ -41,6 +40,16 @@ module Main =
     let pricer = new SimplePricer()
     let payoffsGenerator = new PayoffsGenerator(pricer)
 
+    type StockViewModel(s:StockInfo) = 
+        let mutable rate = s.Rate
+        let mutable volatility = s.Volatility
+        let mutable currentPrice = s.CurrentPrice
+
+        member __.buildStock = {
+            Rate = rate
+            Volatility = volatility
+            CurrentPrice = currentPrice
+        }
 
     type LegViewModel(l:Leg) = 
         let mutable leg = l
@@ -88,7 +97,7 @@ module Main =
     type StrategyViewModel(strategy) =
         let mutable legs = strategy.Legs |> List.map (fun l -> LegViewModel(l)) |> Array.ofList
         let mutable name = strategy.Name
-        let mutable stock = strategy.Stock
+        let mutable stock = new StockViewModel(strategy.Stock)
         
         member __.addLeg(event) = 
             let  newLeg: Leg = {
@@ -109,7 +118,7 @@ module Main =
             let newStrategy = {
                 Name = name
                 Legs = legs |> Seq.map (fun l -> l.getLeg) |> List.ofSeq
-                Stock = stock
+                Stock = stock.buildStock
             }
             let data = payoffsGenerator.getStrategyData newStrategy
             Charting.drawPayoff data
@@ -120,7 +129,9 @@ module Main =
         let mutable strategies = examples |> List.map (fun s -> new StrategyViewModel(s)) |> Array.ofList
         let mutable selectedStrategy: StrategyViewModel option = None
 
-        member self.select strat = selectedStrategy <- Some strat
+        member __.allStrategies = strategies
+        member __.select strat = selectedStrategy <- Some strat
+        member __.strategy = selectedStrategy
         
     type Directives =
         abstract ``todo-focus``: obj option -> unit
@@ -142,4 +153,6 @@ module Main =
         ]
 
     let vm = StrategyListViewModel(StrategiesExamples.exampleStrategies)
+    vm.select vm.allStrategies.[4]
+    vm.strategy.Value.generatePayoff()
     let app = VueHelper.createFromObj(vm, extraOpts)
