@@ -67,7 +67,7 @@ module Main =
             if kind = "Cash" then 
                 {
                     Definition = Cash { 
-                        Direction = 1.0
+                        Direction = if direction = "Buy" then 1.0 else -1.0
                         Price = strike
                     }
                     Pricing = None
@@ -75,7 +75,7 @@ module Main =
             else
                 {
                     Definition = Option { 
-                        Direction = 1.0
+                        Direction = if direction = "Buy" then 1.0 else -1.0
                         Expiry = DateTime.Now
                         Strike = strike
                         PurchaseDate = DateTime.Now

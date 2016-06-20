@@ -15,19 +15,14 @@ type LineData = {
     values: Value array
 }
 
-type XAxis = 
-    abstract axisLabel: string -> XAxis
-    abstract tickFormat: System.Func<float,string> -> XAxis
-
-type YAxis =
-    abstract axisLabel: string -> YAxis
-    abstract tickFormat: System.Func<float,string> -> YAxis
+type Axis = 
+    abstract axisLabel: string -> Axis
+    abstract tickFormat: System.Func<float,string> -> Axis
 
 type LineChart = 
-    abstract xAxis: XAxis
-    abstract yAxis: YAxis
-    abstract useInteractiveGuideline: bool -> LineChart
-    abstract transitionDuration: bool -> LineChart
+    abstract xAxis: Axis
+    abstract yAxis: Axis
+    abstract useInteractiveGuideline: bool -> LineChart   
     abstract showLegend: bool -> LineChart
     abstract showXAxis: bool -> LineChart
     abstract showYAxis: bool -> LineChart
@@ -39,8 +34,6 @@ type models =
 [<Erase>]
 module nv =
     let models: models = failwith "JS only"
-    let addGraph: System.Func<LineChart> -> unit = 
-        failwith "JS Only"
 
 module Charting =
  
@@ -61,17 +54,17 @@ module Charting =
 
     let genrateChart (data:LineData array) = 
         let chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true)
+
         chart.xAxis.axisLabel("Underlying Price").tickFormat(D3.Globals.format(",.1f")) |> ignore
         
-        chart.yAxis.axisLabel("Voltage (v)").tickFormat(D3.Globals.format(",.2f")) |> ignore
+        chart.yAxis.axisLabel("Profit").tickFormat(D3.Globals.format(",.1f")) |> ignore
         chart
 
-    let drawLineChart (data: LineData array) = 
-        nv.addGraph(new System.Func<LineChart>(fun () -> 
-            let chart = genrateChart data
-            D3.Globals.select("#payoffchart").datum(data).call(chart) |> ignore
-            chart
-        ))
+    let drawLineChart (data: LineData array) =      
+        let chart = genrateChart data
+        let chartElement = D3.Globals.select("#payoffchart")
+        chartElement.style("height","300px") |> ignore
+        chartElement.datum(data).call(chart) |> ignore
 
     let drawPayoff data =
         let payoff = 

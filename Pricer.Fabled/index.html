@@ -55,11 +55,13 @@
                         </tr>
                         </tbody>
                     </table>
-                    <div class="col-md-2 col-md-offset-8">
+                    <div class="pull-right">
                         <button type="submit" class="btn btn-primary" @click="selectedStrategy.generatePayoff()">Generate Payoff</button>
                     </div>
 
-                    <div id="payoffchart" style="width: 300px;height:300px"></div>
+                    <div>
+                        <svg id="payoffchart"></svg>
+                    </div>
                 </div>
             </div>
         </div>
