@@ -60,10 +60,20 @@ module Charting =
         chart.yAxis.axisLabel("Profit").tickFormat(D3.Globals.format(",.1f")) |> ignore
         chart
 
+
+    let clearAndGetParentChartDiv (selector:string) =
+        let element = D3.Globals.select(selector);
+        element.html("") |> ignore
+        element;
+
+    let clearAndGetChartElement() = clearAndGetParentChartDiv("#payoffchart") |> ignore
+    
     let drawLineChart (data: LineData array) =      
         let chart = genrateChart data
+        let parentDiv = clearAndGetParentChartDiv("#payoffchart")
+        let chartElement = parentDiv.append("svg");
         let chartElement = D3.Globals.select("#payoffchart")
-        chartElement.style("height","300px") |> ignore
+        chartElement.style("height","500px") |> ignore
         chartElement.datum(data).call(chart) |> ignore
 
     let drawPayoff data =

@@ -92,7 +92,7 @@ module Main =
                         Style = European
                     }
                     Pricing = None
-                }    
+                }
 
     type StrategyViewModel(strategy) =
         let mutable legs = strategy.Legs |> List.map (fun l -> LegViewModel(l)) |> Array.ofList
@@ -113,6 +113,9 @@ module Main =
             }
 
             legs <- (legs |> Array.append [|new LegViewModel(newLeg)|])
+        
+        member __.removeLeg(leg:LegViewModel) =
+            legs <- (legs |> Array.filter (fun l -> l.getLeg <> leg.getLeg))
 
         member __.generatePayoff() = 
             let newStrategy = {
@@ -130,7 +133,10 @@ module Main =
         let mutable selectedStrategy: StrategyViewModel option = None
 
         member __.allStrategies = strategies
-        member __.select strat = selectedStrategy <- Some strat
+        member __.select strat = 
+            selectedStrategy <- Some strat
+            selectedStrategy.Value.generatePayoff()
+
         member __.strategy = selectedStrategy
         
     type Directives =
@@ -138,7 +144,7 @@ module Main =
             
     let extraOpts =
         createObj [
-            "el" ==> ".todoapp"           
+            "el" ==> ".payoffapp"           
             "directives" ==> {
                 new Directives with
                     member this.``todo-focus`` x =
