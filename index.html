@@ -134,8 +134,10 @@
         }
     });
     // Load the entry file of the app (use array, omit .js)
-    requirejs(['d3'], function() {
-        requirejs(["App", "nvd3"]);
+    requirejs(['d3'], function () {
+        requirejs(['nvd3'], function() {
+            requirejs(["App"]);
+        });
     });
 </script>
 
