@@ -70,22 +70,22 @@
                 <div class="panel-heading">Underlying stock</div>
                 <div class="panel-body">
                     <form class="form-horizontal">
-                        <div class="form-group" data-bind="css: { error: !currentPrice.isValid() }">
+                        <div class="form-group">
                             <label class="col-sm-5 control-label">Current price</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control" placeholder="CurrentPrice" data-bind="value: currentPrice">
+                                <input type="text" class="form-control" placeholder="CurrentPrice" v-model="selectedStrategy.stock.currentPrice">
                             </div>
                         </div>
-                        <div class="form-group" data-bind="css: { error: !volatility.isValid() }">
+                        <div class="form-group">
                             <label class="col-sm-5 control-label">Volatility</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control" placeholder="Volatility" data-bind="value: volatility">
+                                <input type="text" class="form-control" placeholder="Volatility" v-model="selectedStrategy.stock.volatility">
                             </div>
                         </div>
-                        <div class="form-group" data-bind="css: { error: !rate.isValid() }">
+                        <div class="form-group">
                             <label class="col-sm-5 control-label">Interest Rate</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control" placeholder="Interest Rate" data-bind="value: rate">
+                                <input type="text" class="form-control" placeholder="Interest Rate" v-model="selectedStrategy.stock.rate">
                             </div>
                         </div>
                     </form>
@@ -111,7 +111,7 @@
     <script>
         requirejs.config({
             // Set the baseUrl to the path of the compiled JS code
-            baseUrl: 'Pricer.Fabled',
+            baseUrl: 'CompiledJs',
             paths: {
                 // Explicit path to core lib (relative to baseUrl, omit .js)
                 'fable-core': '../node_modules/fable-core/fable-core.min',
