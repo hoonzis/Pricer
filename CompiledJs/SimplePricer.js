@@ -1,4 +1,4 @@
-define(["exports", "../Pricer.Core/BlackScholesPricer", "./SimpleMath", "../Pricer.Core/OptionsModel", "fable-core"], function (exports, _BlackScholesPricer, _SimpleMath, _OptionsModel, _fableCore) {
+define(["exports", "Pricer.Core/BlackScholesPricer", "./SimpleMath", "Pricer.Core/OptionsModel", "fable-core"], function (exports, _BlackScholesPricer, _SimpleMath, _OptionsModel, _fableCore) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {

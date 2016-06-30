@@ -65,11 +65,22 @@ define(["exports", "fable-core", "d3"], function (exports, _fableCore, _d) {
             return chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true), chart.xAxis.axisLabel("Underlying Price").tickFormat($import2.format(",.1f")), chart.yAxis.axisLabel("Profit").tickFormat($import2.format(",.1f")), chart;
         };
 
+        var clearAndGetParentChartDiv = $exports.clearAndGetParentChartDiv = function (selector) {
+            var element;
+            return element = $import2.select(selector), element.html(""), element;
+        };
+
+        var clearAndGetChartElement = $exports.clearAndGetChartElement = function () {
+            clearAndGetParentChartDiv("#payoffchart");
+        };
+
         var drawLineChart = $exports.drawLineChart = function (data) {
             var chart = genrateChart(data);
-            var chartElement = $import2.select("#payoffchart");
-            chartElement.style("height", "300px");
-            chartElement.datum(data).call(chart);
+            var parentDiv = clearAndGetParentChartDiv("#payoffchart");
+            var chartElement = parentDiv.append("svg");
+            var chartElement_1 = $import2.select("#payoffchart");
+            chartElement_1.style("height", "500px");
+            chartElement_1.datum(data).call(chart);
         };
 
         var drawPayoff = $exports.drawPayoff = function (data) {

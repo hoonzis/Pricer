@@ -1,4 +1,4 @@
-define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenerator", "../Pricer.Core/OptionsModel", "./Charting", "../Pricer.Core/StrategiesExamples"], function (exports, _fableCore, _SimplePricer, _PayoffsGenerator, _OptionsModel, _Charting, _StrategiesExamples) {
+define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator", "Pricer.Core/StocksModel", "Pricer.Core/OptionsModel", "./Charting", "Pricer.Core/StrategiesExamples"], function (exports, _fableCore, _SimplePricer, _PayoffsGenerator, _StocksModel, _OptionsModel, _Charting, _StrategiesExamples) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
@@ -118,6 +118,25 @@ define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenera
         var pricer = $exports.pricer = new _SimplePricer.SimplePricer();
         var payoffsGenerator = $exports.payoffsGenerator = new _PayoffsGenerator.PayoffsGenerator(pricer);
 
+        var StockViewModel = $exports.StockViewModel = function () {
+            function StockViewModel(s) {
+                _classCallCheck(this, StockViewModel);
+
+                this.rate = s.Rate;
+                this.volatility = s.Volatility;
+                this.currentPrice = s.CurrentPrice;
+            }
+
+            _createClass(StockViewModel, [{
+                key: "buildStock",
+                get: function () {
+                    return new _StocksModel.StockInfo(this.rate, this.volatility, this.currentPrice);
+                }
+            }]);
+
+            return StockViewModel;
+        }();
+
         var LegViewModel = $exports.LegViewModel = function () {
             function LegViewModel(l) {
                 var opt,
@@ -170,7 +189,7 @@ define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenera
                     return new LegViewModel(l);
                 }, strategy.Legs));
                 this.name = strategy.Name;
-                this.stock = strategy.Stock;
+                this.stock = new StockViewModel(strategy.Stock);
             }
 
             _createClass(StrategyViewModel, [{
@@ -180,12 +199,19 @@ define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenera
                     this.legs = Array.from(_fableCore.Seq.append([new LegViewModel(newLeg)], this.legs));
                 }
             }, {
+                key: "removeLeg",
+                value: function removeLeg(leg) {
+                    this.legs = this.legs.filter(function (l) {
+                        return _fableCore.Util.compareTo(l.getLeg, leg.getLeg) !== 0;
+                    });
+                }
+            }, {
                 key: "generatePayoff",
                 value: function generatePayoff() {
                     var Name, Legs;
                     var newStrategy = (Name = this.name, Legs = _fableCore.Seq.toList(_fableCore.Seq.map(function (l) {
                         return l.getLeg;
-                    }, this.legs)), new _OptionsModel.Strategy(this.stock, Name, Legs));
+                    }, this.legs)), new _OptionsModel.Strategy(this.stock.buildStock, Name, Legs));
                     var data = payoffsGenerator.getStrategyData(newStrategy);
 
                     _Charting.Charting.drawPayoff(data);
@@ -209,6 +235,17 @@ define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenera
                 key: "select",
                 value: function select(strat) {
                     this.selectedStrategy = strat;
+                    this.selectedStrategy.generatePayoff();
+                }
+            }, {
+                key: "allStrategies",
+                get: function () {
+                    return this.strategies;
+                }
+            }, {
+                key: "strategy",
+                get: function () {
+                    return this.selectedStrategy;
                 }
             }]);
 
@@ -216,7 +253,7 @@ define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenera
         }();
 
         var extraOpts = $exports.extraOpts = {
-            el: ".todoapp",
+            el: ".payoffapp",
             directives: (_directives = {}, _defineProperty(_directives, _fableCore.Symbol.interfaces, ["Pricer.Fabled.Main.Directives"]), _defineProperty(_directives, "todo-focus", function (x) {
                 var el;
                 x != null ? (el = this.el, Vue.nextTick(function (unitVar0) {
@@ -225,6 +262,8 @@ define(["exports", "fable-core", "./SimplePricer", "../Pricer.Core/PayoffsGenera
             }), _directives)
         };
         var vm = $exports.vm = new StrategyListViewModel(_StrategiesExamples.exampleStrategies);
+        vm.select(vm.allStrategies[4]);
+        vm.strategy.generatePayoff();
         var app = $exports.app = VueHelper.createFromObj(vm, extraOpts);
         return $exports;
     }({});
