@@ -11,7 +11,6 @@ nuget Antlr 3.5.0.2 framework: >= net4
 nuget d3 3.5.6 framework: >= net4
 nuget Dynamitey 1.0.2.0 framework: >= net4
 nuget FSharp.Core 3.1.2.1 framework: >= net4
-nuget FSharp.Data 2.2.5 framework: >= net4
 nuget FSharp.Interop.Dynamic 3.0.0.0 framework: >= net4
 nuget FsWebAddRegistryEntries 0.1.1.0 framework: >= net4
 nuget jQuery 2.1.4 framework: >= net4
