@@ -53,7 +53,7 @@ module Main =
 
     type LegViewModel(l:Leg) = 
         let mutable leg = l
-        let mutable strike = 0.0
+        let mutable strike = "0.0"
         let mutable expiry = "test"
         let mutable kind = "Option"
         let mutable direction = "Buy"       
@@ -63,7 +63,7 @@ module Main =
         do 
             match l.Definition with
                     | Option opt -> 
-                        strike <- opt.Strike
+                        strike <- opt.Strike.ToString()
                         expiry <- opt.Expiry |> dateToString
                         direction <- opt.Direction |> getDirection
                         kind <- opt.Kind |> getKind
@@ -77,7 +77,7 @@ module Main =
                 {
                     Definition = Cash { 
                         Direction = if direction = "Buy" then 1.0 else -1.0
-                        Price = strike
+                        Price = float strike
                     }
                     Pricing = None
                 }
@@ -86,7 +86,7 @@ module Main =
                     Definition = Option { 
                         Direction = if direction = "Buy" then 1.0 else -1.0
                         Expiry = DateTime.Now
-                        Strike = strike
+                        Strike = float strike
                         PurchaseDate = DateTime.Now
                         Kind = if kind = "Put" then Put else Call
                         Style = European
