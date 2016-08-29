@@ -3,6 +3,7 @@
 type Implementation =
     | Functional 
     | Imperative
+    | FunctionalFast
 
 //this type holds the configuration for binomial pricing model
 type BinomialPricing = {
@@ -94,6 +95,46 @@ module Binomial =
             Delta = 1.0
         }
 
+    let generateEndNodePricesFast (ref:float) (up:float) (periods:int) optionVal =
+        let down = 1.0 / up 
+        let lowestStock = ref*(down**(float periods))
+        let first = lowestStock,optionVal lowestStock
+        let values = Seq.unfold (fun (stock,der)-> 
+            let stock' = stock*up*up
+            let der' = optionVal stock'
+            Some ((stock,der),(stock', der'))) first
+        values |> Seq.take periods |> Seq.toArray
+
+    let stepFast pricing optionVal (prices:(float*float) []) =
+        prices 
+            |> Array.pairwise 
+            |> Array.map (fun ((sDown,dDown),(sUp,dUp)) -> 
+                let derValue = (pricing.PUp*dUp+pricing.PDown*dDown)*(1.0/pricing.Rate)
+                let stockValue = sUp*pricing.Down
+                let der' = match pricing.Option.Style with
+                                    | American -> 
+                                        let prematureExValue = optionVal stockValue
+                                        max derValue prematureExValue
+                                    | European -> derValue
+                stockValue,der')
+            
+
+    let binomialPricingFuncFast (pricing:BinomialPricing) =
+        let optionValue = BasicOptions.optionValue pricing.Option
+        let prices = generateEndNodePricesFast pricing.Ref pricing.Up pricing.Periods optionValue
+        
+        let reductionStep = stepFast pricing optionValue
+        let rec reducePrices prices =
+            match prices with
+                    | [|(stock,der)|] -> der
+                    | prs -> reducePrices (reductionStep prs)
+        //TODO: calculate the correct delta in this functional implementation    
+        let premium = reducePrices prices
+        {
+            Premium = premium
+            Delta = 1.0
+        }
+
     let binomial (stock:StockInfo) (option:OptionLeg) (steps:int) implementation = 
 
         //we need to construct the binomial pricing model, using the CRR (Cox, Ross and Rubinstein)
@@ -121,3 +162,4 @@ module Binomial =
         match implementation with
             | Imperative -> binomialPricing pricing
             | Functional -> binomialPricingFunc pricing
+            | FunctionalFast -> binomialPricingFuncFast pricing
