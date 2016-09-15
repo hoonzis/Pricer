@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{B5890CFD-19B9-430D-B3A4-99465647ED83}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,10 +23,6 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.MarketData", "Pricer.MarketData\Pricer.MarketData.fsproj", "{92331C77-9E57-441E-8E50-D19CCFF2D9C9}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.MarketData.Tests", "Pricer.MarketData.Tests\Pricer.MarketData.Tests.fsproj", "{2C5C055C-81C0-4E58-B059-66EA8B9F142A}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.PayoffCharts", "Pricer.PayoffCharts\Pricer.PayoffCharts.fsproj", "{9BF0BCBE-78B5-4DCA-852B-65724518DA41}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.PayoffCharts.Tests", "Pricer.PayoffCharts.Tests\Pricer.PayoffCharts.Tests.fsproj", "{3BDDA039-9C05-4207-825C-60E39C3CEA9E}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Fabled", "Pricer.Fabled\Pricer.Fabled.fsproj", "{1E44403B-7834-4842-91B1-53A5FA731C58}"
 EndProject
@@ -54,14 +50,6 @@ Global
 		{2C5C055C-81C0-4E58-B059-66EA8B9F142A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C5C055C-81C0-4E58-B059-66EA8B9F142A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C5C055C-81C0-4E58-B059-66EA8B9F142A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BF0BCBE-78B5-4DCA-852B-65724518DA41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BF0BCBE-78B5-4DCA-852B-65724518DA41}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BF0BCBE-78B5-4DCA-852B-65724518DA41}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BF0BCBE-78B5-4DCA-852B-65724518DA41}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BDDA039-9C05-4207-825C-60E39C3CEA9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BDDA039-9C05-4207-825C-60E39C3CEA9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BDDA039-9C05-4207-825C-60E39C3CEA9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BDDA039-9C05-4207-825C-60E39C3CEA9E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1E44403B-7834-4842-91B1-53A5FA731C58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1E44403B-7834-4842-91B1-53A5FA731C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E44403B-7834-4842-91B1-53A5FA731C58}.Release|Any CPU.ActiveCfg = Release|Any CPU

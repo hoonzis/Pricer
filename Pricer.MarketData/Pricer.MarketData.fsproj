@@ -60,7 +60,6 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="MarketDataModel.fs" />
-    <Compile Include="Tools.fs" />
     <Compile Include="MarketProviders.fs" />
     <EmbeddedResource Include="lsesinglestock.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -6,6 +6,7 @@ open System.Collections.Generic
 open FSharp.Data
 open System.Net
 open Pricer
+open Pricer.Core
 
 type LseStocks = JsonProvider<"lsedataset.json",EmbeddedResource="Pricer.MarketData,lsedataset.json">
 type SingleLseStock = JsonProvider<"lsesinglestock.json",EmbeddedResource="Pricer.MarketData,lsesinglestock.json">

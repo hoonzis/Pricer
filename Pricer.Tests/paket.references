@@ -1,3 +1,5 @@
 FSharp.Core
 FsUnit
 NUnit
+BenchmarkDotNet
+BenchmarkDotNet.Diagnostics.Windows
