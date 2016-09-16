@@ -11,7 +11,7 @@ before_build:
   cmd: prebuild.cmd
 
 build_script:
-  cmd: build.cmd CompilePricer
+  cmd: fake.cmd CompilePricer
 
 test_script:
-  cmd: build.cmd Test
+  cmd: fake.cmd Test
