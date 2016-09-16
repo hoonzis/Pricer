@@ -1,16 +1,16 @@
 (function (global, factory) {
     if (typeof define === "function" && define.amd) {
-        define(["exports", "./OptionsModel"], factory);
+        define(["exports", "./OptionsModel", "fable-core"], factory);
     } else if (typeof exports !== "undefined") {
-        factory(exports, require("./OptionsModel"));
+        factory(exports, require("./OptionsModel"), require("fable-core"));
     } else {
         var mod = {
             exports: {}
         };
-        factory(mod.exports, global.OptionsModel);
-        global.unknown = mod.exports;
+        factory(mod.exports, global.OptionsModel, global.fableCore);
+        global.BlackScholesPricer = mod.exports;
     }
-})(this, function (exports, _OptionsModel) {
+})(this, function (exports, _OptionsModel, _fableCore) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
@@ -52,12 +52,32 @@
         _createClass(BlackScholesPricer, [{
             key: "blackScholes",
             value: function blackScholes(stock, option) {
-                var patternInput, price, delta, d1, d2, N1, N2, discountedStrike, call, matchValue;
-                return patternInput = option.TimeToExpiry > 0 ? (d1 = (Math.log(stock.CurrentPrice / option.Strike) + (stock.Rate + 0.5 * Math.pow(stock.Volatility, 2)) * option.TimeToExpiry) / (stock.Volatility * Math.sqrt(option.TimeToExpiry)), d2 = d1 - stock.Volatility * Math.sqrt(option.TimeToExpiry), N1 = this.math.cdf(d1), N2 = this.math.cdf(d2), discountedStrike = option.Strike * Math.exp(-stock.Rate * option.TimeToExpiry), call = stock.CurrentPrice * N1 - discountedStrike * N2, matchValue = option.Kind, matchValue.Case === "Put" ? [call + discountedStrike - stock.CurrentPrice, N1 - 1] : [call, N1]) : (matchValue = option.Kind, matchValue.Case === "Put" ? [option.Strike - stock.CurrentPrice > 0 ? option.Strike - stock.CurrentPrice : 0, 1] : [stock.CurrentPrice - option.Strike > 0 ? stock.CurrentPrice - option.Strike : 0, 1]), price = patternInput[0], delta = patternInput[1], new _OptionsModel.Pricing(delta, price);
+                var _this = this;
+
+                var patternInput = option.TimeToExpiry > 0 ? function () {
+                    var d1 = (Math.log(stock.CurrentPrice / option.Strike) + (stock.Rate + 0.5 * Math.pow(stock.Volatility, 2)) * option.TimeToExpiry) / (stock.Volatility * Math.sqrt(option.TimeToExpiry));
+                    var d2 = d1 - stock.Volatility * Math.sqrt(option.TimeToExpiry);
+
+                    var N1 = _this.math.cdf(d1);
+
+                    var N2 = _this.math.cdf(d2);
+
+                    var discountedStrike = option.Strike * Math.exp(-stock.Rate * option.TimeToExpiry);
+                    var call = stock.CurrentPrice * N1 - discountedStrike * N2;
+
+                    if (option.Kind.Case === "Put") {
+                        return [call + discountedStrike - stock.CurrentPrice, N1 - 1];
+                    } else {
+                        return [call, N1];
+                    }
+                }() : option.Kind.Case === "Put" ? [option.Strike - stock.CurrentPrice > 0 ? option.Strike - stock.CurrentPrice : 0, 1] : [stock.CurrentPrice - option.Strike > 0 ? stock.CurrentPrice - option.Strike : 0, 1];
+                return new _OptionsModel.Pricing(patternInput[1], patternInput[0]);
             }
         }]);
 
         return BlackScholesPricer;
     }();
+
+    _fableCore.Util.setInterfaces(BlackScholesPricer.prototype, [], "Pricer.Core.BlackScholesPricer");
 });
 //# sourceMappingURL=BlackScholesPricer.js.map

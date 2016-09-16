@@ -8,7 +8,7 @@
             exports: {}
         };
         factory(mod.exports, global.OptionsModel, global.fableCore, global.StocksModel);
-        global.unknown = mod.exports;
+        global.StrategiesExamples = mod.exports;
     }
 })(this, function (exports, _OptionsModel, _fableCore, _StocksModel) {
     "use strict";
@@ -16,94 +16,164 @@
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
-    exports.getStrategy = exports.exampleStrategies = exports.exampleStock = exports.strategiesForStock = exports.putSpread = exports.callSpread = exports.shortCall = exports.longCall = exports.boxOption = exports.condor = exports.cashPayOff = exports.coveredCall = exports.collar = exports.riskReversal = exports.butterfly = exports.straddle = exports.strangle = exports.expiry = exports.buildOptionLeg = exports.testStrikes = undefined;
-    var copyOfStruct, CurrentPrice, Volatility;
+    exports.exampleStrategies = exports.exampleStock = exports.expiry = undefined;
+    exports.testStrikes = testStrikes;
+    exports.buildOptionLeg = buildOptionLeg;
+    exports.strangle = strangle;
+    exports.straddle = straddle;
+    exports.butterfly = butterfly;
+    exports.riskReversal = riskReversal;
+    exports.collar = collar;
+    exports.coveredCall = coveredCall;
+    exports.cashPayOff = cashPayOff;
+    exports.condor = condor;
+    exports.boxOption = boxOption;
+    exports.longCall = longCall;
+    exports.shortCall = shortCall;
+    exports.callSpread = callSpread;
+    exports.putSpread = putSpread;
+    exports.strategiesForStock = strategiesForStock;
+    exports.getStrategy = getStrategy;
 
-    var testStrikes = exports.testStrikes = function (stock) {
+    function testStrikes(stock) {
         return [Math.floor(stock.CurrentPrice * 1.1), Math.floor(stock.CurrentPrice * 1.4)];
-    };
+    }
 
-    var buildOptionLeg = exports.buildOptionLeg = function (direction, strike, expiry, kind) {
-        return new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", new _OptionsModel.OptionLeg(direction, strike, expiry, kind, new _OptionsModel.OptionStyle("European"), _fableCore.Date.now())));
-    };
+    function buildOptionLeg(direction, strike, expiry, kind) {
+        return new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", [new _OptionsModel.OptionLeg(direction, strike, expiry, kind, new _OptionsModel.OptionStyle("European", []), _fableCore.Date.now())]));
+    }
 
-    var expiry = exports.expiry = (copyOfStruct = _fableCore.Date.now(), _fableCore.Date.addDays(copyOfStruct, 60));
+    var expiry = exports.expiry = function () {
+        var copyOfStruct = _fableCore.Date.now();
 
-    var strangle = exports.strangle = function (stock) {
-        var patternInput, strike2, strike1, Name, Legs;
-        return patternInput = testStrikes(stock), strike2 = patternInput[1], strike1 = patternInput[0], Name = "Long Strangle", Legs = _fableCore.List.ofArray([buildOptionLeg(1, strike1, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, strike2, expiry, new _OptionsModel.OptionKind("Put"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        return _fableCore.Date.addDays(copyOfStruct, 60);
+    }();
 
-    var straddle = exports.straddle = function (stock) {
-        var patternInput, strike, Name, Legs;
-        return patternInput = testStrikes(stock), strike = patternInput[0], Name = "Straddle", Legs = _fableCore.List.ofArray([buildOptionLeg(1, strike, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, strike, expiry, new _OptionsModel.OptionKind("Put"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+    function strangle(stock) {
+        var patternInput = testStrikes(stock);
+        var Name = "Long Strangle";
 
-    var butterfly = exports.butterfly = function (stock) {
-        var Name, Legs;
-        return Name = "Butterfly", Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.05, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(-1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(-1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, stock.CurrentPrice * 1.15, expiry, new _OptionsModel.OptionKind("Call"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(1, patternInput[0], expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, patternInput[1], expiry, new _OptionsModel.OptionKind("Put", []))]);
 
-    var riskReversal = exports.riskReversal = function (stock) {
-        var Name, Legs;
-        return Name = "Risk Reversal", Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(-1, stock.CurrentPrice * 0.9, expiry, new _OptionsModel.OptionKind("Put"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
 
-    var collar = exports.collar = function (stock) {
-        var Name, Legs;
-        return Name = "Collar", Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, stock.CurrentPrice * 0.8, expiry, new _OptionsModel.OptionKind("Put")), new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", new _OptionsModel.CashLeg(1, stock.CurrentPrice)))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+    function straddle(stock) {
+        var patternInput = testStrikes(stock);
+        var Name = "Straddle";
 
-    var coveredCall = exports.coveredCall = function (stock) {
-        var Name, Legs;
-        return Name = "Covered Call", Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call")), new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", new _OptionsModel.CashLeg(1, stock.CurrentPrice)))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(1, patternInput[0], expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, patternInput[0], expiry, new _OptionsModel.OptionKind("Put", []))]);
 
-    var cashPayOff = exports.cashPayOff = function (strike, ref) {
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function butterfly(stock) {
+        var Name = "Butterfly";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.05, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, stock.CurrentPrice * 1.15, expiry, new _OptionsModel.OptionKind("Call", []))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function riskReversal(stock) {
+        var Name = "Risk Reversal";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, stock.CurrentPrice * 0.9, expiry, new _OptionsModel.OptionKind("Put", []))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function collar(stock) {
+        var Name = "Collar";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, stock.CurrentPrice * 0.8, expiry, new _OptionsModel.OptionKind("Put", [])), new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", [new _OptionsModel.CashLeg(1, stock.CurrentPrice)]))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function coveredCall(stock) {
+        var Name = "Covered Call";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", [])), new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", [new _OptionsModel.CashLeg(1, stock.CurrentPrice)]))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function cashPayOff(strike, ref) {
         return ref - strike;
-    };
+    }
 
-    var condor = exports.condor = function (stock) {
-        var strike1, strike2, strike3, strike4, Name, Legs;
-        return strike1 = Math.floor(stock.CurrentPrice * 0.6), strike2 = Math.floor(stock.CurrentPrice * 0.9), strike3 = Math.floor(stock.CurrentPrice) * 1.1, strike4 = Math.floor(stock.CurrentPrice) * 1.4, Name = "Condor", Legs = _fableCore.List.ofArray([buildOptionLeg(-1, strike2, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, strike1, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(-1, strike3, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, strike4, expiry, new _OptionsModel.OptionKind("Call"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+    function condor(stock) {
+        var strike1 = Math.floor(stock.CurrentPrice * 0.6);
+        var strike2 = Math.floor(stock.CurrentPrice * 0.9);
+        var strike3 = Math.floor(stock.CurrentPrice) * 1.1;
+        var strike4 = Math.floor(stock.CurrentPrice) * 1.4;
+        var Name = "Condor";
 
-    var boxOption = exports.boxOption = function (stock) {
-        var patternInput, strike2, strike1, Name, Legs;
-        return patternInput = testStrikes(stock), strike2 = patternInput[1], strike1 = patternInput[0], Name = "Box Option", Legs = _fableCore.List.ofArray([buildOptionLeg(1, strike1, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(-1, strike2, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, strike2, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(-1, strike1, expiry, new _OptionsModel.OptionKind("Call"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, strike2, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, strike1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, strike3, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, strike4, expiry, new _OptionsModel.OptionKind("Call", []))]);
 
-    var longCall = exports.longCall = function (stock) {
-        var Name, Legs;
-        return Name = "Long Call - Out Of Money", Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
 
-    var shortCall = exports.shortCall = function (stock) {
-        var Name, Legs;
-        return Name = "Short Call - Out Of Money", Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+    function boxOption(stock) {
+        var patternInput = testStrikes(stock);
+        var Name = "Box Option";
 
-    var callSpread = exports.callSpread = function (stock) {
-        var patternInput, strike2, strike1, Name, Legs;
-        return patternInput = testStrikes(stock), strike2 = patternInput[1], strike1 = patternInput[0], Name = "Bull Call Spread", Legs = _fableCore.List.ofArray([buildOptionLeg(-1, strike2, expiry, new _OptionsModel.OptionKind("Call")), buildOptionLeg(1, strike1, expiry, new _OptionsModel.OptionKind("Call"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(1, patternInput[0], expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, patternInput[1], expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, patternInput[1], expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, patternInput[0], expiry, new _OptionsModel.OptionKind("Call", []))]);
 
-    var putSpread = exports.putSpread = function (stock) {
-        var patternInput, strike2, strike1, Name, Legs;
-        return patternInput = testStrikes(stock), strike2 = patternInput[1], strike1 = patternInput[0], Name = "Bull Put Spread", Legs = _fableCore.List.ofArray([buildOptionLeg(-1, strike2, expiry, new _OptionsModel.OptionKind("Put")), buildOptionLeg(1, strike1, expiry, new _OptionsModel.OptionKind("Put"))]), new _OptionsModel.Strategy(stock, Name, Legs);
-    };
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
 
-    var strategiesForStock = exports.strategiesForStock = function (stock) {
+    function longCall(stock) {
+        var Name = "Long Call - Out Of Money";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", []))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function shortCall(stock) {
+        var Name = "Short Call - Out Of Money";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", []))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function callSpread(stock) {
+        var patternInput = testStrikes(stock);
+        var Name = "Bull Call Spread";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, patternInput[1], expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, patternInput[0], expiry, new _OptionsModel.OptionKind("Call", []))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function putSpread(stock) {
+        var patternInput = testStrikes(stock);
+        var Name = "Bull Put Spread";
+
+        var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, patternInput[1], expiry, new _OptionsModel.OptionKind("Put", [])), buildOptionLeg(1, patternInput[0], expiry, new _OptionsModel.OptionKind("Put", []))]);
+
+        return new _OptionsModel.Strategy(stock, Name, Legs);
+    }
+
+    function strategiesForStock(stock) {
         return _fableCore.List.ofArray([longCall(stock), shortCall(stock), callSpread(stock), putSpread(stock), straddle(stock), strangle(stock), butterfly(stock), riskReversal(stock), collar(stock), condor(stock), boxOption(stock), coveredCall(stock)]);
-    };
+    }
 
-    var exampleStock = exports.exampleStock = (CurrentPrice = 100, Volatility = 0.05, new _StocksModel.StockInfo(0.03, Volatility, CurrentPrice));
+    var exampleStock = exports.exampleStock = function () {
+        var CurrentPrice = 100;
+        var Volatility = 0.05;
+        return new _StocksModel.StockInfo(0.03, Volatility, CurrentPrice);
+    }();
+
     var exampleStrategies = exports.exampleStrategies = strategiesForStock(exampleStock);
 
-    var getStrategy = exports.getStrategy = function (name, stock) {
+    function getStrategy(name, stock) {
         return _fableCore.Seq.find(function (s) {
             return s.Name === name;
         }, strategiesForStock(stock));
-    };
+    }
 });
 //# sourceMappingURL=StrategiesExamples.js.map

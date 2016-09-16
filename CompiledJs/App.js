@@ -1,4 +1,4 @@
-define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator", "Pricer.Core/StocksModel", "Pricer.Core/OptionsModel", "./Charting", "Pricer.Core/StrategiesExamples"], function (exports, _fableCore, _SimplePricer, _PayoffsGenerator, _StocksModel, _OptionsModel, _Charting, _StrategiesExamples) {
+define(["exports", "./SimplePricer", "Pricer.Core/PayoffsGenerator", "Pricer.Core/StocksModel", "fable-core", "./Tools", "Pricer.Core/OptionsModel", "./Charting", "Pricer.Core/StrategiesExamples"], function (exports, _SimplePricer, _PayoffsGenerator, _StocksModel, _fableCore, _Tools, _OptionsModel, _Charting, _StrategiesExamples) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
@@ -46,11 +46,11 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
     }();
 
     var VueHelper = exports.VueHelper = function ($exports) {
-        var createFromObj = $exports.createFromObj = function (data, extraOpts) {
-            var methods, computed, proto;
-            return methods = {}, computed = {}, proto = Object.getPrototypeOf(data), function () {
-                var _ret;
-
+        var createFromObj = $exports.createFromObj = function createFromObj(data, extraOpts) {
+            var methods = {};
+            var computed = {};
+            var proto = Object.getPrototypeOf(data);
+            {
                 var inputSequence = Object.getOwnPropertyNames(proto);
                 var _iteratorNormalCompletion = true;
                 var _didIteratorError = false;
@@ -58,14 +58,18 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
 
                 try {
                     for (var _iterator = inputSequence[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var f;
                         var k = _step.value;
                         var prop = Object.getOwnPropertyDescriptor(proto, k);
                         var matchValue = prop.value;
-                        _ret = matchValue == null ? computed[k] = {
-                            get: prop.get,
-                            set: prop.set
-                        } : (f = matchValue, methods[k] = f);
+
+                        if (matchValue == null) {
+                            computed[k] = {
+                                get: prop.get,
+                                set: prop.set
+                            };
+                        } else {
+                            methods[k] = matchValue;
+                        }
                     }
                 } catch (err) {
                     _didIteratorError = true;
@@ -81,9 +85,11 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
                         }
                     }
                 }
-
-                return _ret;
-            }(), extraOpts.data = data, extraOpts.computed = computed, extraOpts.methods = methods, new Vue(extraOpts);
+            }
+            extraOpts.data = data;
+            extraOpts.computed = computed;
+            extraOpts.methods = methods;
+            return new Vue(extraOpts);
         };
 
         return $exports;
@@ -91,29 +97,6 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
 
     var Main = exports.Main = function ($exports) {
         var _directives;
-
-        var dateToString = $exports.dateToString = function (date) {
-            return function () {
-                return function () {
-                    var clo1;
-                    return clo1 = _fableCore.String.fsFormat("%i-%0i-%0i")(function (x) {
-                        return x;
-                    }), function (arg10) {
-                        return function () {
-                            var clo2;
-                            return clo2 = clo1(arg10), function (arg20) {
-                                return function () {
-                                    var clo3;
-                                    return clo3 = clo2(arg20), function (arg30) {
-                                        return clo3(arg30);
-                                    };
-                                }();
-                            };
-                        }();
-                    };
-                }();
-            }()(_fableCore.Date.year(date))(_fableCore.Date.month(date))(_fableCore.Date.day(date));
-        };
 
         var pricer = $exports.pricer = new _SimplePricer.SimplePricer();
         var payoffsGenerator = $exports.payoffsGenerator = new _PayoffsGenerator.PayoffsGenerator(pricer);
@@ -129,7 +112,7 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
 
             _createClass(StockViewModel, [{
                 key: "buildStock",
-                get: function () {
+                get: function get() {
                     return new _StocksModel.StockInfo(this.rate, this.volatility, this.currentPrice);
                 }
             }]);
@@ -137,49 +120,56 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
             return StockViewModel;
         }();
 
+        _fableCore.Util.setInterfaces(StockViewModel.prototype, [], "Pricer.Fabled.Main.StockViewModel");
+
         var LegViewModel = $exports.LegViewModel = function () {
             function LegViewModel(l) {
-                var opt,
-                    _this = this,
-                    cash;
-
                 _classCallCheck(this, LegViewModel);
 
                 this.leg = l;
-                this.strike = 0;
+                this.strike = "0.0";
                 this.expiry = "test";
                 this.kind = "Option";
                 this.direction = "Buy";
-                var matchValue = l.Definition;
-                matchValue.Case === "Option" ? (opt = matchValue.Fields[0], this.strike = opt.Strike, this.expiry = dateToString(opt.Expiry), this.direction = function (direction) {
-                    return _this.getDirection(direction);
-                }(opt.Direction), this.kind = function (kind) {
-                    return _this.getKind(kind);
-                }(opt.Kind)) : matchValue.Case === "Cash" ? (cash = matchValue.Fields[0], this.kind = "Cash", this.direction = function (direction) {
-                    return _this.getDirection(direction);
-                }(cash.Direction)) : null;
+
+                if (l.Definition.Case === "Option") {
+                    {
+                        var copyOfStruct = l.Definition.Fields[0].Strike;
+                        this.strike = String(copyOfStruct);
+                    }
+                    this.expiry = (0, _Tools.toDate)(l.Definition.Fields[0].Expiry);
+                    this.direction = l.Definition.Fields[0].BuyVsSell;
+                    this.kind = _fableCore.Util.toString(l.Definition.Fields[0].Kind);
+                } else {
+                    if (l.Definition.Case === "Cash") {
+                        this.kind = "Cash";
+                        this.direction = l.Definition.Fields[0].BuyVsSell;
+                    }
+                }
             }
 
             _createClass(LegViewModel, [{
-                key: "getDirection",
-                value: function getDirection(direction) {
-                    return direction === 1 ? "Buy" : "Sell";
-                }
-            }, {
-                key: "getKind",
-                value: function getKind(kind) {
-                    return _fableCore.Util.compareTo(kind, new _OptionsModel.OptionKind("Put")) === 0 ? "Put" : "Call";
-                }
-            }, {
                 key: "getLeg",
-                get: function () {
-                    var Direction, Expiry, Strike, PurchaseDate;
-                    return this.kind === "Cash" ? new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", new _OptionsModel.CashLeg(this.direction === "Buy" ? 1 : -1, this.strike))) : new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", (Direction = this.direction === "Buy" ? 1 : -1, Expiry = _fableCore.Date.now(), Strike = this.strike, PurchaseDate = _fableCore.Date.now(), new _OptionsModel.OptionLeg(Direction, Strike, Expiry, this.kind === "Put" ? new _OptionsModel.OptionKind("Put") : new _OptionsModel.OptionKind("Call"), new _OptionsModel.OptionStyle("European"), PurchaseDate))));
+                get: function get() {
+                    var _this = this;
+
+                    return this.kind === "Cash" ? new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", [new _OptionsModel.CashLeg(_OptionsModel.Transforms.stringToDirection(this.direction), Number.parseFloat(this.strike))])) : new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", [function () {
+                        var Direction = _OptionsModel.Transforms.stringToDirection(_this.direction);
+
+                        var Expiry = (0, _Tools.parseDate)(_this.expiry);
+                        var Strike = Number.parseFloat(_this.strike);
+
+                        var PurchaseDate = _fableCore.Date.now();
+
+                        return new _OptionsModel.OptionLeg(Direction, Strike, Expiry, _this.kind === "Put" ? new _OptionsModel.OptionKind("Put", []) : new _OptionsModel.OptionKind("Call", []), new _OptionsModel.OptionStyle("European", []), PurchaseDate);
+                    }()]));
                 }
             }]);
 
             return LegViewModel;
         }();
+
+        _fableCore.Util.setInterfaces(LegViewModel.prototype, [], "Pricer.Fabled.Main.LegViewModel");
 
         var StrategyViewModel = $exports.StrategyViewModel = function () {
             function StrategyViewModel(strategy) {
@@ -195,23 +185,31 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
             _createClass(StrategyViewModel, [{
                 key: "addLeg",
                 value: function addLeg(event) {
-                    var newLeg = new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", new _OptionsModel.OptionLeg(1, 100, _fableCore.Date.now(), new _OptionsModel.OptionKind("Call"), new _OptionsModel.OptionStyle("European"), _fableCore.Date.now())));
-                    this.legs = Array.from(_fableCore.Seq.append([new LegViewModel(newLeg)], this.legs));
+                    var newLeg = new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", [new _OptionsModel.OptionLeg(1, 100, _fableCore.Date.now(), new _OptionsModel.OptionKind("Call", []), new _OptionsModel.OptionStyle("European", []), _fableCore.Date.now())]));
+                    this.legs = [new LegViewModel(newLeg)].concat(this.legs);
                 }
             }, {
                 key: "removeLeg",
                 value: function removeLeg(leg) {
                     this.legs = this.legs.filter(function (l) {
-                        return _fableCore.Util.compareTo(l.getLeg, leg.getLeg) !== 0;
+                        return !l.getLeg.Equals(leg.getLeg);
                     });
                 }
             }, {
                 key: "generatePayoff",
                 value: function generatePayoff() {
-                    var Name, Legs;
-                    var newStrategy = (Name = this.name, Legs = _fableCore.Seq.toList(_fableCore.Seq.map(function (l) {
-                        return l.getLeg;
-                    }, this.legs)), new _OptionsModel.Strategy(this.stock.buildStock, Name, Legs));
+                    var _this2 = this;
+
+                    var newStrategy = function () {
+                        var Name = _this2.name;
+
+                        var Legs = _fableCore.Seq.toList(_fableCore.Seq.map(function (l) {
+                            return l.getLeg;
+                        }, _this2.legs));
+
+                        return new _OptionsModel.Strategy(_this2.stock.buildStock, Name, Legs);
+                    }();
+
                     var data = payoffsGenerator.getStrategyData(newStrategy);
 
                     _Charting.Charting.drawPayoff(data);
@@ -220,6 +218,8 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
 
             return StrategyViewModel;
         }();
+
+        _fableCore.Util.setInterfaces(StrategyViewModel.prototype, [], "Pricer.Fabled.Main.StrategyViewModel");
 
         var StrategyListViewModel = $exports.StrategyListViewModel = function () {
             function StrategyListViewModel(examples) {
@@ -239,12 +239,12 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
                 }
             }, {
                 key: "allStrategies",
-                get: function () {
+                get: function get() {
                     return this.strategies;
                 }
             }, {
                 key: "strategy",
-                get: function () {
+                get: function get() {
                     return this.selectedStrategy;
                 }
             }]);
@@ -252,13 +252,21 @@ define(["exports", "fable-core", "./SimplePricer", "Pricer.Core/PayoffsGenerator
             return StrategyListViewModel;
         }();
 
+        _fableCore.Util.setInterfaces(StrategyListViewModel.prototype, [], "Pricer.Fabled.Main.StrategyListViewModel");
+
         var extraOpts = $exports.extraOpts = {
             el: ".payoffapp",
-            directives: (_directives = {}, _defineProperty(_directives, _fableCore.Symbol.interfaces, ["Pricer.Fabled.Main.Directives"]), _defineProperty(_directives, "todo-focus", function (x) {
-                var el;
-                x != null ? (el = this.el, Vue.nextTick(function (unitVar0) {
-                    el.focus();
-                })) : null;
+            directives: (_directives = {}, _defineProperty(_directives, _fableCore.Symbol.interfaces, ["Pricer.Fabled.Main.Directives"]), _defineProperty(_directives, "todo-focus", function todoFocus(x) {
+                var _this3 = this;
+
+                if (x != null) {
+                    (function () {
+                        var el = _this3.el;
+                        Vue.nextTick(function (unitVar0) {
+                            el.focus();
+                        });
+                    })();
+                }
             }), _directives)
         };
         var vm = $exports.vm = new StrategyListViewModel(_StrategiesExamples.exampleStrategies);

@@ -8,7 +8,7 @@
             exports: {}
         };
         factory(mod.exports, global.fableCore);
-        global.unknown = mod.exports;
+        global.OptionsModel = mod.exports;
     }
 })(this, function (exports, _fableCore) {
     "use strict";
@@ -16,7 +16,7 @@
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
-    exports.BasicOptions = exports.StrategyData = exports.LegData = exports.Strategy = exports.Leg = exports.Pricing = exports.LegInfo = exports.ConvertibleLeg = exports.CashLeg = exports.OptionLeg = exports.OptionStyle = exports.OptionKind = undefined;
+    exports.BasicOptions = exports.StrategyData = exports.LegData = exports.Strategy = exports.Leg = exports.Pricing = exports.LegInfo = exports.ConvertibleLeg = exports.CashLeg = exports.OptionLeg = exports.OptionStyle = exports.OptionKind = exports.Transforms = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -42,190 +42,350 @@
         };
     }();
 
+    var Transforms = exports.Transforms = function ($exports) {
+        var directionToString = $exports.directionToString = function directionToString(direction) {
+            return direction < 0 ? "Sell" : "Buy";
+        };
+
+        var stringToDirection = $exports.stringToDirection = function stringToDirection(direction) {
+            return direction === "Sell" ? -1 : 1;
+        };
+
+        return $exports;
+    }({});
+
     var OptionKind = exports.OptionKind = function () {
-        function OptionKind() {
+        function OptionKind(caseName, fields) {
             _classCallCheck(this, OptionKind);
 
-            this.Case = arguments[0];
-            this.Fields = [];
-
-            for (var i = 1; i < arguments.length; i++) {
-                this.Fields[i - 1] = arguments[i];
-            }
+            this.Case = caseName;
+            this.Fields = fields;
         }
 
         _createClass(OptionKind, [{
-            key: "Name",
-            get: function () {
-                return this.Case === "Put" ? "Put" : "Call";
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsUnions(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareUnions(this, other);
+            }
+        }, {
+            key: "ToString",
+            value: function ToString() {
+                return this.Case === "Call" ? "Call" : "Put";
             }
         }]);
 
         return OptionKind;
     }();
 
-    var OptionStyle = exports.OptionStyle = function OptionStyle() {
-        _classCallCheck(this, OptionStyle);
+    _fableCore.Util.setInterfaces(OptionKind.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionKind");
 
-        this.Case = arguments[0];
-        this.Fields = [];
+    var OptionStyle = exports.OptionStyle = function () {
+        function OptionStyle(caseName, fields) {
+            _classCallCheck(this, OptionStyle);
 
-        for (var i = 1; i < arguments.length; i++) {
-            this.Fields[i - 1] = arguments[i];
+            this.Case = caseName;
+            this.Fields = fields;
         }
-    };
+
+        _createClass(OptionStyle, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsUnions(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareUnions(this, other);
+            }
+        }, {
+            key: "ToString",
+            value: function ToString() {
+                return this.Case === "American" ? "American" : "European";
+            }
+        }]);
+
+        return OptionStyle;
+    }();
+
+    _fableCore.Util.setInterfaces(OptionStyle.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionStyle");
 
     var OptionLeg = exports.OptionLeg = function () {
-        function OptionLeg($arg0, $arg1, $arg2, $arg3, $arg4, $arg5) {
+        function OptionLeg(direction, strike, expiry, kind, style, purchaseDate) {
             _classCallCheck(this, OptionLeg);
 
-            this.Direction = $arg0;
-            this.Strike = $arg1;
-            this.Expiry = $arg2;
-            this.Kind = $arg3;
-            this.Style = $arg4;
-            this.PurchaseDate = $arg5;
+            this.Direction = direction;
+            this.Strike = strike;
+            this.Expiry = expiry;
+            this.Kind = kind;
+            this.Style = style;
+            this.PurchaseDate = purchaseDate;
         }
 
         _createClass(OptionLeg, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }, {
             key: "BuyVsSell",
-            get: function () {
-                return this.Direction < 0 ? "Sell" : "Buy";
+            get: function get() {
+                return Transforms.directionToString(this.Direction);
             }
         }, {
             key: "TimeToExpiry",
-            get: function () {
-                var copyOfStruct;
-                return (copyOfStruct = _fableCore.Date.op_Subtraction(this.Expiry, this.PurchaseDate), _fableCore.TimeSpan.days(copyOfStruct)) / 365;
+            get: function get() {
+                var _this = this;
+
+                return function () {
+                    var copyOfStruct = _fableCore.Date.op_Subtraction(_this.Expiry, _this.PurchaseDate);
+
+                    return _fableCore.TimeSpan.days(copyOfStruct);
+                }() / 365;
             }
         }, {
             key: "Name",
-            get: function () {
-                return function () {
-                    return function () {
-                        var clo1;
-                        return clo1 = _fableCore.String.fsFormat("%s %s %.2f")(function (x) {
-                            return x;
-                        }), function (arg10) {
-                            return function () {
-                                var clo2;
-                                return clo2 = clo1(arg10), function (arg20) {
-                                    return function () {
-                                        var clo3;
-                                        return clo3 = clo2(arg20), function (arg30) {
-                                            return clo3(arg30);
-                                        };
-                                    }();
-                                };
-                            }();
-                        };
-                    }();
-                }()(this.BuyVsSell)(this.Kind.Name)(this.Strike);
+            get: function get() {
+                return _fableCore.String.fsFormat("%s %s %.2f")(function (x) {
+                    return x;
+                })(this.BuyVsSell)(_fableCore.Util.toString(this.Kind))(this.Strike);
             }
         }]);
 
         return OptionLeg;
     }();
 
-    var CashLeg = exports.CashLeg = function CashLeg($arg0, $arg1) {
-        _classCallCheck(this, CashLeg);
+    _fableCore.Util.setInterfaces(OptionLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionLeg");
 
-        this.Direction = $arg0;
-        this.Price = $arg1;
-    };
+    var CashLeg = exports.CashLeg = function () {
+        function CashLeg(direction, price) {
+            _classCallCheck(this, CashLeg);
 
-    var ConvertibleLeg = exports.ConvertibleLeg = function ConvertibleLeg($arg0, $arg1, $arg2, $arg3, $arg4, $arg5) {
-        _classCallCheck(this, ConvertibleLeg);
+            this.Direction = direction;
+            this.Price = price;
+        }
 
-        this.Direction = $arg0;
-        this.Coupon = $arg1;
-        this.ConversionRatio = $arg2;
-        this.Maturity = $arg3;
-        this.FaceValue = $arg4;
-        this.ReferencePrice = $arg5;
-    };
+        _createClass(CashLeg, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }, {
+            key: "BuyVsSell",
+            get: function get() {
+                return Transforms.directionToString(this.Direction);
+            }
+        }]);
+
+        return CashLeg;
+    }();
+
+    _fableCore.Util.setInterfaces(CashLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.CashLeg");
+
+    var ConvertibleLeg = exports.ConvertibleLeg = function () {
+        function ConvertibleLeg(direction, coupon, conversionRatio, maturity, faceValue, referencePrice) {
+            _classCallCheck(this, ConvertibleLeg);
+
+            this.Direction = direction;
+            this.Coupon = coupon;
+            this.ConversionRatio = conversionRatio;
+            this.Maturity = maturity;
+            this.FaceValue = faceValue;
+            this.ReferencePrice = referencePrice;
+        }
+
+        _createClass(ConvertibleLeg, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }]);
+
+        return ConvertibleLeg;
+    }();
+
+    _fableCore.Util.setInterfaces(ConvertibleLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.ConvertibleLeg");
 
     var LegInfo = exports.LegInfo = function () {
-        function LegInfo() {
+        function LegInfo(caseName, fields) {
             _classCallCheck(this, LegInfo);
 
-            this.Case = arguments[0];
-            this.Fields = [];
-
-            for (var i = 1; i < arguments.length; i++) {
-                this.Fields[i - 1] = arguments[i];
-            }
+            this.Case = caseName;
+            this.Fields = fields;
         }
 
         _createClass(LegInfo, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsUnions(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareUnions(this, other);
+            }
+        }, {
             key: "Name",
-            get: function () {
-                var ol, convert, cl;
-                return this.Case === "Option" ? (ol = this.Fields[0], ol.Name) : this.Case === "Convertible" ? (convert = this.Fields[0], function () {
-                    return function () {
-                        var clo1;
-                        return clo1 = _fableCore.String.fsFormat("Convert %f")(function (x) {
-                            return x;
-                        }), function (arg10) {
-                            return clo1(arg10);
-                        };
-                    }();
-                }()(convert.FaceValue)) : (cl = this.Fields[0], "Cash");
+            get: function get() {
+                return this.Case === "Option" ? this.Fields[0].Name : this.Case === "Convertible" ? _fableCore.String.fsFormat("Convert %f")(function (x) {
+                    return x;
+                })(this.Fields[0].FaceValue) : "Cash";
             }
         }]);
 
         return LegInfo;
     }();
 
-    var Pricing = exports.Pricing = function Pricing($arg0, $arg1) {
-        _classCallCheck(this, Pricing);
+    _fableCore.Util.setInterfaces(LegInfo.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.LegInfo");
 
-        this.Delta = $arg0;
-        this.Premium = $arg1;
-    };
+    var Pricing = exports.Pricing = function () {
+        function Pricing(delta, premium) {
+            _classCallCheck(this, Pricing);
 
-    var Leg = exports.Leg = function Leg($arg0, $arg1) {
-        _classCallCheck(this, Leg);
-
-        this.Definition = $arg0;
-        this.Pricing = $arg1;
-    };
-
-    var Strategy = exports.Strategy = function Strategy($arg0, $arg1, $arg2) {
-        _classCallCheck(this, Strategy);
-
-        this.Stock = $arg0;
-        this.Name = $arg1;
-        this.Legs = $arg2;
-    };
-
-    var LegData = exports.LegData = function LegData($arg0, $arg1) {
-        _classCallCheck(this, LegData);
-
-        this.Leg = $arg0;
-        this.LegData = $arg1;
-    };
-
-    var StrategyData = exports.StrategyData = function StrategyData() {
-        _classCallCheck(this, StrategyData);
-
-        this.Case = arguments[0];
-        this.Fields = [];
-
-        for (var i = 1; i < arguments.length; i++) {
-            this.Fields[i - 1] = arguments[i];
+            this.Delta = delta;
+            this.Premium = premium;
         }
-    };
+
+        _createClass(Pricing, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }]);
+
+        return Pricing;
+    }();
+
+    _fableCore.Util.setInterfaces(Pricing.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Pricing");
+
+    var Leg = exports.Leg = function () {
+        function Leg(definition, pricing) {
+            _classCallCheck(this, Leg);
+
+            this.Definition = definition;
+            this.Pricing = pricing;
+        }
+
+        _createClass(Leg, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }]);
+
+        return Leg;
+    }();
+
+    _fableCore.Util.setInterfaces(Leg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Leg");
+
+    var Strategy = exports.Strategy = function () {
+        function Strategy(stock, name, legs) {
+            _classCallCheck(this, Strategy);
+
+            this.Stock = stock;
+            this.Name = name;
+            this.Legs = legs;
+        }
+
+        _createClass(Strategy, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }]);
+
+        return Strategy;
+    }();
+
+    _fableCore.Util.setInterfaces(Strategy.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Strategy");
+
+    var LegData = exports.LegData = function () {
+        function LegData(leg, legData) {
+            _classCallCheck(this, LegData);
+
+            this.Leg = leg;
+            this.LegData = legData;
+        }
+
+        _createClass(LegData, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }]);
+
+        return LegData;
+    }();
+
+    _fableCore.Util.setInterfaces(LegData.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.LegData");
+
+    var StrategyData = exports.StrategyData = function () {
+        function StrategyData(caseName, fields) {
+            _classCallCheck(this, StrategyData);
+
+            this.Case = caseName;
+            this.Fields = fields;
+        }
+
+        _createClass(StrategyData, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsUnions(this, other);
+            }
+        }]);
+
+        return StrategyData;
+    }();
+
+    _fableCore.Util.setInterfaces(StrategyData.prototype, ["FSharpUnion", "System.IEquatable"], "Pricer.Core.StrategyData");
 
     var BasicOptions = exports.BasicOptions = function ($exports) {
-        var optionValue = $exports.optionValue = function (option, stockPrice) {
-            var matchValue;
-            return matchValue = option.Kind, matchValue.Case === "Put" ? 0 > option.Strike - stockPrice ? 0 : option.Strike - stockPrice : 0 > stockPrice - option.Strike ? 0 : stockPrice - option.Strike;
+        var optionValue = $exports.optionValue = function optionValue(option, stockPrice) {
+            return option.Kind.Case === "Put" ? 0 > option.Strike - stockPrice ? 0 : option.Strike - stockPrice : 0 > stockPrice - option.Strike ? 0 : stockPrice - option.Strike;
         };
 
-        var buildLeg = $exports.buildLeg = function (kind, strike, direction, style, expiry, buyingDate) {
-            var Kind;
-            return Kind = new OptionKind("Call"), new OptionLeg(direction, strike, expiry, Kind, new OptionStyle("European"), buyingDate);
+        var buildLeg = $exports.buildLeg = function buildLeg(kind, strike, direction, style, expiry, buyingDate) {
+            var Kind = new OptionKind("Call", []);
+            return new OptionLeg(direction, strike, expiry, Kind, new OptionStyle("European", []), buyingDate);
         };
 
         return $exports;

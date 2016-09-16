@@ -42,22 +42,16 @@ define(["exports", "Pricer.Core/BlackScholesPricer", "./SimpleMath", "Pricer.Cor
             value: function priceOption(stock, option) {
                 var _this = this;
 
-                return function () {
-                    return function () {
-                        var objectArg;
-                        return objectArg = _this.bsPricer, function (arg00) {
-                            return function (arg10) {
-                                return objectArg.blackScholes(arg00, arg10);
-                            };
-                        };
-                    }();
-                }()(stock)(option);
+                return function (arg00) {
+                    return function (arg10) {
+                        return _this.bsPricer.blackScholes(arg00, arg10);
+                    };
+                }(stock)(option);
             }
         }, {
             key: "priceCash",
             value: function priceCash(cash) {
-                var Premium;
-                return Premium = cash.Price, new _OptionsModel.Pricing(1, Premium);
+                return new _OptionsModel.Pricing(1, cash.Price);
             }
         }, {
             key: "priceConvert",
@@ -69,6 +63,6 @@ define(["exports", "Pricer.Core/BlackScholesPricer", "./SimpleMath", "Pricer.Cor
         return SimplePricer;
     }();
 
-    _fableCore.Util.setInterfaces(SimplePricer.prototype, ["Pricer.Core.IPricer"]);
+    _fableCore.Util.setInterfaces(SimplePricer.prototype, ["Pricer.Core.IPricer"], "Pricer.Fabled.SimplePricer");
 });
 //# sourceMappingURL=SimplePricer.js.map

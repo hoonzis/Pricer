@@ -8,7 +8,7 @@
             exports: {}
         };
         factory(mod.exports, global.fableCore, global.OptionsModel);
-        global.unknown = mod.exports;
+        global.Binomial = mod.exports;
     }
 })(this, function (exports, _fableCore, _OptionsModel) {
     "use strict";
@@ -24,111 +24,295 @@
         }
     }
 
-    var Implementation = exports.Implementation = function Implementation() {
-        _classCallCheck(this, Implementation);
-
-        this.Case = arguments[0];
-        this.Fields = [];
-
-        for (var i = 1; i < arguments.length; i++) {
-            this.Fields[i - 1] = arguments[i];
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
         }
-    };
 
-    var BinomialPricing = exports.BinomialPricing = function BinomialPricing($arg0, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7) {
-        _classCallCheck(this, BinomialPricing);
+        return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) defineProperties(Constructor, staticProps);
+            return Constructor;
+        };
+    }();
 
-        this.Periods = $arg0;
-        this.Down = $arg1;
-        this.Up = $arg2;
-        this.PUp = $arg3;
-        this.PDown = $arg4;
-        this.Option = $arg5;
-        this.Rate = $arg6;
-        this.Ref = $arg7;
-    };
+    var Implementation = exports.Implementation = function () {
+        function Implementation(caseName, fields) {
+            _classCallCheck(this, Implementation);
+
+            this.Case = caseName;
+            this.Fields = fields;
+        }
+
+        _createClass(Implementation, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsUnions(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareUnions(this, other);
+            }
+        }]);
+
+        return Implementation;
+    }();
+
+    _fableCore.Util.setInterfaces(Implementation.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.Implementation");
+
+    var BinomialPricing = exports.BinomialPricing = function () {
+        function BinomialPricing(periods, down, up, pUp, pDown, option, rate, ref) {
+            _classCallCheck(this, BinomialPricing);
+
+            this.Periods = periods;
+            this.Down = down;
+            this.Up = up;
+            this.PUp = pUp;
+            this.PDown = pDown;
+            this.Option = option;
+            this.Rate = rate;
+            this.Ref = ref;
+        }
+
+        _createClass(BinomialPricing, [{
+            key: "Equals",
+            value: function Equals(other) {
+                return _fableCore.Util.equalsRecords(this, other);
+            }
+        }, {
+            key: "CompareTo",
+            value: function CompareTo(other) {
+                return _fableCore.Util.compareRecords(this, other);
+            }
+        }]);
+
+        return BinomialPricing;
+    }();
+
+    _fableCore.Util.setInterfaces(BinomialPricing.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.BinomialPricing");
 
     var Binomial = exports.Binomial = function ($exports) {
-        var binomialPrice = $exports.binomialPrice = function (ref, strike, rate, up) {
-            var down, q, cu, cd, call;
-            return down = 1 / up, q = (Math.exp(-rate) - down) / (up - down), cu = 0 > up * ref - strike ? 0 : up * ref - strike, cd = 0 > down * ref - strike ? 0 : down * ref - strike, call = Math.exp(-rate) * (q * cu + (1 - q) * cd), call;
+        var binomialPrice = $exports.binomialPrice = function binomialPrice(ref, strike, rate, up) {
+            var down = 1 / up;
+            var q = (Math.exp(-rate) - down) / (up - down);
+            var cu = 0 > up * ref - strike ? 0 : up * ref - strike;
+            var cd = 0 > down * ref - strike ? 0 : down * ref - strike;
+            var call = Math.exp(-rate) * (q * cu + (1 - q) * cd);
+            return call;
         };
 
-        var binomialPricing = $exports.binomialPricing = function (pricing) {
-            return function () {
-                var prices = new Float64Array(pricing.Periods);
+        var binomialPricing = $exports.binomialPricing = function binomialPricing(pricing) {
+            var prices = new Float64Array(pricing.Periods);
 
-                var optionValue = function () {
-                    var matchValue;
-                    return matchValue = pricing.Option.Kind, matchValue.Case === "Put" ? function (i) {
+            var optionValue = function () {
+                var matchValue = pricing.Option.Kind;
+
+                if (matchValue.Case === "Put") {
+                    return function (i) {
                         return 0 > pricing.Option.Strike - prices[i] ? 0 : pricing.Option.Strike - prices[i];
-                    } : function (i) {
+                    };
+                } else {
+                    return function (i) {
                         return 0 > prices[i] - pricing.Option.Strike ? 0 : prices[i] - pricing.Option.Strike;
                     };
-                }();
-
-                prices[0] = pricing.Ref * Math.pow(pricing.Down, pricing.Periods);
-                var oValues = new Float64Array(pricing.Periods);
-                oValues[0] = optionValue(0);
-
-                for (var i = 1; i <= pricing.Periods - 1; i++) {
-                    prices[i] = prices[i - 1] * pricing.Up * pricing.Up;
-                    oValues[i] = optionValue(i);
                 }
+            }();
 
-                var counter = pricing.Periods - 2;
+            prices[0] = pricing.Ref * Math.pow(pricing.Down, pricing.Periods);
+            var oValues = new Float64Array(pricing.Periods);
+            oValues[0] = optionValue(0);
 
-                for (var step = counter; step <= 0; step++) {
-                    for (var j = 0; j <= step; j++) {
-                        oValues[j] = (pricing.PUp * oValues[j + 1] + pricing.PDown * oValues[j]) * (1 / pricing.Rate);
-                        _fableCore.Util.compareTo(pricing.Option.Style, new _OptionsModel.OptionStyle("American")) === 0 ? (prices[j] = pricing.Down * prices[j + 1], oValues[j] = oValues[j] > optionValue(j) ? oValues[j] : optionValue(j)) : null;
+            for (var i = 1; i <= pricing.Periods - 1; i++) {
+                prices[i] = prices[i - 1] * pricing.Up * pricing.Up;
+                oValues[i] = optionValue(i);
+            }
+
+            var counter = pricing.Periods - 2;
+
+            for (var _step = counter; _step >= 0; _step--) {
+                for (var j = 0; j <= _step; j++) {
+                    oValues[j] = (pricing.PUp * oValues[j + 1] + pricing.PDown * oValues[j]) * (1 / pricing.Rate);
+
+                    if (pricing.Option.Style.Equals(new _OptionsModel.OptionStyle("American", []))) {
+                        prices[j] = pricing.Down * prices[j + 1];
+
+                        if (oValues[j] > optionValue(j)) {
+                            oValues[j] = oValues[j];
+                        } else {
+                            oValues[j] = optionValue(j);
+                        }
                     }
                 }
+            }
 
-                var delta = (oValues[1] - oValues[1]) / (pricing.Ref * pricing.Up - pricing.Ref * pricing.Down);
-                var Premium = oValues[0];
-                return new _OptionsModel.Pricing(delta, Premium);
-            }();
+            var delta = (oValues[1] - oValues[1]) / (pricing.Ref * pricing.Up - pricing.Ref * pricing.Down);
+            var Premium = oValues[0];
+            return new _OptionsModel.Pricing(delta, Premium);
         };
 
-        var generateEndNodePrices = $exports.generateEndNodePrices = function (ref, up, periods, optionVal) {
-            var down, lowestStock, first, values;
-            return down = 1 / up, lowestStock = ref * Math.pow(down, periods), first = [lowestStock, optionVal(lowestStock)], values = _fableCore.Seq.unfold(function (tupledArg) {
-                var stock, der, stock_, der_;
-                return stock = tupledArg[0], der = tupledArg[1], stock_ = stock * up * up, der_ = optionVal(stock_), [[stock, der], [stock_, der_]];
-            }, first), _fableCore.Seq.toList(function (source) {
+        var generateEndNodePrices = $exports.generateEndNodePrices = function generateEndNodePrices(ref, up, periods, optionVal) {
+            var down = 1 / up;
+            var lowestStock = ref * Math.pow(down, periods);
+            var first = [lowestStock, optionVal(lowestStock)];
+
+            var values = _fableCore.Seq.unfold(function (tupledArg) {
+                var stock_ = tupledArg[0] * up * up;
+                var der_ = optionVal(stock_);
+                return [[tupledArg[0], tupledArg[1]], [stock_, der_]];
+            }, first);
+
+            return _fableCore.Seq.toList(function (source) {
                 return _fableCore.Seq.take(periods, source);
             }(values));
         };
 
-        var step = $exports.step = function (pricing, optionVal, prices) {
+        var step = $exports.step = function step(pricing, optionVal, prices) {
             return _fableCore.Seq.toList(_fableCore.Seq.map(function (tupledArg) {
-                var _arg1, _arg2, sDown, dDown, sUp, dUp, derValue, stockValue, der_, matchValue, prematureExValue;
+                var derValue = (pricing.PUp * tupledArg[1][1] + pricing.PDown * tupledArg[0][1]) * (1 / pricing.Rate);
+                var stockValue = tupledArg[1][0] * pricing.Down;
 
-                return _arg1 = tupledArg[0], _arg2 = tupledArg[1], sDown = _arg1[0], dDown = _arg1[1], sUp = _arg2[0], dUp = _arg2[1], derValue = (pricing.PUp * dUp + pricing.PDown * dDown) * (1 / pricing.Rate), stockValue = sUp * pricing.Down, der_ = (matchValue = pricing.Option.Style, matchValue.Case === "European" ? derValue : (prematureExValue = optionVal(stockValue), derValue > prematureExValue ? derValue : prematureExValue)), [stockValue, der_];
+                var der_ = function () {
+                    var matchValue = pricing.Option.Style;
+
+                    if (matchValue.Case === "European") {
+                        return derValue;
+                    } else {
+                        var prematureExValue = optionVal(stockValue);
+
+                        if (derValue > prematureExValue) {
+                            return derValue;
+                        } else {
+                            return prematureExValue;
+                        }
+                    }
+                }();
+
+                return [stockValue, der_];
             }, _fableCore.Seq.pairwise(prices)));
         };
 
-        var binomialPricingFunc = $exports.binomialPricingFunc = function (pricing) {
-            var optionValue, prices, reductionStep, reducePrices, premium;
-            return optionValue = function () {
-                var option;
-                return option = pricing.Option, function (stockPrice) {
-                    return _OptionsModel.BasicOptions.optionValue(option, stockPrice);
-                };
-            }(), prices = generateEndNodePrices(pricing.Ref, pricing.Up, pricing.Periods, optionValue), reductionStep = function (prices_1) {
+        var binomialPricingFunc = $exports.binomialPricingFunc = function binomialPricingFunc(pricing) {
+            var optionValue = function optionValue(stockPrice) {
+                return _OptionsModel.BasicOptions.optionValue(pricing.Option, stockPrice);
+            };
+
+            var prices = generateEndNodePrices(pricing.Ref, pricing.Up, pricing.Periods, optionValue);
+
+            var reductionStep = function reductionStep(prices_1) {
                 return step(pricing, optionValue, prices_1);
-            }, reducePrices = function (prices_1) {
-                var $target1, der, stock;
-                return $target1 = function (prs) {
+            };
+
+            var reducePrices = function reducePrices(prices_1) {
+                var $target1 = function $target1(prs) {
                     return reducePrices(reductionStep(prs));
-                }, prices_1.tail != null ? prices_1.tail.tail == null ? (der = prices_1.head[1], stock = prices_1.head[0], der) : $target1(prices_1) : $target1(prices_1);
-            }, premium = reducePrices(prices), new _OptionsModel.Pricing(1, premium);
+                };
+
+                if (prices_1.tail != null) {
+                    if (prices_1.tail.tail == null) {
+                        var der = prices_1.head[1];
+                        var stock = prices_1.head[0];
+                        return der;
+                    } else {
+                        return $target1(prices_1);
+                    }
+                } else {
+                    return $target1(prices_1);
+                }
+            };
+
+            var premium = reducePrices(prices);
+            return new _OptionsModel.Pricing(1, premium);
         };
 
-        var binomial = $exports.binomial = function (stock, option, steps, implementation) {
-            var deltaT, up, down, R, p_up, p_down, pricing;
-            return deltaT = option.TimeToExpiry / steps, up = Math.exp(stock.Volatility * Math.sqrt(deltaT)), down = 1 / up, R = Math.exp(stock.Rate * deltaT), p_up = (R - down) / (up - down), p_down = 1 - p_up, pricing = new BinomialPricing(steps, down, up, p_up, p_down, option, R, stock.CurrentPrice), implementation.Case === "Functional" ? binomialPricingFunc(pricing) : binomialPricing(pricing);
+        var generateEndNodePricesFast = $exports.generateEndNodePricesFast = function generateEndNodePricesFast(ref, up, periods, optionVal) {
+            var down = 1 / up;
+            var lowestStock = ref * Math.pow(down, periods);
+            var first = [lowestStock, optionVal(lowestStock)];
+
+            var values = _fableCore.Seq.unfold(function (tupledArg) {
+                var stock_ = tupledArg[0] * up * up;
+                var der_ = optionVal(stock_);
+                return [[tupledArg[0], tupledArg[1]], [stock_, der_]];
+            }, first);
+
+            return Array.from(function (source) {
+                return _fableCore.Seq.take(periods, source);
+            }(values));
+        };
+
+        var stepFast = $exports.stepFast = function stepFast(pricing, optionVal, prices) {
+            return Array.from(_fableCore.Seq.pairwise(prices)).map(function (tupledArg) {
+                var derValue = (pricing.PUp * tupledArg[1][1] + pricing.PDown * tupledArg[0][1]) * (1 / pricing.Rate);
+                var stockValue = tupledArg[1][0] * pricing.Down;
+
+                var der_ = function () {
+                    var matchValue = pricing.Option.Style;
+
+                    if (matchValue.Case === "European") {
+                        return derValue;
+                    } else {
+                        var prematureExValue = optionVal(stockValue);
+
+                        if (derValue > prematureExValue) {
+                            return derValue;
+                        } else {
+                            return prematureExValue;
+                        }
+                    }
+                }();
+
+                return [stockValue, der_];
+            });
+        };
+
+        var binomialPricingFuncFast = $exports.binomialPricingFuncFast = function binomialPricingFuncFast(pricing) {
+            var optionValue = function optionValue(stockPrice) {
+                return _OptionsModel.BasicOptions.optionValue(pricing.Option, stockPrice);
+            };
+
+            var prices = generateEndNodePricesFast(pricing.Ref, pricing.Up, pricing.Periods, optionValue);
+
+            var reductionStep = function reductionStep(prices_1) {
+                return stepFast(pricing, optionValue, prices_1);
+            };
+
+            var reducePrices = function reducePrices(prices_1) {
+                return prices_1.length === 1 ? function () {
+                    var stock = prices_1[0][0];
+                    var der = prices_1[0][1];
+                    return der;
+                }() : reducePrices(reductionStep(prices_1));
+            };
+
+            var premium = reducePrices(prices);
+            return new _OptionsModel.Pricing(1, premium);
+        };
+
+        var binomial = $exports.binomial = function binomial(stock, option, steps, implementation) {
+            var deltaT = option.TimeToExpiry / steps;
+            var up = Math.exp(stock.Volatility * Math.sqrt(deltaT));
+            var down = 1 / up;
+            var R = Math.exp(stock.Rate * deltaT);
+            var p_up = (R - down) / (up - down);
+            var p_down = 1 - p_up;
+            var pricing = new BinomialPricing(steps, down, up, p_up, p_down, option, R, stock.CurrentPrice);
+
+            if (implementation.Case === "Functional") {
+                return binomialPricingFunc(pricing);
+            } else {
+                if (implementation.Case === "FunctionalFast") {
+                    return binomialPricingFuncFast(pricing);
+                } else {
+                    return binomialPricing(pricing);
+                }
+            }
         };
 
         return $exports;
