@@ -41,7 +41,7 @@ Target "CompileMarketData" (fun _ ->
 )
 
 Target "CompileTest" (fun _ ->
-    [@"Pricer.Tests\Pricer.Tests.fsproj"; @"Pricer.MarketData.Tests\Pricer.MarketData.Tests.fsproj"]
+    [@"Pricer.Tests\Pricer.Tests.fsproj"]
       |> MSBuildDebug testDir "Build"
       |> Log "TestBuild-Output: "
 )

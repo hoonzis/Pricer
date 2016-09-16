@@ -2,14 +2,14 @@
 [![Nuget Package](https://img.shields.io/nuget/v/pricer.svg)](https://www.nuget.org/packages/Pricer)
 [![Build status](https://ci.appveyor.com/api/projects/status/rqvploew3rhe8b3e?svg=true)](https://ci.appveyor.com/project/hoonzis/pricer)
 
-Small library that can be used to price options (Black Scholes and Binomial pricing), generate payoff charts and maybe analyze stock prices.
+Small library that can be used to price options (Black Scholes and Binomial pricing), generate payoff charts and maybe analyze stock prices. It was based by Tomas Petricek's [Financial Computing in F# series](http://www.tryfsharp.org/Learn/financial-computing). I have added binomial pricing, different algorithm to estimate the volatility and few other features.
 
-Half of the code was already implemented by Tomas Petricek in the [Financial Computing in F# series](http://www.tryfsharp.org/Learn/financial-computing). I have added binomial pricing, different algorithm to estimate the volatility and some plumbing. The only greek returned by the pricing for now is *Delta* (for both BS and binomial pricer).
+The **Pricer.Core** project does not depend on anything else than BCL, so it can be transpiled into JavaScript using [Fable](https://fable-compiler.github.io/). A sample application **Pricer.Fabled** is part of the solution and compiled is available here: http://www.payoffcharts.com.
 
 #### Options pricing
 The library contains a model for describing options and stocks. Besides the options description one needs the stock's volatility, current price and interest free rate.  
 
-```
+```fsharp
 let stock = {
   CurrentPrice = 201.0
   Volatility = 0.124
@@ -32,13 +32,14 @@ let binomialPrice = Options.binomial stock option 2000
 Binomial pricing takes also the depth of the binomial tree as parameter, the result is *Pricing* record which contains the *Premium* and *Delta*.
 
 Alternatively you can obtain the historical volatility and current price from small referential data module which uses free [Quandl API](https://www.quandl.com/). The bellow example uses trading data for last 60 days. The library uses free data from Quandl to estimate the volatility for stocks. The rate for now is fixed.
-```
+```fsharp
 let stock = Stocks.stockInfo LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
 ```
 
 #### Payoff charts data generation
 You can generate payoff charts data for any strategy. Strategy is composed of legs which can be already priced. The library also contains method to generate example strategies that just accept the *Stock* as parameter. Here is how to visualize the result of priced strategy.
-```
+
+```fsharp
 let strategy = StrategiesExamples.callSpread stock
 let strategyData,legsData = Options.getStrategyData strategy
 let strategyLine = Chart.Line(strategyData,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
@@ -50,7 +51,7 @@ let chart = Chart.Combine allLines |> Chart.WithLegend(true)
 #### Stock price and volatility
 You can also use the library only to get the stock data and perform some basics analysis, like for instance floating averages:
 
-```
+```fsharp
 let ticker,data = MarketData.stock LSE "VOD" (Some (DateTime.Now.AddDays -60.0)) (Some DateTime.Now)
 let tenDaysAvg = Stocks.floatingAvg 10 data
 let fiveDaysAvg = Stocks.floatingAvg 5 data
@@ -69,11 +70,9 @@ let vol2 = Stocks.estimateVol CloseVsOpen data
 ```
 
 #### Building & Contributing
-Pricer uses FAKE as it's build system. Fake is included in the repository and a proxy *build.cmd* script runs any of fake tasks and passes the parameters.
+Pricer uses FAKE as it's build system. Fake is included in the repository and a proxy *fake.cmd* script runs any of fake tasks and passes the parameters.
 
 ```
-# Compile the project
-build
-# Compiles and runs tests
-build Test
+fake Test
 ```
+**Pricer.Fabled** is transpiled into JavaScript, but depends on **Pricer.Core** which has to be transpiled first. A **build.cmd** command is available in the **Pricer.Fabled** folder to chain both fable commands.
