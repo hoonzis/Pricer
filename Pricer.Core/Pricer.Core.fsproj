@@ -58,7 +58,6 @@
     <Content Include="paket.references" />
     <Content Include="app.config" />
     <Compile Include="Binomial.fs" />
-    <Compile Include="Tools.fs" />
     <Compile Include="OptionsAnalyzer.fs" />
   </ItemGroup>
   <ItemGroup>

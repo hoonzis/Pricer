@@ -4,6 +4,8 @@ open System
 open Pricer.Core
 open Fable.Core
 open Fable.Import
+open Fable.Core.JsInterop
+open System.Text.RegularExpressions
 
 [<Erase>]
 module Lib =
@@ -11,7 +13,7 @@ module Lib =
     let [<Global>] Router: obj = failwith "JS only"
 
 
-// This helper uses JS reflection to convert a class instance
+// This helper uses JS reflection to convert a class instancegfa
 // to the options' format required by Vue
 module VueHelper =
     let createFromObj(data: obj, extraOpts: obj) =
@@ -24,18 +26,17 @@ module VueHelper =
             | Some f ->
                 methods?(k) <- f
             | None ->
-                computed?(k) <- createObj [
+                computed?(k) <- JsInterop.createObj [
                     "get" ==> prop?get
                     "set" ==> prop?set
                 ]
         extraOpts?data <- data
         extraOpts?computed <- computed
         extraOpts?methods <- methods
-        createNew Lib.Vue extraOpts
+        JsInterop.createNew Lib.Vue extraOpts
 
 module Main =
-    let dateToString (date:DateTime) = 
-        sprintf "%i-%0i-%0i" date.Year date.Month date.Day
+    
     
     let pricer = new SimplePricer()
     let payoffsGenerator = new PayoffsGenerator(pricer)
@@ -53,30 +54,29 @@ module Main =
 
     type LegViewModel(l:Leg) = 
         let mutable leg = l
+        // All these things are strings, because they come from text fields later and vuejs will give us string :(
         let mutable strike = "0.0"
         let mutable expiry = "test"
         let mutable kind = "Option"
         let mutable direction = "Buy"       
-        
-        let getDirection direction = if direction = 1.0 then "Buy" else "Sell"
-        let getKind kind = if kind = Put then "Put" else "Call"
+
         do 
             match l.Definition with
                     | Option opt -> 
                         strike <- opt.Strike.ToString()
-                        expiry <- opt.Expiry |> dateToString
-                        direction <- opt.Direction |> getDirection
-                        kind <- opt.Kind |> getKind
+                        expiry <- opt.Expiry |> Tools.toDate
+                        direction <- opt.BuyVsSell
+                        kind <- opt.Kind.ToString()
                     | Cash cash -> 
                         kind <- "Cash"
-                        direction <- cash.Direction |> getDirection
+                        direction <- cash.BuyVsSell
                     | _ -> ()
         
         member __.getLeg = 
             if kind = "Cash" then 
                 {
                     Definition = Cash { 
-                        Direction = if direction = "Buy" then 1.0 else -1.0
+                        Direction = direction |> Transforms.stringToDirection
                         Price = float strike
                     }
                     Pricing = None
@@ -84,8 +84,8 @@ module Main =
             else
                 {
                     Definition = Option { 
-                        Direction = if direction = "Buy" then 1.0 else -1.0
-                        Expiry = DateTime.Now
+                        Direction = direction |> Transforms.stringToDirection
+                        Expiry = Tools.parseDate expiry
                         Strike = float strike
                         PurchaseDate = DateTime.Now
                         Kind = if kind = "Put" then Put else Call

@@ -1,4 +1,4 @@
-﻿module Pricer.Tests
+﻿namespace Pricer.Tests
 
 open Pricer
 open System
@@ -7,48 +7,6 @@ open System.IO
 open FsUnit
 open NUnit.Framework
 open Pricer.Core
-
-let stock = {
-    Volatility = 0.05
-    Rate = 0.03
-    CurrentPrice = 230.0
-}
-
-let europeanCall = {
-    Strike = 231.0
-    Expiry = new DateTime(2015,12,12)
-    Direction = 1.0
-    Kind = Call
-    Style = European
-    PurchaseDate = new DateTime(2015,9,5)
-}
-
-let americanCall = {
-    Strike = 231.0
-    Expiry = new DateTime(2015,12,12)
-    Direction = 1.0
-    Kind = Call
-    Style = American
-    PurchaseDate = new DateTime(2015,9,5)
-}
-
-let europeanPut = {
-    Strike = 231.0
-    Expiry = new DateTime(2015,12,12)
-    Direction = 1.0
-    Kind = Put
-    Style = European
-    PurchaseDate = new DateTime(2015,9,5)
-}
-
-let americanPut = {
-    Strike = 231.0
-    Expiry = new DateTime(2015,12,12)
-    Direction = 1.0
-    Kind = Put
-    Style = American
-    PurchaseDate = new DateTime(2015,9,5)
-}
 
 [<TestFixture>]
 type OptionsTests() = 
@@ -67,29 +25,29 @@ type OptionsTests() =
         
     [<Test>]
     member this.``binomial pricing European call in BS setting`` () =
-        let price = Binomial.binomial stock europeanCall 1000 Imperative
+        let price = Binomial.binomial TestData.stock TestData.europeanCall 1000 Imperative
         price.Premium |> should equal 2.7172467445106512
 
     [<Test>]
     member this.``binomial pricing American call in BS setting`` () = 
-        let price = Binomial.binomial stock americanCall 1000 Imperative
+        let price = Binomial.binomial TestData.stock TestData.americanCall 1000 Imperative
         price.Premium |> should equal 2.7172467445106512
         
 
     [<Test>]
     member this.``black sholes euroean call`` () =        
-        let price = bsPricer.blackScholes stock europeanCall
+        let price = bsPricer.blackScholes TestData.stock TestData.europeanCall
         price.Premium |> should equal 2.8237329844670001
         
     [<Test>]
     member this.``black sholes euroean call - volatility 0`` () =      
-        let updatedStock = { stock with Volatility = 0.0 }  
-        let price = bsPricer.blackScholes updatedStock europeanCall
+        let updatedStock = { TestData.stock with Volatility = 0.0 }  
+        let price = bsPricer.blackScholes updatedStock TestData.europeanCall
         price.Premium |> should equal 0.85318400656242943
 
     [<Test>]
     member this.``black sholes euroean put`` () =        
-        let price = bsPricer.blackScholes stock europeanPut
+        let price = bsPricer.blackScholes TestData.stock TestData.europeanPut
         price.Premium |> should equal 1.9705489779045706
     
     [<Test>]
@@ -110,23 +68,23 @@ type OptionsTests() =
 
     [<Test>]
     member this.``binomial euroean put in BS setting`` () =        
-        let price = Binomial.binomial stock europeanPut 1000 Imperative
+        let price = Binomial.binomial TestData.stock TestData.europeanPut 1000 Imperative
         price.Premium |> should equal 2.0542675521718747
 
     //american put has higher value then european put
     [<Test>]
     member this.``binomial american put in BS setting`` () =        
-        let price = Binomial.binomial stock americanPut 1000 Imperative
+        let price = Binomial.binomial TestData.stock TestData.americanPut 1000 Imperative
         price.Premium |> should equal 2.3156625779008477
 
     [<Test>]
     member this.``binomial american put in functional way`` () =        
-        let price = Binomial.binomial stock europeanPut 1000 Functional
+        let price = Binomial.binomial TestData.stock TestData.europeanPut 1000 Functional
         price.Premium |> should equal 2.0542675521718747
 
     [<Test>]
     member this.``binomial american put in BS setting - functional way`` () =        
-        let price = Binomial.binomial stock americanPut 1000 Functional
+        let price = Binomial.binomial TestData.stock TestData.americanPut 1000 Functional
         price.Premium |> should equal 2.3156625779008477
 
 
@@ -138,7 +96,8 @@ type OptionsTests() =
         let lowest = (100.0*(0.8**(float periods)))
         let highest = lowest * ((1.25*1.25)**(float periods-1.0))
 
-        let optionVal stock = stock
+        // let's say options value is the same as the value of the stock
+        let optionVal = id
         
         let prices = Binomial.generateEndNodePrices 100.0 1.25 periods optionVal
         prices.[0] |> should equal (lowest,lowest)
@@ -151,11 +110,11 @@ type OptionsTests() =
             Legs = 
                 [
                     {
-                        Definition = Option europeanCall
+                        Definition = Option TestData.europeanCall
                         Pricing = None
                     }
                 ]
-            Stock = stock
+            Stock = TestData.stock
         }
         let strategyData = payoffGenerator.getStrategyData strat
         match strategyData with
@@ -169,7 +128,7 @@ type OptionsTests() =
 
     [<Test>]
     member this.``butterlfy payoff tests`` () =        
-        let strat = StrategiesExamples.butterfly stock
+        let strat = StrategiesExamples.butterfly TestData.stock
         let strategyData = payoffGenerator.getStrategyData strat
         match strategyData with
                 | SingleYear (strategy, legs) -> 
@@ -191,7 +150,7 @@ type OptionsTests() =
                         Pricing = None
                     }
                 ]
-            Stock = stock
+            Stock = TestData.stock
         }
         let strategyData = payoffGenerator.getStrategyData strat
         match strategyData with
@@ -224,13 +183,13 @@ type OptionsTests() =
             Up = 1.4
             PUp = 0.6
             PDown = 0.4
-            Option = europeanCall
+            Option = TestData.europeanCall
             Rate = 1.0
             Ref = 100.0
         }
 
-        //let's say the derivative price is the same as the stock price
-        let optionVal stock = stock
+        //let's say the derivative price is the same as the TestData.stock price
+        let optionVal = id
         
         //in real world the R will be => exp (stock.Rate*deltaT)
 
@@ -259,7 +218,7 @@ type OptionsTests() =
     [<Test>]
     member this.``getting strategy data of strategy with no legs`` () =
         let strategy = {
-            Stock = stock
+            Stock = TestData.stock
             Name = "Test"
             Legs = List.empty
         }

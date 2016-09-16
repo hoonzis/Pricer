@@ -9,10 +9,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Pricer.Fabled</RootNamespace>
     <AssemblyName>Pricer.Fabled</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <Name>Pricer.Fabled</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,10 +59,14 @@
     <Compile Include="SimplePricer.fs" />
     <Compile Include="Fable.Import.D3.fs" />
     <Compile Include="Charting.fs" />
+    <Compile Include="Tools.fs" />
     <Compile Include="App.fs" />
     <None Include="index.html" />
     <None Include="build.cmd" />
     <None Include="package.json" />
+    <Content Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fable.Core">
@@ -73,6 +78,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Numerics" />
     <ProjectReference Include="..\Pricer.Core\Pricer.Core.fsproj">
       <Name>Pricer.Core</Name>

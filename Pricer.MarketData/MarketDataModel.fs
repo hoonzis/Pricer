@@ -5,6 +5,9 @@ open System
 type Exchange = 
     | LSE
     | EURONEXT
+    override x.ToString() = sprintf "%A" x
+
+    
 
 [<CLIMutable>]
 type StockRefData = {

@@ -2,14 +2,21 @@
 
 open System
 
+module Transforms = 
+    let directionToString direction = if direction < 0.0 then "Sell" else "Buy"
+    let stringToDirection direction = if direction = "Sell" then -1.0 else 1.0
+
 type OptionKind =
     | Call
     | Put
-    member this.Name = match this with | Call -> "Call" | Put -> "Put"
+    override x.ToString() = match x with | Call -> "Call" | _ -> "Put"
 
 type OptionStyle =
     | American
     | European
+    override x.ToString() = match x with | American -> "American" | _ -> "European"
+
+
 
 type OptionLeg =
     {
@@ -20,14 +27,16 @@ type OptionLeg =
         Style: OptionStyle
         PurchaseDate: DateTime
     }
-    member this.BuyVsSell = if this.Direction < 0.0 then "Sell" else "Buy"
+    member this.BuyVsSell = this.Direction |> Transforms.directionToString
     member this.TimeToExpiry = (float (this.Expiry - this.PurchaseDate).Days)/365.0
-    member this.Name = sprintf "%s %s %.2f" this.BuyVsSell this.Kind.Name this.Strike
+    member this.Name = sprintf "%s %s %.2f" this.BuyVsSell (this.Kind.ToString()) this.Strike
 
-type CashLeg = {
-    Direction: float
-    Price:float
-}
+type CashLeg = 
+    {
+        Direction: float
+        Price:float
+    }
+    member this.BuyVsSell = this.Direction |> Transforms.directionToString
 
 type ConvertibleLeg = {
     Direction: float

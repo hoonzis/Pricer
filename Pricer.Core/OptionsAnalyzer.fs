@@ -47,7 +47,7 @@ type OptionsAnalyzer (pricer:IPricer) =
                 expiry,(Binomial.binomial stock option 1000 Implementation.Imperative).Premium
             )
             {
-                Series = Tools.caseString style
+                Series = style.ToString()
                 Values = data
             }
         )

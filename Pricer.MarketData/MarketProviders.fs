@@ -32,7 +32,7 @@ module MarketProviders =
         }
 
     let getExchangeStocks exchange =
-        let dataSites = [for i in 1 .. 10 do yield (sprintf "https://www.quandl.com/api/v3/datasets.json?database_code=%s&per_page=100&sort_by=id&page=%i%s" (Tools.caseString exchange) i authKey)]
+        let dataSites = [for i in 1 .. 10 do yield (sprintf "https://www.quandl.com/api/v3/datasets.json?database_code=%s&per_page=100&sort_by=id&page=%i%s" (exchange.ToString()) i authKey)]
         let results =
             dataSites
                 |> Seq.map (fetchUrlAsync exchange)
@@ -93,5 +93,5 @@ module MarketProviders =
                 | Some date -> format date
                 | None -> format DateTime.UtcNow
 
-        let url = sprintf "https://www.quandl.com/api/v3/datasets/%s/%s.json?start_date=%s&end_date=%s%s" (Tools.caseString exchange) ticker startVal endVal authKey
+        let url = sprintf "https://www.quandl.com/api/v3/datasets/%s/%s.json?start_date=%s&end_date=%s%s" (exchange.ToString()) ticker startVal endVal authKey
         transf (getWebStream url)

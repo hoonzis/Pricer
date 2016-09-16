@@ -1,4 +1,4 @@
-﻿module Pricer.PerfTests
+﻿namespace Pricer.Tests
 
 open System
 open Pricer
