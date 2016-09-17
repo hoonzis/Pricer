@@ -1,5 +1,15 @@
 version: 1.0.{build}
 
+environment:
+  nodejs_version: "0.10"
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  # install modules
+  - npm install
+  
 assembly_info:
   patch: true
   file: AssemblyInfo.*
