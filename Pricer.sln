@@ -16,7 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{310F10
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C0D7B58E-05A7-439C-8835-21E019CE7B16}"
 	ProjectSection(SolutionItems) = preProject
-		build.fsx = build.fsx
 		Pricer.nuspec = Pricer.nuspec
 	EndProjectSection
 EndProject
@@ -25,6 +24,12 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Fabled", "Pricer.Fabled\Pricer.Fabled.fsproj", "{1E44403B-7834-4842-91B1-53A5FA731C58}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer", "Pricer\Pricer.fsproj", "{27CF805C-AA6B-4789-8AB7-0614E746CB14}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{CD4C8327-792A-4D32-999D-3F9D7A383BBE}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\build.fsx = scripts\build.fsx
+		scripts\prebuild.cmd = scripts\prebuild.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

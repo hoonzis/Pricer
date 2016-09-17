@@ -7,8 +7,6 @@ environment:
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
-  # install modules
-  - npm install
   
 assembly_info:
   patch: true
@@ -18,7 +16,7 @@ assembly_info:
   assembly_informational_version: "{version}"
 
 before_build:
-  cmd: prebuild.cmd
+  cmd: scripts\prebuild.cmd
 
 build_script:
   cmd: fake.cmd CompilePricer
