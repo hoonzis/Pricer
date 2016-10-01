@@ -7,53 +7,14 @@ open Fable.Import
 open Fable.Core.JsInterop
 open System.Text.RegularExpressions
 
-[<Erase>]
-module Lib =
-    let [<Global>] Vue: obj = failwith "JS only"
-    let [<Global>] Router: obj = failwith "JS only"
-
-
-// This helper uses JS reflection to convert a class instancegfa
-// to the options' format required by Vue
-module VueHelper =
-    let createFromObj(data: obj, extraOpts: obj) =
-        let methods = obj()
-        let computed = obj()
-        let proto = JS.Object.getPrototypeOf data
-        for k in JS.Object.getOwnPropertyNames proto do
-            let prop = JS.Object.getOwnPropertyDescriptor(proto, k)
-            match prop.value with
-            | Some f ->
-                methods?(k) <- f
-            | None ->
-                computed?(k) <- JsInterop.createObj [
-                    "get" ==> prop?get
-                    "set" ==> prop?set
-                ]
-        extraOpts?data <- data
-        extraOpts?computed <- computed
-        extraOpts?methods <- methods
-        JsInterop.createNew Lib.Vue extraOpts
-
-module Main =
-    
+module PayoffCharts =
     
     let pricer = new SimplePricer()
     let payoffsGenerator = new PayoffsGenerator(pricer)
-
-    type StockViewModel(s:StockInfo) = 
-        let mutable rate = s.Rate
-        let mutable volatility = s.Volatility
-        let mutable currentPrice = s.CurrentPrice
-
-        member __.buildStock = {
-            Rate = rate
-            Volatility = volatility
-            CurrentPrice = currentPrice
-        }
+    
 
     type LegViewModel(l:Leg) = 
-        let mutable leg = l
+        let mutable leg =l 
         // All these things are strings, because they come from text fields later and vuejs will give us string :(
         let mutable strike = "0.0"
         let mutable expiry = "test"
@@ -124,7 +85,7 @@ module Main =
                 Stock = stock.buildStock
             }
             let data = payoffsGenerator.getStrategyData newStrategy
-            Charting.drawPayoff data
+            Charting.drawPayoff data "#payoffChart"
 
 
 
@@ -138,24 +99,12 @@ module Main =
             selectedStrategy.Value.generatePayoff()
 
         member __.strategy = selectedStrategy
-        
-    type Directives =
-        abstract ``todo-focus``: obj option -> unit
-            
+       
+    
+
     let extraOpts =
         createObj [
             "el" ==> ".payoffapp"           
-            "directives" ==> {
-                new Directives with
-                    member this.``todo-focus`` x =
-                        match x with
-                        | None -> ()
-                        | Some _ ->
-                            let el = this?el
-                            Lib.Vue?nextTick$(fun () ->
-                                el?focus$() |> ignore)
-                            |> ignore
-            } 
         ]
 
     let vm = StrategyListViewModel(StrategiesExamples.exampleStrategies)

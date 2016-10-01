@@ -1,24 +1,27 @@
 {
-  "private": true,
+  "private": false,
   "name": "fabled-pricer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "fable"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Jan Fajfr",
+  "license": "MIT",
   "dependencies": {
     "core-js": "^2.4.0",
     "d3": "^3.5.17",
-    "fable-core": "0.6.3",
+    "fable-core": "0.6.6",
     "nvd3": "^1.8.4",
-    "requirejs": "^2.2.0",
     "vue": "^1.0.1"
   },
   "engines": {
     "fable": ">=0.2.11"
+  },
+  "devDependencies": {
+    "source-map-loader": "^0.1.5",
+    "webpack": "^1.13.2"
   }
 }

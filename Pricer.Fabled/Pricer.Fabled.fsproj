@@ -60,13 +60,20 @@
     <Compile Include="Fable.Import.D3.fs" />
     <Compile Include="Charting.fs" />
     <Compile Include="Tools.fs" />
-    <Compile Include="App.fs" />
+    <Compile Include="ShareViewModels.fs" />
+    <Compile Include="VueHelpers.fs" />
+    <Compile Include="PayoffCharts.fs" />
+    <Compile Include="OptionPrices.fs" />
     <None Include="index.html" />
     <None Include="build.cmd" />
     <None Include="package.json" />
     <Content Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="optionPrices.html" />
+    <None Include="fableconfig.json" />
+    <Content Include="webpack.config.js" />
+    <None Include="about.html" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fable.Core">

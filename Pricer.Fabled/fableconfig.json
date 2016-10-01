@@ -1,9 +1,19 @@
 {
-    "module": "amd",
-    "sourceMaps": true,
-    "projFile": "Pricer.Fabled.fsproj",
-    "outDir": "..CompiledJs/Pricer.Fabled",
-    "scripts": {
-        "prebuild": "npm install"
+  "module":  "commonjs",
+  "sourceMaps": true,
+  "projFile": "Pricer.Fabled.fsproj",
+  "outDir": "CompiledJs/Pricer.Fabled",
+  "refs": {
+    "Pricer.Core": "../Pricer.Core"
+  },
+  "scripts": {
+    "postbuild": "webpack"
+  },
+  "targets": {
+    "watch": {
+      "scripts": {
+        "postbuild": "webpack --watch"
+      }
     }
+  }
 }

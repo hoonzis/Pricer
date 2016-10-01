@@ -1,5 +1,6 @@
 ﻿namespace Pricer.Fabled
 
+open System
 open Fable.Core
 open Fable.Import.Browser
 open Fable.Import
@@ -10,26 +11,41 @@ type Value = {
     y: float
 }
 
-type LineData = {
+type DateScatterValue = {
+    x: DateTime
+    y: float
+    size: float
+}
+
+type Series<'a> = {
     key: string
-    values: Value array
+    values: 'a array
 }
 
 type Axis = 
     abstract axisLabel: string -> Axis
     abstract tickFormat: System.Func<float,string> -> Axis
 
-type LineChart = 
+[<AbstractClass>]
+type Chart() = 
     abstract xAxis: Axis
     abstract yAxis: Axis
-    abstract useInteractiveGuideline: bool -> LineChart   
-    abstract showLegend: bool -> LineChart
-    abstract showXAxis: bool -> LineChart
-    abstract showYAxis: bool -> LineChart
-    
+    abstract showLegend: bool -> Chart
+    abstract showXAxis: bool -> Chart
+    abstract showYAxis: bool -> Chart
 
+[<AbstractClass>]
+type LineChart() = inherit Chart()
+        with member __.useInteractiveGuideline (value:bool): Chart = failwith "JSOnly"
+
+[<AbstractClass>]
+type ScatterChart() = inherit Chart()
+    with member __.pointRange(value: double array): ScatterChart = failwith "JSOnly"
+
+        
 type models = 
     abstract lineChart: unit -> LineChart
+    abstract scatterChart: unit -> ScatterChart
 
 [<Erase>]
 module nv =
@@ -37,11 +53,11 @@ module nv =
 
 module Charting =
  
-    let tuplesToPoints (data: (float*float) list) = 
+    let tuplesToPoints (data: (float*float) list): Value array = 
             data |> List.map (fun (x,y) -> 
                 {
-                    x = int x
-                    y = y
+                    Value.x = int x
+                    Value.y = y
                 }
             ) |> Array.ofList
 
@@ -52,11 +68,9 @@ module Charting =
                 values = linedata |> tuplesToPoints
             })
 
-    let genrateChart (data:LineData array) = 
+    let prepareLineChart = 
         let chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true)
-
         chart.xAxis.axisLabel("Underlying Price").tickFormat(D3.Globals.format(",.1f")) |> ignore
-        
         chart.yAxis.axisLabel("Profit").tickFormat(D3.Globals.format(",.1f")) |> ignore
         chart
 
@@ -64,17 +78,17 @@ module Charting =
     let clearAndGetParentChartDiv (selector:string) =
         let element = D3.Globals.select(selector);
         element.html("") |> ignore
-        element;
-
-    let clearAndGetChartElement() = clearAndGetParentChartDiv("#payoffchart") |> ignore
+        element
     
-    let drawLineChart (data: LineData array) =      
-        let chart = genrateChart data
-        let parentDiv = clearAndGetParentChartDiv("#payoffchart")
-        let chartElement = parentDiv.append("svg");
-        let chartElement = D3.Globals.select("#payoffchart")
+    let drawChart (chart:Chart) (data: Object) (chartSelector: string) = 
+        let chartElement = clearAndGetParentChartDiv(chartSelector)
         chartElement.style("height","500px") |> ignore
         chartElement.datum(data).call(chart) |> ignore
+
+
+    let drawLineChart (data: Series<Value> array) (chartSelector:string) =      
+        let chart = prepareLineChart
+        drawChart chart data chartSelector
 
     let drawPayoff data =
         let payoff = 
@@ -93,3 +107,17 @@ module Charting =
                 | _ -> failwith "not implemented"
 
         drawLineChart payoff        
+
+    let legAndPricingToDataPoint (l,pricing) = 
+        {
+            x = l.Expiry
+            y = l.Strike
+            size = pricing.Premium
+        }
+        
+    let drawScatter (data: Series<DateScatterValue> array) (chartSelector:string) = 
+        let chart = nv.models.scatterChart().pointRange([|10.0;800.0|]).showLegend(true).showXAxis(true)
+        chart.yAxis.axisLabel("Strike") |> ignore
+
+        chart.xAxis.tickFormat(D3.Globals.format("%x")).axisLabel("Expiry") |> ignore
+        drawChart chart data chartSelector
