@@ -53,7 +53,7 @@ type OptionsAnalyzer (pricer:IPricer) =
         )
 
     //returns multiple triples strike - expiry - pricing result
-    member this.optionPricesTripes stock kind = 
+    member this.optionPricesTriples stock kind = 
         let expiries = [for i in 1 .. 10 -> DateTime.Now.AddDays ((float i)*80.0)]
         let strikes = [for i in 1 .. 10 -> stock.CurrentPrice * 0.6 +  stock.CurrentPrice/10.0 * float i]
 

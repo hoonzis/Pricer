@@ -33,45 +33,70 @@
     <div class="container">
         <div class="optionPricesApp">
             <p></p>
-            <div class="col-md-3">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Underlying stock</div>
-                    <div class="panel-body">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-sm-5 control-label">Current price</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control" placeholder="CurrentPrice" v-model="stock.currentPrice">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Underlying stock</div>
+                        <div class="panel-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Current price</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" placeholder="CurrentPrice" v-model="stock.currentPrice">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-5 control-label">Volatility</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control" placeholder="Volatility" v-model="stock.volatility">
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Volatility</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" placeholder="Volatility" v-model="stock.volatility">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-5 control-label">Interest Rate</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control" placeholder="Interest Rate" v-model="stock.rate">
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Interest Rate</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" placeholder="Interest Rate" v-model="stock.rate">
+                                    </div>
                                 </div>
+                            </form>
+                            <div class="pull-right">
+                                <button class="btn btn-success btn-xs" @click="updatePrices()">Get option prices</button>
                             </div>
-                        </form>
-                        <div class="pull-right">
-                            <button class="btn btn-success btn-xs" @click="updatePrices()">Get option prices</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Option prices</div>
+                        <div class="panel-body">
+                            <svg id="optionPricesChart"></svg>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-9">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Option prices</div>
-                    <div class="panel-body">
-                        <svg id="optionPricesChart"></svg>
-                    </div>
-                </div>
+            <div class="row">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Kind</th>
+                            <th>Strike</th>
+                            <th>Expiry</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="leg in pricesTable">
+                        <tr>
+                            <td>
+                                {{ leg.kind }}
+                            </td>
+                            <td>
+                                {{ leg.strike }}
+                            </td>
+                            <td>{{ leg.expiry }}</td>
+                            <td>{{ leg.price }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
         </div>
     </div>
     <script src="out/optionPrices.bundle.js"></script>

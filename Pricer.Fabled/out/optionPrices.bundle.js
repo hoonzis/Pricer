@@ -77,7 +77,16 @@
 	        _classCallCheck(this, OptionPricesViewModel);
 	
 	        this.stock = new _ShareViewModels.StockViewModel(_StrategiesExamples.exampleStock);
+	        this.pricesTable = [];
 	    }
+	
+	    OptionPricesViewModel.prototype.toTableValues = function toTableValues(values) {
+	        return {
+	            strike: values.y,
+	            expiry: _fableCore.Date.toShortTimeString(values.x),
+	            price: values.size
+	        };
+	    };
 	
 	    _createClass(OptionPricesViewModel, [{
 	        key: "updatePrices",
@@ -88,7 +97,7 @@
 	            var pricesPerOptionKind = kinds.map(function (kind) {
 	                var prices = function (arg00) {
 	                    return function (arg10) {
-	                        return optionsAnalyzer.optionPricesTripes(arg00, arg10);
+	                        return optionsAnalyzer.optionPricesTriples(arg00, arg10);
 	                    };
 	                }(_this.stock.buildStock)(kind);
 	
@@ -120,6 +129,11 @@
 	
 	                var serie = new _Charting.Series(_fableCore.Util.toString(kind), dataPoints);
 	                return serie;
+	            });
+	            this.pricesTable = Array.from(_fableCore.Seq.collect(function (serie) {
+	                return serie.values;
+	            }, pricesPerOptionKind)).map(function (values) {
+	                return _this.toTableValues(values);
 	            });
 	
 	            _Charting.Charting.drawScatter(pricesPerOptionKind, "#optionPricesChart");
@@ -5325,7 +5339,7 @@
 	        }, styles);
 	    };
 	
-	    OptionsAnalyzer.prototype.optionPricesTripes = function optionPricesTripes(stock) {
+	    OptionsAnalyzer.prototype.optionPricesTriples = function optionPricesTriples(stock, kind) {
 	        var _this3 = this;
 	
 	        var expiries = _fableCore.Seq.toList(_fableCore.Seq.delay(function (unitVar) {
@@ -5360,7 +5374,6 @@
 	        return _fableCore.Seq.map(function (tupledArg) {
 	            var option = function () {
 	                var style = new _OptionsModel.OptionStyle("European", []);
-	                var kind = new _OptionsModel.OptionKind("Call", []);
 	                return _this3.buildOption(tupledArg[0], style, tupledArg[1], kind);
 	            }();
 	
@@ -5935,7 +5948,7 @@
 	"use strict";
 	
 	exports.__esModule = true;
-	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.Series = exports.DateScatterValue = exports.Value = undefined;
+	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
 	
 	var _fableCore = __webpack_require__(4);
 	
@@ -6014,6 +6027,10 @@
 	}();
 	
 	_fableCore.Util.setInterfaces(Series.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Series");
+	
+	var DateUtils = exports.DateUtils = function ($exports) {
+	    return $exports;
+	}({});
 	
 	var Chart = exports.Chart = function Chart() {
 	    _classCallCheck(this, Chart);
@@ -6120,9 +6137,17 @@
 	    };
 	
 	    var drawScatter = $exports.drawScatter = function drawScatter(data, chartSelector) {
-	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true);
+	        var colors = _d.scale.category10();
+	
+	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
+	
+	        var timeFormat = _d.time.format("%x");
+	
 	        chart.yAxis.axisLabel("Strike");
-	        chart.xAxis.tickFormat(d3.format("%x")).axisLabel("Expiry");
+	        chart.xAxis.tickFormat(function (x) {
+	            var dateValue = new Date(x);
+	            return timeFormat(dateValue);
+	        }).axisLabel("Expiry");
 	        drawChart(chart, data, chartSelector);
 	    };
 	

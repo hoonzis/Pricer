@@ -5549,7 +5549,7 @@
 	"use strict";
 	
 	exports.__esModule = true;
-	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.Series = exports.DateScatterValue = exports.Value = undefined;
+	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
 	
 	var _fableCore = __webpack_require__(4);
 	
@@ -5628,6 +5628,10 @@
 	}();
 	
 	_fableCore.Util.setInterfaces(Series.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Series");
+	
+	var DateUtils = exports.DateUtils = function ($exports) {
+	    return $exports;
+	}({});
 	
 	var Chart = exports.Chart = function Chart() {
 	    _classCallCheck(this, Chart);
@@ -5734,9 +5738,17 @@
 	    };
 	
 	    var drawScatter = $exports.drawScatter = function drawScatter(data, chartSelector) {
-	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true);
+	        var colors = _d.scale.category10();
+	
+	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
+	
+	        var timeFormat = _d.time.format("%x");
+	
 	        chart.yAxis.axisLabel("Strike");
-	        chart.xAxis.tickFormat(d3.format("%x")).axisLabel("Expiry");
+	        chart.xAxis.tickFormat(function (x) {
+	            var dateValue = new Date(x);
+	            return timeFormat(dateValue);
+	        }).axisLabel("Expiry");
 	        drawChart(chart, data, chartSelector);
 	    };
 	

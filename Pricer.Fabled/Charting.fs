@@ -2,8 +2,8 @@
 
 open System
 open Fable.Core
-open Fable.Import.Browser
 open Fable.Import
+open Fable.Import.Browser
 open Pricer.Core
 
 type Value = {
@@ -24,7 +24,11 @@ type Series<'a> = {
 
 type Axis = 
     abstract axisLabel: string -> Axis
-    abstract tickFormat: System.Func<float,string> -> Axis
+    abstract tickFormat: System.Func<Object,string> -> Axis
+
+module DateUtils = 
+    [<Emit("new Date($0)")>]
+    let fromTicks (ticks: int): DateTime = jsNative
 
 [<AbstractClass>]
 type Chart() = 
@@ -33,6 +37,7 @@ type Chart() =
     abstract showLegend: bool -> Chart
     abstract showXAxis: bool -> Chart
     abstract showYAxis: bool -> Chart
+    abstract color: string[] -> Chart
 
 [<AbstractClass>]
 type LineChart() = inherit Chart()
@@ -116,8 +121,12 @@ module Charting =
         }
         
     let drawScatter (data: Series<DateScatterValue> array) (chartSelector:string) = 
-        let chart = nv.models.scatterChart().pointRange([|10.0;800.0|]).showLegend(true).showXAxis(true)
+        let colors = D3.Scale.Globals.category10()
+        let chart = nv.models.scatterChart().pointRange([|10.0;800.0|]).showLegend(true).showXAxis(true).color(colors.range())
+        let timeFormat = D3.Time.Globals.format("%x")
         chart.yAxis.axisLabel("Strike") |> ignore
-
-        chart.xAxis.tickFormat(D3.Globals.format("%x")).axisLabel("Expiry") |> ignore
+        chart.xAxis.tickFormat(fun x -> 
+            let dateValue = DateUtils.fromTicks(x :?> int)
+            timeFormat.Invoke(dateValue)
+        ).axisLabel("Expiry") |> ignore
         drawChart chart data chartSelector

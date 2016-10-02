@@ -2,5 +2,5 @@
 	"module":  "commonjs",
     "sourceMaps": true,
     "projFile": "Pricer.Core.fsproj",
-    "outDir": "../CompiledJs/Pricer.Core"
+    "outDir": "../Pricer.Fabled/CompiledJs/Pricer.Core"
 }
