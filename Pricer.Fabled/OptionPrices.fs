@@ -13,11 +13,12 @@ module OptionPrices =
         let mutable stock = new StockViewModel(StrategiesExamples.exampleStock)
         let mutable pricesTable = [||];
 
-        let toTableValues values = 
+        let toTableValues kind values = 
             createObj [
                 "strike" ==> values.y
                 "expiry" ==> values.x.ToShortTimeString()
                 "price" ==> values.size
+                "kind" ==> kind
             ]
 
         member __.updatePrices =
@@ -42,11 +43,13 @@ module OptionPrices =
 
             pricesTable <-
                 pricesPerOptionKind 
-                    |> Array.collect (fun serie -> serie.values)
-                    |> Array.map toTableValues
+                    |> Array.map (fun serie -> 
+                        let fromSerie = toTableValues serie.key
+                        let withOptionKind = serie.values |> Array.map fromSerie
+                        withOptionKind
+                    ) |> Array.collect id
 
             Charting.drawScatter pricesPerOptionKind "#optionPricesChart"
-
 
     let extraOpts =
         createObj [

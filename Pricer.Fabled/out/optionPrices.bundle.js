@@ -80,11 +80,12 @@
 	        this.pricesTable = [];
 	    }
 	
-	    OptionPricesViewModel.prototype.toTableValues = function toTableValues(values) {
+	    OptionPricesViewModel.prototype.toTableValues = function toTableValues(kind, values) {
 	        return {
 	            strike: values.y,
 	            expiry: _fableCore.Date.toShortTimeString(values.x),
-	            price: values.size
+	            price: values.size,
+	            kind: kind
 	        };
 	    };
 	
@@ -130,11 +131,19 @@
 	                var serie = new _Charting.Series(_fableCore.Util.toString(kind), dataPoints);
 	                return serie;
 	            });
-	            this.pricesTable = Array.from(_fableCore.Seq.collect(function (serie) {
-	                return serie.values;
-	            }, pricesPerOptionKind)).map(function (values) {
-	                return _this.toTableValues(values);
-	            });
+	            this.pricesTable = Array.from(_fableCore.Seq.collect(function (x) {
+	                return x;
+	            }, pricesPerOptionKind.map(function (serie) {
+	                var fromSerie = function fromSerie(values) {
+	                    return _this.toTableValues(serie.key, values);
+	                };
+	
+	                var withOptionKind = function (array) {
+	                    return array.map(fromSerie);
+	                }(serie.values);
+	
+	                return withOptionKind;
+	            })));
 	
 	            _Charting.Charting.drawScatter(pricesPerOptionKind, "#optionPricesChart");
 	        }
