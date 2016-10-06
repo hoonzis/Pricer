@@ -1,16 +1,20 @@
-﻿#r "bin/Debug/Pricer.dll"
+﻿#r "bin/Debug/Pricer.Core.dll"
+#r "bin/Debug/Pricer.dll"
+#r "bin/Debug/Pricer.Fabled.exe"
 #load "../packages/FSharp.Charting/FSharp.Charting.fsx"
 #r "../packages/MathNet.Numerics/lib/net40/MathNet.Numerics.dll"
 
 open System
+open Pricer.Core
 open Pricer
+open Pricer.Fabled
 open FSharp.Charting.ChartTypes
 open FSharp.Charting
 open System.Windows.Forms.DataVisualization
 open System.Drawing
 open MathNet.Numerics.Statistics
 
-let option = {
+let option =  {
     Strike = 250.0
     Expiry = DateTime.Now.AddDays(90.)
     Direction = 1.0
@@ -40,36 +44,36 @@ let convert = {
 let convertStrategy = {
     Stock = stock
     Legs = [
-        {
-            Definition = Convertible convert
-            Pricing = None
-        }
+            {
+                Definition = Convertible convert
+                Pricing = None
+            }
     ]
     Name = "Convertible Example"
 }
 
-let chartData data strategy =
-    match data with
-        | SingleYear (strategyData, legsData) ->
-            let strategyLine = Chart.Line(strategyData,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
-            let legsLines = legsData |> Seq.mapi (fun i (leg,legData) -> Chart.Line(legData,(sprintf "Leg %i %s" i leg.Definition.Name)))
-            let allLines = legsLines |> Seq.append [strategyLine]
-            let chart = Chart.Combine allLines |> Chart.WithLegend(true)
-            chart
-        | MultiYear (strategyPerYear) ->
-            let allYearLines = strategyPerYear |> Seq.mapi (fun i strategyData -> 
-                Chart.Line(strategyData,(sprintf "year %i %s" i strategy.Name)) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
-            )
+let chartSingleYear strategy (strategyData: SingleLine, legsData: (Leg*SingleLine) list) =
+    let strategyLine = Chart.Line(strategyData,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
+    let legsLines = legsData |> Seq.mapi (fun i (leg,legData) -> Chart.Line(legData,(sprintf "Leg %i %s" i leg.Definition.Name)))
+    let allLines = legsLines |> Seq.append [strategyLine]
+    let chart = Chart.Combine allLines |> Chart.WithLegend(true)
+    chart
+    
 
-            let chart = Chart.Combine allYearLines |> Chart.WithLegend(true)
-            chart
+let simpleProvider = new SimpleMathProvider() :> IMathProvider
+let realProvider = new MathNetProvider() :> IMathProvider
 
+let getLine valueProvider name = 
+    let data = [-1.0.. 0.01 .. 1.0] |> List.map (fun x-> 
+        let y = valueProvider x
+        x, y
+    )
+    Chart.Line(data,name)
 
-let strategy = StrategiesExamples.callSpread stock
-let data = Options.getStrategyData strategy
-chartData data strategy
+let lines = seq {
+    yield getLine SimpleMath.erf1 "ERF"
+    yield getLine simpleProvider.cdf "ERF - to - CDF"
+    yield getLine realProvider.cdf "CDF"
+}
 
-let convertibleData = Options.getStrategyData convertStrategy
-chartData convertibleData convertStrategy
-
-
+let chart= Chart.Combine lines |> Chart.WithLegend(true)

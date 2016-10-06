@@ -52,8 +52,9 @@ type OptionsAnalyzer (pricer:IPricer) =
             }
         )
 
-    //returns multiple triples strike - expiry - pricing result
-    member this.optionPricesTriples stock kind = 
+    // given a stock and option kind returns several options
+    // around the underlyings price with few future expiries
+    member this.optionPricesExamples stock kind = 
         let expiries = [for i in 1 .. 10 -> DateTime.Now.AddDays ((float i)*80.0)]
         let strikes = [for i in 1 .. 10 -> stock.CurrentPrice * 0.6 +  stock.CurrentPrice/10.0 * float i]
 
@@ -62,9 +63,6 @@ type OptionsAnalyzer (pricer:IPricer) =
         combinations |> Seq.map (fun (strike, exp) ->
             let option = buildOption strike European exp kind
             let pricing = pricer.priceOption stock option
-            {
-                Definition = Option option
-                Pricing = Some pricing
-            }
+            option, pricing.Premium
         )
 

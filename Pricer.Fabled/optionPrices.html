@@ -74,28 +74,28 @@
                 </div>
             </div>
             <div class="row">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Kind</th>
-                            <th>Strike</th>
-                            <th>Expiry</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody v-for="leg in pricesTable">
-                        <tr>
-                            <td>
-                                {{ leg.kind }}
-                            </td>
-                            <td>
-                                {{ leg.strike }}
-                            </td>
-                            <td>{{ leg.expiry }}</td>
-                            <td>{{ leg.price }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="col-md-12">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Strike</th>
+                                <th>Expiry</th>
+                                <th>Put Price</th>
+                                <th>Call Price</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="leg in optionsTable">
+                            <tr>
+                                <td>
+                                    {{ leg.strike }}
+                                </td>
+                                <td>{{ leg.expiry }}</td>
+                                <td>{{ leg.putPrice }}</td>
+                                <td>{{ leg.callPrice }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

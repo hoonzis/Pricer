@@ -1,5 +1,6 @@
 ﻿namespace Pricer.Fabled
 
+open System
 open Fable.Core
 open Fable.Import
 open Pricer.Core
@@ -11,45 +12,39 @@ module OptionPrices =
     
     type OptionPricesViewModel() = 
         let mutable stock = new StockViewModel(StrategiesExamples.exampleStock)
-        let mutable pricesTable = [||];
+        let mutable optionsTable = [||];
 
-        let toTableValues kind values = 
-            createObj [
-                "strike" ==> values.y
-                "expiry" ==> values.x.ToShortTimeString()
-                "price" ==> values.size
-                "kind" ==> kind
-            ]
+        member __.updatePrices() =
+            let stockValue = stock.buildStock
+            let puts = optionsAnalyzer.optionPricesExamples stockValue Put |> Array.ofSeq
+            let calls = optionsAnalyzer.optionPricesExamples stockValue Call |> Array.ofSeq
 
-        member __.updatePrices =
-            let kinds = [|Call;Put|]
-            let pricesPerOptionKind = kinds |> Array.map (fun kind -> 
-                let prices = optionsAnalyzer.optionPricesTriples stock.buildStock kind
-                let legsWithPrices = 
-                    prices |> Seq.choose (fun leg ->
-                        match leg.Definition, leg.Pricing with
-                            | Option option, Some pricing -> Some (option, pricing)
-                            | _ -> None
-                        ) 
-                        |> Array.ofSeq
-                let dataPoints = legsWithPrices |> Array.map Charting.legAndPricingToDataPoint
-                let serie = {
-                    key = kind.ToString()
-                    values = dataPoints
+            let scatterCalls = calls |> Array.map Charting.legAndPriceToScatterPoint
+            let scatterPuts = puts |> Array.map Charting.legAndPriceToScatterPoint
+            
+            let series = [|
+                {
+                    key = Call.ToString()
+                    values = scatterCalls
+                };
+                {
+                    key = Put.ToString()
+                    values = scatterPuts
                 }
-                
-                serie
+            |]
+            
+            Charting.drawScatter series "#optionPricesChart"
+
+            let merged = puts |> Array.zip calls |> Array.map (fun ((put, putPrice), (call, callPrice)) -> 
+                createObj [
+                    "strike" ==> (Fable.Import.JS.Number.Create put.Strike).toFixed(2.0)
+                    "expiry" ==> (put.Expiry |> Tools.toDate)
+                    "putPrice" ==> (Fable.Import.JS.Number.Create putPrice).toFixed(4.0)
+                    "callPrice" ==> (Fable.Import.JS.Number.Create callPrice).toFixed(4.0)
+                ]
             )
 
-            pricesTable <-
-                pricesPerOptionKind 
-                    |> Array.map (fun serie -> 
-                        let fromSerie = toTableValues serie.key
-                        let withOptionKind = serie.values |> Array.map fromSerie
-                        withOptionKind
-                    ) |> Array.collect id
-
-            Charting.drawScatter pricesPerOptionKind "#optionPricesChart"
+            optionsTable <- merged
 
     let extraOpts =
         createObj [

@@ -95,29 +95,25 @@ module Charting =
         let chart = prepareLineChart
         drawChart chart data chartSelector
 
-    let drawPayoff data =
-        let payoff = 
-            match data with
-                | SingleYear (strategyData, legsData) ->
-                    let legLines = buildLines legsData
-                    let strategyLine = {
-                        key = "Strategy"
-                        values = strategyData |> tuplesToPoints
-                    }
-                        
-                    seq {
-                        yield! legLines
-                        yield strategyLine
-                    } |> Array.ofSeq
-                | _ -> failwith "not implemented"
+    let drawPayoff (strategyData, legsData) =
+        let legLines = buildLines legsData
+        let strategyLine = {
+            key = "Strategy"
+            values = strategyData |> tuplesToPoints
+        }
+               
+        let payoff = seq {
+            yield! legLines
+            yield strategyLine
+        } 
 
-        drawLineChart payoff        
+        drawLineChart (payoff |> Array.ofSeq)
 
-    let legAndPricingToDataPoint (l,pricing) = 
+    let legAndPriceToScatterPoint (l,price) = 
         {
             x = l.Expiry
             y = l.Strike
-            size = pricing.Premium
+            size = price
         }
         
     let drawScatter (data: Series<DateScatterValue> array) (chartSelector:string) = 

@@ -50,8 +50,3 @@ type BinomialBenchmark () =
     [<Benchmark>]
     member self.Func () = 
         Binomial.binomial stock europeanCall self.Steps Functional
-        
-    
-    [<Benchmark(Baseline=true)>]
-    member self.FuncFast () =                    
-        Binomial.binomial stock europeanCall self.Steps FunctionalFast

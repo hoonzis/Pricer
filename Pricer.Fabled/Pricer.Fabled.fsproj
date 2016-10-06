@@ -65,7 +65,6 @@
     <Compile Include="PayoffCharts.fs" />
     <Compile Include="OptionPrices.fs" />
     <None Include="index.html" />
-    <None Include="build.cmd" />
     <None Include="package.json" />
     <Content Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

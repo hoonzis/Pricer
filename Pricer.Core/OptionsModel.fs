@@ -80,10 +80,6 @@ type SingleLine =  (float*float) list
 
 type LegsData = Leg * SingleLine
 
-type StrategyData = 
-    | SingleYear of SingleLine * ((Leg * SingleLine) seq)
-    | MultiYear of SingleLine seq
-
 module BasicOptions = 
     let optionValue option stockPrice =
         match option.Kind with

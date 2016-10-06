@@ -27,13 +27,16 @@ type PayoffsGenerator (pricer:IPricer) =
                 yield! (strikes |> Seq.sort)
                 yield max
             }
-    member this.legPayoff leg pricing (year:int) stockPrice =
+
+    member this.legPayoff leg pricing stockPrice =
         match leg with
 
             | Cash cashLeg -> cashLeg.Direction * (stockPrice - cashLeg.Price)
             | Option optionLeg -> optionLeg.Direction * (BasicOptions.optionValue optionLeg stockPrice - pricing.Premium)
-            | Convertible convertible -> convertible.Direction * (float year * convertible.Coupon * convertible.FaceValue - pricing.Premium)
+            | Convertible convertible -> failwith "Cant price convertible leg with single year payoff calculator"
 
+    member this.convertiblePayoff convertible pricing year = 
+        convertible.Direction * (float year * convertible.Coupon * convertible.FaceValue - pricing.Premium)
 
     member this.getStrategyData (strategy:Strategy) =
         let getLegPricing leg =
@@ -49,27 +52,15 @@ type PayoffsGenerator (pricer:IPricer) =
             pricedLeg, payoffCalculator
         )
 
-        let interestingPoints = this.getInterestingPoints strategy
-        let hasConverts = strategy.Legs |> Seq.exists (fun leg -> match leg.Definition with | Convertible _ -> true | _ -> false)
+        let interestingPoints = this.getInterestingPoints strategy    
+        let legsData = payOffsPerLeg |> Seq.map (fun (leg,payOff) -> 
+            leg, [for stockPrice in interestingPoints  do yield stockPrice, payOff stockPrice]
+        )
+
+        let strategyData = [for stockPrice in interestingPoints do yield stockPrice, payOffsPerLeg |> Seq.sumBy (fun (leg,payOff) -> payOff stockPrice)]
+        strategyData, legsData
         
-        match hasConverts with
-            | true -> 
-                let years = [1;2;3]
-
-                let legsData = payOffsPerLeg |> Seq.map (fun (leg,payOff) -> 
-                    leg, years |> Seq.map (fun year -> [for stockPrice in interestingPoints  do yield stockPrice, payOff year stockPrice])
-                )
-
-                let strategyData = years |> Seq.map (fun year -> 
-                    [for stockPrice in interestingPoints do yield stockPrice, payOffsPerLeg |> Seq.sumBy (fun (leg,payOff) -> payOff year stockPrice)]
-                )
-
-                MultiYear strategyData
-            | false -> 
-                let legsData = payOffsPerLeg |> Seq.map (fun (leg,payOff) -> 
-                    leg, [for stockPrice in interestingPoints  do yield stockPrice, payOff 1 stockPrice]
-                )
-
-                let strategyData = [for stockPrice in interestingPoints do yield stockPrice, payOffsPerLeg |> Seq.sumBy (fun (leg,payOff) -> payOff 1 stockPrice)]
-                
-                SingleYear (strategyData,legsData)
+    member this.getConvertiblePayoffData (convert:ConvertibleLeg) pricing = 
+        let years = [1;2;3]
+        years |> Seq.map (fun year -> this.convertiblePayoff convert pricing year)
+        

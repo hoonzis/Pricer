@@ -58,15 +58,6 @@
   -->
   <Import Project="..\.paket\paket.targets" />
   <ItemGroup>
-    <Content Include="TraceEvent.ReadMe.txt">
-      <Paket>True</Paket>
-    </Content>
-    <Content Include="TraceEvent.ReleaseNotes.txt">
-      <Paket>True</Paket>
-    </Content>
-    <Content Include="_TraceEventProgrammersGuide.docx">
-      <Paket>True</Paket>
-    </Content>
     <Content Include="paket.references" />
     <Content Include="app.config" />
     <Compile Include="TestData.fs" />
@@ -76,6 +67,8 @@
     <Compile Include="FabledTests.fs" />
     <Compile Include="StocksTests.fs" />
     <None Include="MarketTests.fsx" />
+    <Compile Include="BinomialTests.fs" />
+    <Compile Include="PayoffTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

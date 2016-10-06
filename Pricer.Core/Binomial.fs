@@ -3,7 +3,7 @@
 type Implementation =
     | Functional 
     | Imperative
-    | FunctionalFast
+
 
 //this type holds the configuration for binomial pricing model
 type BinomialPricing = {
@@ -17,6 +17,12 @@ type BinomialPricing = {
     Ref:float
 }
 
+type BinomialNode = {
+    Stock: double
+    Option: double
+    PreviousOption: double
+}
+
 module Binomial =
     
     let binomialPrice (ref:float) (strike:float) (rate:float) (up:float) =
@@ -27,120 +33,120 @@ module Binomial =
         let call = exp(-rate) * (q*cu + (1.0-q)*cd)
         call
 
+    let buildPricingResult previousOptionPrice optionPrice pricing = 
+        let optionPriceChange = previousOptionPrice - optionPrice
+        let underlyingPriceChange = pricing.Ref*pricing.Up - pricing.Ref
+        let delta = optionPriceChange / underlyingPriceChange
+        {
+            Premium = optionPrice
+            Delta = delta
+        }
+
     let binomialPricing (pricing:BinomialPricing) =
+        
+        // this array holds the prices of the underlying in given period
         let prices = Array.zeroCreate pricing.Periods
-        let optionValue = 
+        
+        // retursn a function used to calculate the option prices in the period i.
+        // it looks into the underlying prices array and compares with strike
+        let optionValueInPeriod = 
             match pricing.Option.Kind with
                     | Call -> fun i -> max 0.0 (prices.[i] - pricing.Option.Strike)
                     | Put -> fun i -> max 0.0 (pricing.Option.Strike - prices.[i])
                                  
+        // initialize the last price (the underlying wen down * period times)
         prices.[0] <- pricing.Ref*(pricing.Down**(float pricing.Periods))
-        let oValues = Array.zeroCreate pricing.Periods
-        oValues.[0]<- optionValue 0
+        let optionValues = Array.zeroCreate pricing.Periods
+
+        optionValues.[0]<- optionValueInPeriod 0
         for i in 1 ..pricing.Periods-1 do
             prices.[i] <- prices.[i-1]*pricing.Up*pricing.Up
-            oValues.[i]<- optionValue i
+            optionValues.[i]<- optionValueInPeriod i
 
         let counter = pricing.Periods-2
         for step = counter downto 0 do
             for j in 0 .. step do
-                oValues.[j] <- (pricing.PUp*oValues.[j+1]+pricing.PDown*oValues.[j])*(1.0/pricing.Rate)
+                optionValues.[j] <- (pricing.PUp*optionValues.[j+1]+pricing.PDown*optionValues.[j])*(1.0/pricing.Rate)
                 if pricing.Option.Style = American then
                     prices.[j] <- pricing.Down*prices.[j+1]
-                    oValues.[j] <- max oValues.[j] (optionValue j)
-        let delta = (oValues.[1] - oValues.[1]) / (pricing.Ref*pricing.Up - pricing.Ref*pricing.Down)
-        {
-            Premium = oValues.[0]
-            Delta = delta
-        }
+                    optionValues.[j] <- max optionValues.[j] (optionValueInPeriod j)
 
+        buildPricingResult optionValues.[1] optionValues.[0] pricing
     
+    // Creates an array of BinomialNodes - that leafs of the CRR tree
     let generateEndNodePrices (ref:float) (up:float) (periods:int) optionVal =
         let down = 1.0 / up 
         let lowestStock = ref*(down**(float periods))
-        let first = lowestStock,optionVal lowestStock
-        let values = Seq.unfold (fun (stock,der)-> 
-            let stock' = stock*up*up
-            let der' = optionVal stock'
-            Some ((stock,der),(stock', der'))) first
-        values |> Seq.take periods |> List.ofSeq
-
-    let step pricing optionVal (prices:(float*float) list) =
-        prices 
-            |> Seq.pairwise 
-            |> Seq.map (fun ((sDown,dDown),(sUp,dUp)) -> 
-                let derValue = (pricing.PUp*dUp+pricing.PDown*dDown)*(1.0/pricing.Rate)
-                let stockValue = sUp*pricing.Down
-                let der' = match pricing.Option.Style with
-                                    | American -> 
-                                        let prematureExValue = optionVal stockValue
-                                        max derValue prematureExValue
-                                    | European -> derValue
-                stockValue,der')
-            |> List.ofSeq
-
-    let binomialPricingFunc (pricing:BinomialPricing) =
-        let optionValue = BasicOptions.optionValue pricing.Option
-        let prices = generateEndNodePrices pricing.Ref pricing.Up pricing.Periods optionValue
-        
-        let reductionStep = step pricing optionValue
-        let rec reducePrices prices =
-            match prices with
-                    | [(stock,der)] -> der
-                    | prs -> reducePrices (reductionStep prs)
-        //TODO: calculate the correct delta in this functional implementation    
-        let premium = reducePrices prices
-        {
-            Premium = premium
-            Delta = 1.0
+        let first = {
+            Stock = lowestStock
+            Option = optionVal lowestStock
+            PreviousOption = 0.0
         }
-
-    let generateEndNodePricesFast (ref:float) (up:float) (periods:int) optionVal =
-        let down = 1.0 / up 
-        let lowestStock = ref*(down**(float periods))
-        let first = lowestStock,optionVal lowestStock
-        let values = Seq.unfold (fun (stock,der)-> 
-            let stock' = stock*up*up
-            let der' = optionVal stock'
-            Some ((stock,der),(stock', der'))) first
+        let values = Seq.unfold (fun node -> 
+            let stock' = node.Stock*up*up
+            let option' = optionVal stock'
+            let nodeBellow = {
+                Stock = stock'
+                Option = option'
+                PreviousOption = 0.0
+            }
+            Some (node,nodeBellow)) first
         values |> Seq.take periods |> Seq.toArray
 
-    let stepFast pricing optionVal (prices:(float*float) []) =
+
+    // merge two nodes
+    let mergeNodes downNode upNode optionVal pricing = 
+        // calculate the value of the next option, using the CRR
+        let derValue = (pricing.PUp * upNode.Option + pricing.PDown * downNode.Option)*(1.0/pricing.Rate)
+
+        // calculate the value of the next stock - simply by raising the old stock
+        let stockValue = upNode.Stock * pricing.Down
+
+        // check for premature execution - if it's american option
+        let option' = 
+            match pricing.Option.Style with
+                | American -> 
+                    let prematureExValue = optionVal stockValue
+                    max derValue prematureExValue
+                | European -> derValue
+
+
+        {
+            Stock = stockValue
+            Option = option'
+            PreviousOption = upNode.Option
+        }
+
+    // takes one layer of the binomial tree and generates the next layer
+    let step pricing optionVal (prices:BinomialNode []) =
         prices 
             |> Array.pairwise 
-            |> Array.map (fun ((sDown,dDown),(sUp,dUp)) -> 
-                let derValue = (pricing.PUp*dUp+pricing.PDown*dDown)*(1.0/pricing.Rate)
-                let stockValue = sUp*pricing.Down
-                let der' = match pricing.Option.Style with
-                                    | American -> 
-                                        let prematureExValue = optionVal stockValue
-                                        max derValue prematureExValue
-                                    | European -> derValue
-                stockValue,der')
+            |> Array.map (fun (downNode,upNode) -> mergeNodes downNode upNode optionVal pricing)
             
-
-    let binomialPricingFuncFast (pricing:BinomialPricing) =
+    let binomialPricingFunc (pricing:BinomialPricing) =
         let optionValue = BasicOptions.optionValue pricing.Option
-        let prices = generateEndNodePricesFast pricing.Ref pricing.Up pricing.Periods optionValue
+
+        // that's the leafs of the derivative tree
+        let prices = generateEndNodePrices pricing.Ref pricing.Up pricing.Periods optionValue
         
-        let reductionStep = stepFast pricing optionValue
+        // define a reduction step which will generate new layer
+        let reductionStep = step pricing optionValue
+        
+        // apply the reduction till we have only one node in the list
         let rec reducePrices prices =
             match prices with
-                    | [|(stock,der)|] -> der
+                    | [|node|] -> node.Option, node.PreviousOption
                     | prs -> reducePrices (reductionStep prs)
-        //TODO: calculate the correct delta in this functional implementation    
-        let premium = reducePrices prices
-        {
-            Premium = premium
-            Delta = 1.0
-        }
+
+        let premium, previousPremium = reducePrices prices
+        buildPricingResult previousPremium premium pricing
 
     let binomial (stock:StockInfo) (option:OptionLeg) (steps:int) implementation = 
 
-        //we need to construct the binomial pricing model, using the CRR (Cox, Ross and Rubinstein)
-        //the original model is composed of 3 parameters p,u,d. 
-        //u - up probability, d - down probability. p is the technical probability
-        //here we have PUp and PDown, for further simplifacation of the calculations
+        // we need to construct the binomial pricing model, using the CRR (Cox, Ross and Rubinstein)
+        // the original model is composed of 3 parameters p,u,d. 
+        // u - up probability, d - down probability. p is the technical probability
+        // here we have PUp and PDown, for further simplifacation of the calculations
         let deltaT = option.TimeToExpiry/float steps
         let up = exp(stock.Volatility*sqrt deltaT)
         let down = 1.0/up
@@ -162,4 +168,3 @@ module Binomial =
         match implementation with
             | Imperative -> binomialPricing pricing
             | Functional -> binomialPricingFunc pricing
-            | FunctionalFast -> binomialPricingFuncFast pricing
