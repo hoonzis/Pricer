@@ -53,19 +53,19 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _SimplePricer = __webpack_require__(1);
+	var _SimplePricer = __webpack_require__(4);
 	
-	var _OptionsAnalyzer = __webpack_require__(6);
+	var _OptionsAnalyzer = __webpack_require__(8);
 	
-	var _ShareViewModels = __webpack_require__(8);
+	var _ShareViewModels = __webpack_require__(10);
 	
-	var _StrategiesExamples = __webpack_require__(10);
+	var _StrategiesExamples = __webpack_require__(12);
 	
-	var _OptionsModel = __webpack_require__(3);
+	var _OptionsModel = __webpack_require__(6);
 	
-	var _Charting = __webpack_require__(11);
+	var _Charting = __webpack_require__(2);
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
 	var _Tools = __webpack_require__(13);
 	
@@ -145,470 +145,6 @@
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.SimplePricer = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _BlackScholesPricer = __webpack_require__(2);
-	
-	var _SimpleMath = __webpack_require__(5);
-	
-	var _OptionsModel = __webpack_require__(3);
-	
-	var _fableCore = __webpack_require__(4);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var SimplePricer = exports.SimplePricer = function () {
-	    function SimplePricer() {
-	        _classCallCheck(this, SimplePricer);
-	
-	        this.bsPricer = new _BlackScholesPricer.BlackScholesPricer(new _SimpleMath.SimpleMathProvider());
-	    }
-	
-	    _createClass(SimplePricer, [{
-	        key: "priceOption",
-	        value: function priceOption(stock, option) {
-	            var _this = this;
-	
-	            return function (arg00) {
-	                return function (arg10) {
-	                    return _this.bsPricer.blackScholes(arg00, arg10);
-	                };
-	            }(stock)(option);
-	        }
-	    }, {
-	        key: "priceCash",
-	        value: function priceCash(cash) {
-	            return new _OptionsModel.Pricing(1, cash.Price);
-	        }
-	    }, {
-	        key: "priceConvert",
-	        value: function priceConvert(stock, option) {
-	            throw "implement CB pricing";
-	        }
-	    }]);
-
-	    return SimplePricer;
-	}();
-
-	_fableCore.Util.setInterfaces(SimplePricer.prototype, ["Pricer.Core.IPricer"], "Pricer.Fabled.SimplePricer");
-
-
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.BlackScholesPricer = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _OptionsModel = __webpack_require__(3);
-	
-	var _fableCore = __webpack_require__(4);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var BlackScholesPricer = exports.BlackScholesPricer = function () {
-	    function BlackScholesPricer(math) {
-	        _classCallCheck(this, BlackScholesPricer);
-	
-	        this.math = math;
-	    }
-	
-	    _createClass(BlackScholesPricer, [{
-	        key: "blackScholes",
-	        value: function blackScholes(stock, option) {
-	            var _this = this;
-	
-	            var patternInput = option.TimeToExpiry > 0 ? function () {
-	                var d1 = (Math.log(stock.CurrentPrice / option.Strike) + (stock.Rate + 0.5 * Math.pow(stock.Volatility, 2)) * option.TimeToExpiry) / (stock.Volatility * Math.sqrt(option.TimeToExpiry));
-	                var d2 = d1 - stock.Volatility * Math.sqrt(option.TimeToExpiry);
-	
-	                var N1 = _this.math.cdf(d1);
-	
-	                var N2 = _this.math.cdf(d2);
-	
-	                var discountedStrike = option.Strike * Math.exp(-stock.Rate * option.TimeToExpiry);
-	                var call = stock.CurrentPrice * N1 - discountedStrike * N2;
-	
-	                if (option.Kind.Case === "Put") {
-	                    return [call + discountedStrike - stock.CurrentPrice, N1 - 1];
-	                } else {
-	                    return [call, N1];
-	                }
-	            }() : option.Kind.Case === "Put" ? [option.Strike - stock.CurrentPrice > 0 ? option.Strike - stock.CurrentPrice : 0, 1] : [stock.CurrentPrice - option.Strike > 0 ? stock.CurrentPrice - option.Strike : 0, 1];
-	            return new _OptionsModel.Pricing(patternInput[1], patternInput[0]);
-	        }
-	    }]);
-
-	    return BlackScholesPricer;
-	}();
-
-	_fableCore.Util.setInterfaces(BlackScholesPricer.prototype, [], "Pricer.Core.BlackScholesPricer");
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.BasicOptions = exports.LegData = exports.Strategy = exports.Leg = exports.Pricing = exports.LegInfo = exports.ConvertibleLeg = exports.CashLeg = exports.OptionLeg = exports.OptionStyle = exports.OptionKind = exports.Transforms = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _fableCore = __webpack_require__(4);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Transforms = exports.Transforms = function ($exports) {
-	    var directionToString = $exports.directionToString = function directionToString(direction) {
-	        return direction < 0 ? "Sell" : "Buy";
-	    };
-	
-	    var stringToDirection = $exports.stringToDirection = function stringToDirection(direction) {
-	        return direction === "Sell" ? -1 : 1;
-	    };
-	
-	    return $exports;
-	}({});
-	
-	var OptionKind = exports.OptionKind = function () {
-	    function OptionKind(caseName, fields) {
-	        _classCallCheck(this, OptionKind);
-	
-	        this.Case = caseName;
-	        this.Fields = fields;
-	    }
-	
-	    _createClass(OptionKind, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsUnions(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareUnions(this, other);
-	        }
-	    }, {
-	        key: "ToString",
-	        value: function ToString() {
-	            return this.Case === "Call" ? "Call" : "Put";
-	        }
-	    }]);
-	
-	    return OptionKind;
-	}();
-	
-	_fableCore.Util.setInterfaces(OptionKind.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionKind");
-	
-	var OptionStyle = exports.OptionStyle = function () {
-	    function OptionStyle(caseName, fields) {
-	        _classCallCheck(this, OptionStyle);
-	
-	        this.Case = caseName;
-	        this.Fields = fields;
-	    }
-	
-	    _createClass(OptionStyle, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsUnions(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareUnions(this, other);
-	        }
-	    }, {
-	        key: "ToString",
-	        value: function ToString() {
-	            return this.Case === "American" ? "American" : "European";
-	        }
-	    }]);
-	
-	    return OptionStyle;
-	}();
-	
-	_fableCore.Util.setInterfaces(OptionStyle.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionStyle");
-	
-	var OptionLeg = exports.OptionLeg = function () {
-	    function OptionLeg(direction, strike, expiry, kind, style, purchaseDate) {
-	        _classCallCheck(this, OptionLeg);
-	
-	        this.Direction = direction;
-	        this.Strike = strike;
-	        this.Expiry = expiry;
-	        this.Kind = kind;
-	        this.Style = style;
-	        this.PurchaseDate = purchaseDate;
-	    }
-	
-	    _createClass(OptionLeg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }, {
-	        key: "BuyVsSell",
-	        get: function get() {
-	            return Transforms.directionToString(this.Direction);
-	        }
-	    }, {
-	        key: "TimeToExpiry",
-	        get: function get() {
-	            var _this = this;
-	
-	            return function () {
-	                var copyOfStruct = _fableCore.Date.op_Subtraction(_this.Expiry, _this.PurchaseDate);
-	
-	                return _fableCore.TimeSpan.days(copyOfStruct);
-	            }() / 365;
-	        }
-	    }, {
-	        key: "Name",
-	        get: function get() {
-	            return _fableCore.String.fsFormat("%s %s %.2f")(function (x) {
-	                return x;
-	            })(this.BuyVsSell)(_fableCore.Util.toString(this.Kind))(this.Strike);
-	        }
-	    }]);
-	
-	    return OptionLeg;
-	}();
-	
-	_fableCore.Util.setInterfaces(OptionLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionLeg");
-	
-	var CashLeg = exports.CashLeg = function () {
-	    function CashLeg(direction, price) {
-	        _classCallCheck(this, CashLeg);
-	
-	        this.Direction = direction;
-	        this.Price = price;
-	    }
-	
-	    _createClass(CashLeg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }, {
-	        key: "BuyVsSell",
-	        get: function get() {
-	            return Transforms.directionToString(this.Direction);
-	        }
-	    }]);
-	
-	    return CashLeg;
-	}();
-	
-	_fableCore.Util.setInterfaces(CashLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.CashLeg");
-	
-	var ConvertibleLeg = exports.ConvertibleLeg = function () {
-	    function ConvertibleLeg(direction, coupon, conversionRatio, maturity, faceValue, referencePrice) {
-	        _classCallCheck(this, ConvertibleLeg);
-	
-	        this.Direction = direction;
-	        this.Coupon = coupon;
-	        this.ConversionRatio = conversionRatio;
-	        this.Maturity = maturity;
-	        this.FaceValue = faceValue;
-	        this.ReferencePrice = referencePrice;
-	    }
-	
-	    _createClass(ConvertibleLeg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return ConvertibleLeg;
-	}();
-	
-	_fableCore.Util.setInterfaces(ConvertibleLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.ConvertibleLeg");
-	
-	var LegInfo = exports.LegInfo = function () {
-	    function LegInfo(caseName, fields) {
-	        _classCallCheck(this, LegInfo);
-	
-	        this.Case = caseName;
-	        this.Fields = fields;
-	    }
-	
-	    _createClass(LegInfo, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsUnions(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareUnions(this, other);
-	        }
-	    }, {
-	        key: "Name",
-	        get: function get() {
-	            return this.Case === "Option" ? this.Fields[0].Name : this.Case === "Convertible" ? _fableCore.String.fsFormat("Convert %f")(function (x) {
-	                return x;
-	            })(this.Fields[0].FaceValue) : "Cash";
-	        }
-	    }]);
-	
-	    return LegInfo;
-	}();
-	
-	_fableCore.Util.setInterfaces(LegInfo.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.LegInfo");
-	
-	var Pricing = exports.Pricing = function () {
-	    function Pricing(delta, premium) {
-	        _classCallCheck(this, Pricing);
-	
-	        this.Delta = delta;
-	        this.Premium = premium;
-	    }
-	
-	    _createClass(Pricing, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return Pricing;
-	}();
-	
-	_fableCore.Util.setInterfaces(Pricing.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Pricing");
-	
-	var Leg = exports.Leg = function () {
-	    function Leg(definition, pricing) {
-	        _classCallCheck(this, Leg);
-	
-	        this.Definition = definition;
-	        this.Pricing = pricing;
-	    }
-	
-	    _createClass(Leg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return Leg;
-	}();
-	
-	_fableCore.Util.setInterfaces(Leg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Leg");
-	
-	var Strategy = exports.Strategy = function () {
-	    function Strategy(stock, name, legs) {
-	        _classCallCheck(this, Strategy);
-	
-	        this.Stock = stock;
-	        this.Name = name;
-	        this.Legs = legs;
-	    }
-	
-	    _createClass(Strategy, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return Strategy;
-	}();
-	
-	_fableCore.Util.setInterfaces(Strategy.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Strategy");
-	
-	var LegData = exports.LegData = function () {
-	    function LegData(leg, legData) {
-	        _classCallCheck(this, LegData);
-	
-	        this.Leg = leg;
-	        this.LegData = legData;
-	    }
-	
-	    _createClass(LegData, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return LegData;
-	}();
-	
-	_fableCore.Util.setInterfaces(LegData.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.LegData");
-	
-	var BasicOptions = exports.BasicOptions = function ($exports) {
-	    var optionValue = $exports.optionValue = function optionValue(option, stockPrice) {
-	        return option.Kind.Case === "Put" ? 0 > option.Strike - stockPrice ? 0 : option.Strike - stockPrice : 0 > stockPrice - option.Strike ? 0 : stockPrice - option.Strike;
-	    };
-	
-	    var buildLeg = $exports.buildLeg = function buildLeg(kind, strike, direction, style, expiry, buyingDate) {
-	        var Kind = new OptionKind("Call", []);
-	        return new OptionLeg(direction, strike, expiry, Kind, new OptionStyle("European", []), buyingDate);
-	    };
-	
-	    return $exports;
-	}({});
-
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {(function (global, factory) {
@@ -5212,7 +4748,712 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _fableCore = __webpack_require__(1);
+	
+	var _d = __webpack_require__(3);
+	
+	var d3 = _interopRequireWildcard(_d);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Value = exports.Value = function () {
+	    function Value(x, y) {
+	        _classCallCheck(this, Value);
+	
+	        this.x = x;
+	        this.y = y;
+	    }
+	
+	    _createClass(Value, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return Value;
+	}();
+	
+	_fableCore.Util.setInterfaces(Value.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Value");
+	
+	var DateScatterValue = exports.DateScatterValue = function () {
+	    function DateScatterValue(x, y, size) {
+	        _classCallCheck(this, DateScatterValue);
+	
+	        this.x = x;
+	        this.y = y;
+	        this.size = size;
+	    }
+	
+	    _createClass(DateScatterValue, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return DateScatterValue;
+	}();
+	
+	_fableCore.Util.setInterfaces(DateScatterValue.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.DateScatterValue");
+	
+	var Series = exports.Series = function () {
+	    function Series(key, values) {
+	        _classCallCheck(this, Series);
+	
+	        this.key = key;
+	        this.values = values;
+	    }
+	
+	    _createClass(Series, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return Series;
+	}();
+	
+	_fableCore.Util.setInterfaces(Series.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Series");
+	
+	var DateUtils = exports.DateUtils = function ($exports) {
+	    return $exports;
+	}({});
+	
+	var Chart = exports.Chart = function Chart() {
+	    _classCallCheck(this, Chart);
+	};
+	
+	_fableCore.Util.setInterfaces(Chart.prototype, [], "Pricer.Fabled.Chart");
+	
+	var LineChart = exports.LineChart = function (_Chart) {
+	    _inherits(LineChart, _Chart);
+	
+	    function LineChart() {
+	        _classCallCheck(this, LineChart);
+	
+	        var _this = _possibleConstructorReturn(this, (LineChart.__proto__ || Object.getPrototypeOf(LineChart)).call(this));
+	
+	        return _this;
+	    }
+	
+	    _createClass(LineChart, [{
+	        key: "useInteractiveGuideline",
+	        value: function useInteractiveGuideline(value) {
+	            throw "JSOnly";
+	        }
+	    }]);
+	
+	    return LineChart;
+	}(Chart);
+	
+	_fableCore.Util.setInterfaces(LineChart.prototype, [], "Pricer.Fabled.LineChart");
+	
+	var ScatterChart = exports.ScatterChart = function (_Chart2) {
+	    _inherits(ScatterChart, _Chart2);
+	
+	    function ScatterChart() {
+	        _classCallCheck(this, ScatterChart);
+	
+	        var _this2 = _possibleConstructorReturn(this, (ScatterChart.__proto__ || Object.getPrototypeOf(ScatterChart)).call(this));
+	
+	        return _this2;
+	    }
+	
+	    _createClass(ScatterChart, [{
+	        key: "pointRange",
+	        value: function pointRange(value) {
+	            throw "JSOnly";
+	        }
+	    }]);
+	
+	    return ScatterChart;
+	}(Chart);
+	
+	_fableCore.Util.setInterfaces(ScatterChart.prototype, [], "Pricer.Fabled.ScatterChart");
+	
+	var Charting = exports.Charting = function ($exports) {
+	    var tuplesToPoints = $exports.tuplesToPoints = function tuplesToPoints(data) {
+	        return Array.from(_fableCore.List.map(function (tupledArg) {
+	            return new Value((tupledArg[0] + 0x80000000 >>> 0) - 0x80000000, tupledArg[1]);
+	        }, data));
+	    };
+	
+	    var buildLines = $exports.buildLines = function buildLines(data) {
+	        return _fableCore.Seq.map(function (tupledArg) {
+	            return new Series(tupledArg[0].Definition.Name, tuplesToPoints(tupledArg[1]));
+	        }, data);
+	    };
+	
+	    var prepareLineChart = $exports.prepareLineChart = function () {
+	        var chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true);
+	        chart.xAxis.axisLabel("Underlying Price").tickFormat(d3.format(",.1f"));
+	        chart.yAxis.axisLabel("Profit").tickFormat(d3.format(",.1f"));
+	        return chart;
+	    }();
+	
+	    var clearAndGetParentChartDiv = $exports.clearAndGetParentChartDiv = function clearAndGetParentChartDiv(selector) {
+	        var element = d3.select(selector);
+	        element.html("");
+	        return element;
+	    };
+	
+	    var drawChart = $exports.drawChart = function drawChart(chart, data, chartSelector) {
+	        var chartElement = clearAndGetParentChartDiv(chartSelector);
+	        chartElement.style("height", "500px");
+	        chartElement.datum(data).call(chart);
+	    };
+	
+	    var drawLineChart = $exports.drawLineChart = function drawLineChart(data, chartSelector) {
+	        var chart = prepareLineChart;
+	        drawChart(chart, data, chartSelector);
+	    };
+	
+	    var drawPayoff = $exports.drawPayoff = function drawPayoff(strategyData, legsData) {
+	        var legLines = buildLines(legsData);
+	        var strategyLine = new Series("Strategy", tuplesToPoints(strategyData));
+	
+	        var payoff = _fableCore.Seq.delay(function (unitVar) {
+	            return _fableCore.Seq.append(legLines, _fableCore.Seq.delay(function (unitVar_1) {
+	                return _fableCore.Seq.singleton(strategyLine);
+	            }));
+	        });
+	
+	        var data = Array.from(payoff);
+	        return function (chartSelector) {
+	            drawLineChart(data, chartSelector);
+	        };
+	    };
+	
+	    var legAndPriceToScatterPoint = $exports.legAndPriceToScatterPoint = function legAndPriceToScatterPoint(l, price) {
+	        return new DateScatterValue(l.Expiry, l.Strike, price);
+	    };
+	
+	    var drawScatter = $exports.drawScatter = function drawScatter(data, chartSelector) {
+	        var colors = _d.scale.category10();
+	
+	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
+	
+	        var timeFormat = _d.time.format("%x");
+	
+	        chart.yAxis.axisLabel("Strike");
+	        chart.xAxis.tickFormat(function (x) {
+	            var dateValue = new Date(x);
+	            return timeFormat(dateValue);
+	        }).axisLabel("Expiry");
+	        drawChart(chart, data, chartSelector);
+	    };
+	
+	    return $exports;
+	}({});
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	module.exports = d3;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.SimplePricer = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _BlackScholesPricer = __webpack_require__(5);
+	
+	var _SimpleMath = __webpack_require__(7);
+	
+	var _OptionsModel = __webpack_require__(6);
+	
+	var _fableCore = __webpack_require__(1);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var SimplePricer = exports.SimplePricer = function () {
+	    function SimplePricer() {
+	        _classCallCheck(this, SimplePricer);
+	
+	        this.bsPricer = new _BlackScholesPricer.BlackScholesPricer(new _SimpleMath.SimpleMathProvider());
+	    }
+	
+	    _createClass(SimplePricer, [{
+	        key: "priceOption",
+	        value: function priceOption(stock, option) {
+	            var _this = this;
+	
+	            return function (arg00) {
+	                return function (arg10) {
+	                    return _this.bsPricer.blackScholes(arg00, arg10);
+	                };
+	            }(stock)(option);
+	        }
+	    }, {
+	        key: "priceCash",
+	        value: function priceCash(cash) {
+	            return new _OptionsModel.Pricing(1, cash.Price);
+	        }
+	    }, {
+	        key: "priceConvert",
+	        value: function priceConvert(stock, option) {
+	            throw "implement CB pricing";
+	        }
+	    }]);
+
+	    return SimplePricer;
+	}();
+
+	_fableCore.Util.setInterfaces(SimplePricer.prototype, ["Pricer.Core.IPricer"], "Pricer.Fabled.SimplePricer");
+
+
+/***/ },
 /* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.BlackScholesPricer = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _OptionsModel = __webpack_require__(6);
+	
+	var _fableCore = __webpack_require__(1);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var BlackScholesPricer = exports.BlackScholesPricer = function () {
+	    function BlackScholesPricer(math) {
+	        _classCallCheck(this, BlackScholesPricer);
+	
+	        this.math = math;
+	    }
+	
+	    _createClass(BlackScholesPricer, [{
+	        key: "blackScholes",
+	        value: function blackScholes(stock, option) {
+	            var _this = this;
+	
+	            var patternInput = option.TimeToExpiry > 0 ? function () {
+	                var d1 = (Math.log(stock.CurrentPrice / option.Strike) + (stock.Rate + 0.5 * Math.pow(stock.Volatility, 2)) * option.TimeToExpiry) / (stock.Volatility * Math.sqrt(option.TimeToExpiry));
+	                var d2 = d1 - stock.Volatility * Math.sqrt(option.TimeToExpiry);
+	
+	                var N1 = _this.math.cdf(d1);
+	
+	                var N2 = _this.math.cdf(d2);
+	
+	                var discountedStrike = option.Strike * Math.exp(-stock.Rate * option.TimeToExpiry);
+	                var call = stock.CurrentPrice * N1 - discountedStrike * N2;
+	
+	                if (option.Kind.Case === "Put") {
+	                    return [call + discountedStrike - stock.CurrentPrice, N1 - 1];
+	                } else {
+	                    return [call, N1];
+	                }
+	            }() : option.Kind.Case === "Put" ? [option.Strike - stock.CurrentPrice > 0 ? option.Strike - stock.CurrentPrice : 0, 1] : [stock.CurrentPrice - option.Strike > 0 ? stock.CurrentPrice - option.Strike : 0, 1];
+	            return new _OptionsModel.Pricing(patternInput[1], patternInput[0]);
+	        }
+	    }]);
+
+	    return BlackScholesPricer;
+	}();
+
+	_fableCore.Util.setInterfaces(BlackScholesPricer.prototype, [], "Pricer.Core.BlackScholesPricer");
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.BasicOptions = exports.LegData = exports.Strategy = exports.Leg = exports.Pricing = exports.LegInfo = exports.ConvertibleLeg = exports.CashLeg = exports.OptionLeg = exports.OptionStyle = exports.OptionKind = exports.Transforms = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _fableCore = __webpack_require__(1);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Transforms = exports.Transforms = function ($exports) {
+	    var directionToString = $exports.directionToString = function directionToString(direction) {
+	        return direction < 0 ? "Sell" : "Buy";
+	    };
+	
+	    var stringToDirection = $exports.stringToDirection = function stringToDirection(direction) {
+	        return direction === "Sell" ? -1 : 1;
+	    };
+	
+	    return $exports;
+	}({});
+	
+	var OptionKind = exports.OptionKind = function () {
+	    function OptionKind(caseName, fields) {
+	        _classCallCheck(this, OptionKind);
+	
+	        this.Case = caseName;
+	        this.Fields = fields;
+	    }
+	
+	    _createClass(OptionKind, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsUnions(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareUnions(this, other);
+	        }
+	    }, {
+	        key: "ToString",
+	        value: function ToString() {
+	            return this.Case === "Call" ? "Call" : "Put";
+	        }
+	    }]);
+	
+	    return OptionKind;
+	}();
+	
+	_fableCore.Util.setInterfaces(OptionKind.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionKind");
+	
+	var OptionStyle = exports.OptionStyle = function () {
+	    function OptionStyle(caseName, fields) {
+	        _classCallCheck(this, OptionStyle);
+	
+	        this.Case = caseName;
+	        this.Fields = fields;
+	    }
+	
+	    _createClass(OptionStyle, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsUnions(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareUnions(this, other);
+	        }
+	    }, {
+	        key: "ToString",
+	        value: function ToString() {
+	            return this.Case === "American" ? "American" : "European";
+	        }
+	    }]);
+	
+	    return OptionStyle;
+	}();
+	
+	_fableCore.Util.setInterfaces(OptionStyle.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionStyle");
+	
+	var OptionLeg = exports.OptionLeg = function () {
+	    function OptionLeg(direction, strike, expiry, kind, style, purchaseDate) {
+	        _classCallCheck(this, OptionLeg);
+	
+	        this.Direction = direction;
+	        this.Strike = strike;
+	        this.Expiry = expiry;
+	        this.Kind = kind;
+	        this.Style = style;
+	        this.PurchaseDate = purchaseDate;
+	    }
+	
+	    _createClass(OptionLeg, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }, {
+	        key: "BuyVsSell",
+	        get: function get() {
+	            return Transforms.directionToString(this.Direction);
+	        }
+	    }, {
+	        key: "TimeToExpiry",
+	        get: function get() {
+	            var _this = this;
+	
+	            return function () {
+	                var copyOfStruct = _fableCore.Date.op_Subtraction(_this.Expiry, _this.PurchaseDate);
+	
+	                return _fableCore.TimeSpan.days(copyOfStruct);
+	            }() / 365;
+	        }
+	    }, {
+	        key: "Name",
+	        get: function get() {
+	            return _fableCore.String.fsFormat("%s %s %.2f")(function (x) {
+	                return x;
+	            })(this.BuyVsSell)(_fableCore.Util.toString(this.Kind))(this.Strike);
+	        }
+	    }]);
+	
+	    return OptionLeg;
+	}();
+	
+	_fableCore.Util.setInterfaces(OptionLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.OptionLeg");
+	
+	var CashLeg = exports.CashLeg = function () {
+	    function CashLeg(direction, price) {
+	        _classCallCheck(this, CashLeg);
+	
+	        this.Direction = direction;
+	        this.Price = price;
+	    }
+	
+	    _createClass(CashLeg, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }, {
+	        key: "BuyVsSell",
+	        get: function get() {
+	            return Transforms.directionToString(this.Direction);
+	        }
+	    }]);
+	
+	    return CashLeg;
+	}();
+	
+	_fableCore.Util.setInterfaces(CashLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.CashLeg");
+	
+	var ConvertibleLeg = exports.ConvertibleLeg = function () {
+	    function ConvertibleLeg(direction, coupon, conversionRatio, maturity, faceValue, referencePrice) {
+	        _classCallCheck(this, ConvertibleLeg);
+	
+	        this.Direction = direction;
+	        this.Coupon = coupon;
+	        this.ConversionRatio = conversionRatio;
+	        this.Maturity = maturity;
+	        this.FaceValue = faceValue;
+	        this.ReferencePrice = referencePrice;
+	    }
+	
+	    _createClass(ConvertibleLeg, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return ConvertibleLeg;
+	}();
+	
+	_fableCore.Util.setInterfaces(ConvertibleLeg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.ConvertibleLeg");
+	
+	var LegInfo = exports.LegInfo = function () {
+	    function LegInfo(caseName, fields) {
+	        _classCallCheck(this, LegInfo);
+	
+	        this.Case = caseName;
+	        this.Fields = fields;
+	    }
+	
+	    _createClass(LegInfo, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsUnions(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareUnions(this, other);
+	        }
+	    }, {
+	        key: "Name",
+	        get: function get() {
+	            return this.Case === "Option" ? this.Fields[0].Name : this.Case === "Convertible" ? _fableCore.String.fsFormat("Convert %f")(function (x) {
+	                return x;
+	            })(this.Fields[0].FaceValue) : "Cash";
+	        }
+	    }]);
+	
+	    return LegInfo;
+	}();
+	
+	_fableCore.Util.setInterfaces(LegInfo.prototype, ["FSharpUnion", "System.IEquatable", "System.IComparable"], "Pricer.Core.LegInfo");
+	
+	var Pricing = exports.Pricing = function () {
+	    function Pricing(delta, premium) {
+	        _classCallCheck(this, Pricing);
+	
+	        this.Delta = delta;
+	        this.Premium = premium;
+	    }
+	
+	    _createClass(Pricing, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return Pricing;
+	}();
+	
+	_fableCore.Util.setInterfaces(Pricing.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Pricing");
+	
+	var Leg = exports.Leg = function () {
+	    function Leg(definition, pricing) {
+	        _classCallCheck(this, Leg);
+	
+	        this.Definition = definition;
+	        this.Pricing = pricing;
+	    }
+	
+	    _createClass(Leg, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return Leg;
+	}();
+	
+	_fableCore.Util.setInterfaces(Leg.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Leg");
+	
+	var Strategy = exports.Strategy = function () {
+	    function Strategy(stock, name, legs) {
+	        _classCallCheck(this, Strategy);
+	
+	        this.Stock = stock;
+	        this.Name = name;
+	        this.Legs = legs;
+	    }
+	
+	    _createClass(Strategy, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return Strategy;
+	}();
+	
+	_fableCore.Util.setInterfaces(Strategy.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.Strategy");
+	
+	var LegData = exports.LegData = function () {
+	    function LegData(leg, legData) {
+	        _classCallCheck(this, LegData);
+	
+	        this.Leg = leg;
+	        this.LegData = legData;
+	    }
+	
+	    _createClass(LegData, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
+	
+	    return LegData;
+	}();
+	
+	_fableCore.Util.setInterfaces(LegData.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Core.LegData");
+	
+	var BasicOptions = exports.BasicOptions = function ($exports) {
+	    var optionValue = $exports.optionValue = function optionValue(option, stockPrice) {
+	        return option.Kind.Case === "Put" ? 0 > option.Strike - stockPrice ? 0 : option.Strike - stockPrice : 0 > stockPrice - option.Strike ? 0 : stockPrice - option.Strike;
+	    };
+	
+	    var buildLeg = $exports.buildLeg = function buildLeg(kind, strike, direction, style, expiry, buyingDate) {
+	        var Kind = new OptionKind("Call", []);
+	        return new OptionLeg(direction, strike, expiry, Kind, new OptionStyle("European", []), buyingDate);
+	    };
+	
+	    return $exports;
+	}({});
+
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5224,7 +5465,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -5286,7 +5527,7 @@
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5298,11 +5539,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
-	var _OptionsModel = __webpack_require__(3);
+	var _OptionsModel = __webpack_require__(6);
 	
-	var _Binomial = __webpack_require__(7);
+	var _Binomial = __webpack_require__(9);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -5475,7 +5716,7 @@
 
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5487,9 +5728,9 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
-	var _OptionsModel = __webpack_require__(3);
+	var _OptionsModel = __webpack_require__(6);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -5728,7 +5969,7 @@
 
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5740,9 +5981,9 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _StocksModel = __webpack_require__(9);
+	var _StocksModel = __webpack_require__(11);
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -5778,7 +6019,7 @@
 
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5790,7 +6031,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -5822,7 +6063,7 @@
 
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5849,11 +6090,11 @@
 	exports.strategiesForStock = strategiesForStock;
 	exports.getStrategy = getStrategy;
 	
-	var _OptionsModel = __webpack_require__(3);
+	var _OptionsModel = __webpack_require__(6);
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
-	var _StocksModel = __webpack_require__(9);
+	var _StocksModel = __webpack_require__(11);
 	
 	function testStrikes(stock) {
 	    return [Math.floor(stock.CurrentPrice * 1.1), Math.floor(stock.CurrentPrice * 1.4)];
@@ -5998,247 +6239,6 @@
 
 
 /***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _fableCore = __webpack_require__(4);
-	
-	var _d = __webpack_require__(12);
-	
-	var d3 = _interopRequireWildcard(_d);
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Value = exports.Value = function () {
-	    function Value(x, y) {
-	        _classCallCheck(this, Value);
-	
-	        this.x = x;
-	        this.y = y;
-	    }
-	
-	    _createClass(Value, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return Value;
-	}();
-	
-	_fableCore.Util.setInterfaces(Value.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Value");
-	
-	var DateScatterValue = exports.DateScatterValue = function () {
-	    function DateScatterValue(x, y, size) {
-	        _classCallCheck(this, DateScatterValue);
-	
-	        this.x = x;
-	        this.y = y;
-	        this.size = size;
-	    }
-	
-	    _createClass(DateScatterValue, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return DateScatterValue;
-	}();
-	
-	_fableCore.Util.setInterfaces(DateScatterValue.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.DateScatterValue");
-	
-	var Series = exports.Series = function () {
-	    function Series(key, values) {
-	        _classCallCheck(this, Series);
-	
-	        this.key = key;
-	        this.values = values;
-	    }
-	
-	    _createClass(Series, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
-	
-	    return Series;
-	}();
-	
-	_fableCore.Util.setInterfaces(Series.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Series");
-	
-	var DateUtils = exports.DateUtils = function ($exports) {
-	    return $exports;
-	}({});
-	
-	var Chart = exports.Chart = function Chart() {
-	    _classCallCheck(this, Chart);
-	};
-	
-	_fableCore.Util.setInterfaces(Chart.prototype, [], "Pricer.Fabled.Chart");
-	
-	var LineChart = exports.LineChart = function (_Chart) {
-	    _inherits(LineChart, _Chart);
-	
-	    function LineChart() {
-	        _classCallCheck(this, LineChart);
-	
-	        var _this = _possibleConstructorReturn(this, (LineChart.__proto__ || Object.getPrototypeOf(LineChart)).call(this));
-	
-	        return _this;
-	    }
-	
-	    _createClass(LineChart, [{
-	        key: "useInteractiveGuideline",
-	        value: function useInteractiveGuideline(value) {
-	            throw "JSOnly";
-	        }
-	    }]);
-	
-	    return LineChart;
-	}(Chart);
-	
-	_fableCore.Util.setInterfaces(LineChart.prototype, [], "Pricer.Fabled.LineChart");
-	
-	var ScatterChart = exports.ScatterChart = function (_Chart2) {
-	    _inherits(ScatterChart, _Chart2);
-	
-	    function ScatterChart() {
-	        _classCallCheck(this, ScatterChart);
-	
-	        var _this2 = _possibleConstructorReturn(this, (ScatterChart.__proto__ || Object.getPrototypeOf(ScatterChart)).call(this));
-	
-	        return _this2;
-	    }
-	
-	    _createClass(ScatterChart, [{
-	        key: "pointRange",
-	        value: function pointRange(value) {
-	            throw "JSOnly";
-	        }
-	    }]);
-	
-	    return ScatterChart;
-	}(Chart);
-	
-	_fableCore.Util.setInterfaces(ScatterChart.prototype, [], "Pricer.Fabled.ScatterChart");
-	
-	var Charting = exports.Charting = function ($exports) {
-	    var tuplesToPoints = $exports.tuplesToPoints = function tuplesToPoints(data) {
-	        return Array.from(_fableCore.List.map(function (tupledArg) {
-	            return new Value((tupledArg[0] + 0x80000000 >>> 0) - 0x80000000, tupledArg[1]);
-	        }, data));
-	    };
-	
-	    var buildLines = $exports.buildLines = function buildLines(data) {
-	        return _fableCore.Seq.map(function (tupledArg) {
-	            return new Series(tupledArg[0].Definition.Name, tuplesToPoints(tupledArg[1]));
-	        }, data);
-	    };
-	
-	    var prepareLineChart = $exports.prepareLineChart = function () {
-	        var chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true);
-	        chart.xAxis.axisLabel("Underlying Price").tickFormat(d3.format(",.1f"));
-	        chart.yAxis.axisLabel("Profit").tickFormat(d3.format(",.1f"));
-	        return chart;
-	    }();
-	
-	    var clearAndGetParentChartDiv = $exports.clearAndGetParentChartDiv = function clearAndGetParentChartDiv(selector) {
-	        var element = d3.select(selector);
-	        element.html("");
-	        return element;
-	    };
-	
-	    var drawChart = $exports.drawChart = function drawChart(chart, data, chartSelector) {
-	        var chartElement = clearAndGetParentChartDiv(chartSelector);
-	        chartElement.style("height", "500px");
-	        chartElement.datum(data).call(chart);
-	    };
-	
-	    var drawLineChart = $exports.drawLineChart = function drawLineChart(data, chartSelector) {
-	        var chart = prepareLineChart;
-	        drawChart(chart, data, chartSelector);
-	    };
-	
-	    var drawPayoff = $exports.drawPayoff = function drawPayoff(strategyData, legsData) {
-	        var legLines = buildLines(legsData);
-	        var strategyLine = new Series("Strategy", tuplesToPoints(strategyData));
-	
-	        var payoff = _fableCore.Seq.delay(function (unitVar) {
-	            return _fableCore.Seq.append(legLines, _fableCore.Seq.delay(function (unitVar_1) {
-	                return _fableCore.Seq.singleton(strategyLine);
-	            }));
-	        });
-	
-	        var data = Array.from(payoff);
-	        return function (chartSelector) {
-	            drawLineChart(data, chartSelector);
-	        };
-	    };
-	
-	    var legAndPriceToScatterPoint = $exports.legAndPriceToScatterPoint = function legAndPriceToScatterPoint(l, price) {
-	        return new DateScatterValue(l.Expiry, l.Strike, price);
-	    };
-	
-	    var drawScatter = $exports.drawScatter = function drawScatter(data, chartSelector) {
-	        var colors = _d.scale.category10();
-	
-	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
-	
-	        var timeFormat = _d.time.format("%x");
-	
-	        chart.yAxis.axisLabel("Strike");
-	        chart.xAxis.tickFormat(function (x) {
-	            var dateValue = new Date(x);
-	            return timeFormat(dateValue);
-	        }).axisLabel("Expiry");
-	        drawChart(chart, data, chartSelector);
-	    };
-	
-	    return $exports;
-	}({});
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	module.exports = d3;
-
-/***/ },
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -6250,7 +6250,7 @@
 	exports.parseDate = parseDate;
 	exports.toDate = toDate;
 	
-	var _fableCore = __webpack_require__(4);
+	var _fableCore = __webpack_require__(1);
 	
 	function parseDate(exp) {
 	    var groups = _fableCore.RegExp.match(exp, "([0-9]+)-([0-9]+)\\-([0-9]+)");

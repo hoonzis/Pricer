@@ -73,6 +73,8 @@
     <None Include="fableconfig.json" />
     <Content Include="webpack.config.js" />
     <None Include="about.html" />
+    <None Include="chartingTest.html" />
+    <Compile Include="ChartingTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fable.Core">
