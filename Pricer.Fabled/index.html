@@ -3,12 +3,12 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Payoff Charts</title>
-	    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-        <script src="node_modules/core-js/client/core.min.js"></script>
-        <script src="node_modules/vue/dist/vue.js"></script>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.4/nv.d3.js"></script>
-        <link href="node_modules/nvd3/build/nv.d3.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.4/nv.d3.min.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.4/nv.d3.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.1/vue.min.js"></script>
 	</head>
 <body>
 
@@ -31,8 +31,12 @@
 
 <div class="container">
     <div class="payoffapp">
-        <p>Payoff charts show you the profit of strategy in the dependency on the underlying movements. In the table bellow you can add legs to form strategies.</p>
+        
         <div class="col-md-3">
+            <div>
+                <p><b>Payoff charts</b> show you the profit of strategy in the dependency on the underlying movements.
+                </p>
+            </div>
 
             <div class="panel panel-primary">
                 <div class="panel-heading">Example strategies:</div>
@@ -70,6 +74,7 @@
                     </form>
                 </div>
             </div>
+            
         </div>
         <div class="col-md-9">
             <div class="panel panel-primary" v-if="selectedStrategy">

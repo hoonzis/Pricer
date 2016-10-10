@@ -141,6 +141,8 @@
 	var vm = exports.vm = new OptionPricesViewModel();
 	
 	var app = exports.app = _VueHelpers.VueHelper.createFromObj(vm, extraOpts);
+	
+	vm.updatePrices();
 
 
 /***/ },

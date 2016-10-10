@@ -53,5 +53,4 @@ module OptionPrices =
 
     let vm = OptionPricesViewModel()
     let app = VueHelper.createFromObj(vm, extraOpts)
-    
-
+    vm.updatePrices()
