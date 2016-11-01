@@ -5,8 +5,8 @@ type Implementation =
     | Imperative
 
 
-//this type holds the configuration for binomial pricing model
-type BinomialPricing = {
+// this type holds the configuration for binomial pricing model
+type BinomialContext = {
     Periods : int
     Down : float
     Up :float
@@ -17,13 +17,27 @@ type BinomialPricing = {
     Ref:float
 }
 
+// Single node in the CRR pricing tree
+// Holds the stock pricer in given node, the options price
+// and also the option price in the previous step
+// we need to keep the track of the option pricer change, since that information is used
+// to calculate the delta
 type BinomialNode = {
     Stock: double
     Option: double
-    PreviousOption: double
+    UpParent: BinomialNode option
+    DownParent: BinomialNode option
 }
 
+
 module Binomial =
+    
+    let emptyNode = {
+        Stock = 0.0
+        Option = 0.0
+        UpParent = None
+        DownParent = None
+    }
     
     let binomialPrice (ref:float) (strike:float) (rate:float) (up:float) =
         let down = 1.0/up
@@ -42,7 +56,7 @@ module Binomial =
             Delta = delta
         }
 
-    let binomialPricing (pricing:BinomialPricing) =
+    let binomialPricing (pricing:BinomialContext) =
         
         // this array holds the prices of the underlying in given period
         let prices = Array.zeroCreate pricing.Periods
@@ -73,22 +87,18 @@ module Binomial =
 
         buildPricingResult optionValues.[1] optionValues.[0] pricing
     
-    // Creates an array of BinomialNodes - that leafs of the CRR tree
+    // Creates an array of BinomialNodes - the leafs of the CRR tree
     let generateEndNodePrices (ref:float) (up:float) (periods:int) optionVal =
         let down = 1.0 / up 
         let lowestStock = ref*(down**(float periods))
-        let first = {
-            Stock = lowestStock
-            Option = optionVal lowestStock
-            PreviousOption = 0.0
-        }
+        let first = { emptyNode with Stock = lowestStock; Option = optionVal lowestStock}
         let values = Seq.unfold (fun node -> 
             let stock' = node.Stock*up*up
             let option' = optionVal stock'
-            let nodeBellow = {
-                Stock = stock'
-                Option = option'
-                PreviousOption = 0.0
+            let nodeBellow = { 
+                emptyNode with
+                    Stock = stock'
+                    Option = option'
             }
             Some (node,nodeBellow)) first
         values |> Seq.take periods |> Seq.toArray
@@ -114,7 +124,8 @@ module Binomial =
         {
             Stock = stockValue
             Option = option'
-            PreviousOption = upNode.Option
+            UpParent = Some upNode
+            DownParent = Some downNode
         }
 
     // takes one layer of the binomial tree and generates the next layer
@@ -123,7 +134,7 @@ module Binomial =
             |> Array.pairwise 
             |> Array.map (fun (downNode,upNode) -> mergeNodes downNode upNode optionVal pricing)
             
-    let binomialPricingFunc (pricing:BinomialPricing) =
+    let binomialPricingFunc (pricing:BinomialContext) =
         let optionValue = BasicOptions.optionValue pricing.Option
 
         // that's the leafs of the derivative tree
@@ -135,14 +146,13 @@ module Binomial =
         // apply the reduction till we have only one node in the list
         let rec reducePrices prices =
             match prices with
-                    | [|node|] -> node.Option, node.PreviousOption
+                    | [|node|] -> node.Option, node.UpParent.Value.Option
                     | prs -> reducePrices (reductionStep prs)
 
         let premium, previousPremium = reducePrices prices
         buildPricingResult previousPremium premium pricing
 
-    let binomial (stock:StockInfo) (option:OptionLeg) (steps:int) implementation = 
-
+    let buildPricingContext (stock:StockInfo) (option:OptionLeg) (steps:int) = 
         // we need to construct the binomial pricing model, using the CRR (Cox, Ross and Rubinstein)
         // the original model is composed of 3 parameters p,u,d. 
         // u - up probability, d - down probability. p is the technical probability
@@ -154,7 +164,7 @@ module Binomial =
         let p_up = (R-down)/(up-down)
         let p_down = 1.0 - p_up
 
-        let pricing = {
+        {
             Periods = steps
             Up = up
             Down = down
@@ -164,7 +174,9 @@ module Binomial =
             Option = option
             Ref = stock.CurrentPrice
         }
-        
+
+    let binomial (stock:StockInfo) (option:OptionLeg) (steps:int) implementation = 
+        let context = buildPricingContext stock option steps
         match implementation with
-            | Imperative -> binomialPricing pricing
-            | Functional -> binomialPricingFunc pricing
+            | Imperative -> binomialPricing context
+            | Functional -> binomialPricingFunc context

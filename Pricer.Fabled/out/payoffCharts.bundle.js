@@ -46,9 +46,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.app = exports.vm = exports.extraOpts = exports.StrategyListViewModel = exports.StrategyViewModel = exports.LegViewModel = exports.payoffsGenerator = exports.pricer = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -136,40 +134,35 @@
 	        this.stock = new _ShareViewModels.StockViewModel(strategy.Stock);
 	    }
 	
-	    _createClass(StrategyViewModel, [{
-	        key: "addLeg",
-	        value: function addLeg(event) {
-	            var newLeg = new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", [new _OptionsModel.OptionLeg(1, 100, _fableCore.Date.now(), new _OptionsModel.OptionKind("Call", []), new _OptionsModel.OptionStyle("European", []), _fableCore.Date.now())]));
-	            this.legs = [new LegViewModel(newLeg)].concat(this.legs);
-	        }
-	    }, {
-	        key: "removeLeg",
-	        value: function removeLeg(leg) {
-	            this.legs = this.legs.filter(function (l) {
-	                return !l.getLeg.Equals(leg.getLeg);
-	            });
-	        }
-	    }, {
-	        key: "generatePayoff",
-	        value: function generatePayoff() {
-	            var _this2 = this;
+	    StrategyViewModel.prototype.addLeg = function addLeg(event) {
+	        var newLeg = new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", [new _OptionsModel.OptionLeg(1, 100, _fableCore.Date.now(), new _OptionsModel.OptionKind("Call", []), new _OptionsModel.OptionStyle("European", []), _fableCore.Date.now())]));
+	        this.legs = [new LegViewModel(newLeg)].concat(this.legs);
+	    };
 	
-	            var newStrategy = function () {
-	                var Name = _this2.name;
+	    StrategyViewModel.prototype.removeLeg = function removeLeg(leg) {
+	        this.legs = this.legs.filter(function (l) {
+	            return !l.getLeg.Equals(leg.getLeg);
+	        });
+	    };
 	
-	                var Legs = _fableCore.Seq.toList(_fableCore.Seq.map(function (l) {
-	                    return l.getLeg;
-	                }, _this2.legs));
+	    StrategyViewModel.prototype.generatePayoff = function generatePayoff() {
+	        var _this2 = this;
 	
-	                return new _OptionsModel.Strategy(_this2.stock.buildStock, Name, Legs);
-	            }();
+	        var newStrategy = function () {
+	            var Name = _this2.name;
 	
-	            var data = payoffsGenerator.getStrategyData(newStrategy);
-	            (function (tupledArg) {
-	                return _Charting.Charting.drawPayoff(tupledArg[0], tupledArg[1]);
-	            })(data)("#payoffChart");
-	        }
-	    }]);
+	            var Legs = _fableCore.Seq.toList(_fableCore.Seq.map(function (l) {
+	                return l.getLeg;
+	            }, _this2.legs));
+	
+	            return new _OptionsModel.Strategy(_this2.stock.buildStock, Name, Legs);
+	        }();
+	
+	        var data = payoffsGenerator.getStrategyData(newStrategy);
+	        (function (tupledArg) {
+	            return _Charting.Charting.drawPayoff(tupledArg[0], tupledArg[1]);
+	        })(data)("#payoffChart");
+	    };
 	
 	    return StrategyViewModel;
 	}();
@@ -180,22 +173,21 @@
 	    function StrategyListViewModel(examples) {
 	        _classCallCheck(this, StrategyListViewModel);
 	
-	        this.strategies = Array.from(_fableCore.List.map(function (s) {
-	            return new StrategyViewModel(s);
-	        }, examples));
+	        this.examples = examples;
 	        this.selectedStrategy = null;
 	    }
 	
+	    StrategyListViewModel.prototype.select = function select(strat) {
+	        strat.generatePayoff();
+	        this.selectedStrategy = strat;
+	    };
+	
 	    _createClass(StrategyListViewModel, [{
-	        key: "select",
-	        value: function select(strat) {
-	            this.selectedStrategy = strat;
-	            this.selectedStrategy.generatePayoff();
-	        }
-	    }, {
-	        key: "allStrategies",
+	        key: "strategies",
 	        get: function get() {
-	            return this.strategies;
+	            return Array.from(_fableCore.List.map(function (s) {
+	                return new StrategyViewModel(s);
+	            }, this.examples));
 	        }
 	    }, {
 	        key: "strategy",
@@ -213,7 +205,7 @@
 	    el: ".payoffapp"
 	};
 	var vm = exports.vm = new StrategyListViewModel(_StrategiesExamples.exampleStrategies);
-	vm.select(vm.allStrategies[4]);
+	vm.select(vm.strategies[4]);
 	vm.strategy.generatePayoff();
 	
 	var app = exports.app = _VueHelpers.VueHelper.createFromObj(vm, extraOpts);
@@ -4829,12 +4821,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _fableCore = __webpack_require__(1);
 	
@@ -4858,17 +4846,13 @@
 	        this.y = y;
 	    }
 	
-	    _createClass(Value, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Value.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Value.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Value;
 	}();
@@ -4884,17 +4868,13 @@
 	        this.size = size;
 	    }
 	
-	    _createClass(DateScatterValue, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    DateScatterValue.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    DateScatterValue.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return DateScatterValue;
 	}();
@@ -4909,17 +4889,13 @@
 	        this.values = values;
 	    }
 	
-	    _createClass(Series, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Series.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Series.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Series;
 	}();
@@ -4942,17 +4918,14 @@
 	    function LineChart() {
 	        _classCallCheck(this, LineChart);
 	
-	        var _this = _possibleConstructorReturn(this, (LineChart.__proto__ || Object.getPrototypeOf(LineChart)).call(this));
+	        var _this = _possibleConstructorReturn(this, _Chart.call(this));
 	
 	        return _this;
 	    }
 	
-	    _createClass(LineChart, [{
-	        key: "useInteractiveGuideline",
-	        value: function useInteractiveGuideline(value) {
-	            throw "JSOnly";
-	        }
-	    }]);
+	    LineChart.prototype.useInteractiveGuideline = function useInteractiveGuideline(value) {
+	        throw "JSOnly";
+	    };
 	
 	    return LineChart;
 	}(Chart);
@@ -4965,17 +4938,14 @@
 	    function ScatterChart() {
 	        _classCallCheck(this, ScatterChart);
 	
-	        var _this2 = _possibleConstructorReturn(this, (ScatterChart.__proto__ || Object.getPrototypeOf(ScatterChart)).call(this));
+	        var _this2 = _possibleConstructorReturn(this, _Chart2.call(this));
 	
 	        return _this2;
 	    }
 	
-	    _createClass(ScatterChart, [{
-	        key: "pointRange",
-	        value: function pointRange(value) {
-	            throw "JSOnly";
-	        }
-	    }]);
+	    ScatterChart.prototype.pointRange = function pointRange(value) {
+	        throw "JSOnly";
+	    };
 	
 	    return ScatterChart;
 	}(Chart);
@@ -5070,12 +5040,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.SimplePricer = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _BlackScholesPricer = __webpack_require__(5);
 	
@@ -5094,29 +5060,24 @@
 	        this.bsPricer = new _BlackScholesPricer.BlackScholesPricer(new _SimpleMath.SimpleMathProvider());
 	    }
 	
-	    _createClass(SimplePricer, [{
-	        key: "priceOption",
-	        value: function priceOption(stock, option) {
-	            var _this = this;
+	    SimplePricer.prototype.priceOption = function priceOption(stock, option) {
+	        var _this = this;
 	
-	            return function (arg00) {
-	                return function (arg10) {
-	                    return _this.bsPricer.blackScholes(arg00, arg10);
-	                };
-	            }(stock)(option);
-	        }
-	    }, {
-	        key: "priceCash",
-	        value: function priceCash(cash) {
-	            return new _OptionsModel.Pricing(1, cash.Price);
-	        }
-	    }, {
-	        key: "priceConvert",
-	        value: function priceConvert(stock, option) {
-	            throw "implement CB pricing";
-	        }
-	    }]);
-
+	        return function (arg00) {
+	            return function (arg10) {
+	                return _this.bsPricer.blackScholes(arg00, arg10);
+	            };
+	        }(stock)(option);
+	    };
+	
+	    SimplePricer.prototype.priceCash = function priceCash(cash) {
+	        return new _OptionsModel.Pricing(1, cash.Price);
+	    };
+	
+	    SimplePricer.prototype.priceConvert = function priceConvert(stock, option) {
+	        throw "implement CB pricing";
+	    };
+	
 	    return SimplePricer;
 	}();
 
@@ -5129,12 +5090,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.BlackScholesPricer = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _OptionsModel = __webpack_require__(6);
 	
@@ -5149,32 +5106,29 @@
 	        this.math = math;
 	    }
 	
-	    _createClass(BlackScholesPricer, [{
-	        key: "blackScholes",
-	        value: function blackScholes(stock, option) {
-	            var _this = this;
+	    BlackScholesPricer.prototype.blackScholes = function blackScholes(stock, option) {
+	        var _this = this;
 	
-	            var patternInput = option.TimeToExpiry > 0 ? function () {
-	                var d1 = (Math.log(stock.CurrentPrice / option.Strike) + (stock.Rate + 0.5 * Math.pow(stock.Volatility, 2)) * option.TimeToExpiry) / (stock.Volatility * Math.sqrt(option.TimeToExpiry));
-	                var d2 = d1 - stock.Volatility * Math.sqrt(option.TimeToExpiry);
+	        var patternInput = option.TimeToExpiry > 0 ? function () {
+	            var d1 = (Math.log(stock.CurrentPrice / option.Strike) + (stock.Rate + 0.5 * Math.pow(stock.Volatility, 2)) * option.TimeToExpiry) / (stock.Volatility * Math.sqrt(option.TimeToExpiry));
+	            var d2 = d1 - stock.Volatility * Math.sqrt(option.TimeToExpiry);
 	
-	                var N1 = _this.math.cdf(d1);
+	            var N1 = _this.math.cdf(d1);
 	
-	                var N2 = _this.math.cdf(d2);
+	            var N2 = _this.math.cdf(d2);
 	
-	                var discountedStrike = option.Strike * Math.exp(-stock.Rate * option.TimeToExpiry);
-	                var call = stock.CurrentPrice * N1 - discountedStrike * N2;
+	            var discountedStrike = option.Strike * Math.exp(-stock.Rate * option.TimeToExpiry);
+	            var call = stock.CurrentPrice * N1 - discountedStrike * N2;
 	
-	                if (option.Kind.Case === "Put") {
-	                    return [call + discountedStrike - stock.CurrentPrice, N1 - 1];
-	                } else {
-	                    return [call, N1];
-	                }
-	            }() : option.Kind.Case === "Put" ? [option.Strike - stock.CurrentPrice > 0 ? option.Strike - stock.CurrentPrice : 0, 1] : [stock.CurrentPrice - option.Strike > 0 ? stock.CurrentPrice - option.Strike : 0, 1];
-	            return new _OptionsModel.Pricing(patternInput[1], patternInput[0]);
-	        }
-	    }]);
-
+	            if (option.Kind.Case === "Put") {
+	                return [call + discountedStrike - stock.CurrentPrice, N1 - 1];
+	            } else {
+	                return [call, N1];
+	            }
+	        }() : option.Kind.Case === "Put" ? [option.Strike - stock.CurrentPrice > 0 ? option.Strike - stock.CurrentPrice : 0, 1] : [stock.CurrentPrice - option.Strike > 0 ? stock.CurrentPrice - option.Strike : 0, 1];
+	        return new _OptionsModel.Pricing(patternInput[1], patternInput[0]);
+	    };
+	
 	    return BlackScholesPricer;
 	}();
 
@@ -5187,9 +5141,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.BasicOptions = exports.LegData = exports.Strategy = exports.Leg = exports.Pricing = exports.LegInfo = exports.ConvertibleLeg = exports.CashLeg = exports.OptionLeg = exports.OptionStyle = exports.OptionKind = exports.Transforms = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5218,22 +5170,17 @@
 	        this.Fields = fields;
 	    }
 	
-	    _createClass(OptionKind, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsUnions(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareUnions(this, other);
-	        }
-	    }, {
-	        key: "ToString",
-	        value: function ToString() {
-	            return this.Case === "Call" ? "Call" : "Put";
-	        }
-	    }]);
+	    OptionKind.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsUnions(this, other);
+	    };
+	
+	    OptionKind.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareUnions(this, other);
+	    };
+	
+	    OptionKind.prototype.ToString = function ToString() {
+	        return this.Case === "Call" ? "Call" : "Put";
+	    };
 	
 	    return OptionKind;
 	}();
@@ -5248,22 +5195,17 @@
 	        this.Fields = fields;
 	    }
 	
-	    _createClass(OptionStyle, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsUnions(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareUnions(this, other);
-	        }
-	    }, {
-	        key: "ToString",
-	        value: function ToString() {
-	            return this.Case === "American" ? "American" : "European";
-	        }
-	    }]);
+	    OptionStyle.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsUnions(this, other);
+	    };
+	
+	    OptionStyle.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareUnions(this, other);
+	    };
+	
+	    OptionStyle.prototype.ToString = function ToString() {
+	        return this.Case === "American" ? "American" : "European";
+	    };
 	
 	    return OptionStyle;
 	}();
@@ -5282,17 +5224,15 @@
 	        this.PurchaseDate = purchaseDate;
 	    }
 	
+	    OptionLeg.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    OptionLeg.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
+	
 	    _createClass(OptionLeg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }, {
 	        key: "BuyVsSell",
 	        get: function get() {
 	            return Transforms.directionToString(this.Direction);
@@ -5330,17 +5270,15 @@
 	        this.Price = price;
 	    }
 	
+	    CashLeg.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    CashLeg.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
+	
 	    _createClass(CashLeg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }, {
 	        key: "BuyVsSell",
 	        get: function get() {
 	            return Transforms.directionToString(this.Direction);
@@ -5364,17 +5302,13 @@
 	        this.ReferencePrice = referencePrice;
 	    }
 	
-	    _createClass(ConvertibleLeg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    ConvertibleLeg.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    ConvertibleLeg.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return ConvertibleLeg;
 	}();
@@ -5389,17 +5323,15 @@
 	        this.Fields = fields;
 	    }
 	
+	    LegInfo.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsUnions(this, other);
+	    };
+	
+	    LegInfo.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareUnions(this, other);
+	    };
+	
 	    _createClass(LegInfo, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsUnions(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareUnions(this, other);
-	        }
-	    }, {
 	        key: "Name",
 	        get: function get() {
 	            return this.Case === "Option" ? this.Fields[0].Name : this.Case === "Convertible" ? _fableCore.String.fsFormat("Convert %f")(function (x) {
@@ -5421,17 +5353,13 @@
 	        this.Premium = premium;
 	    }
 	
-	    _createClass(Pricing, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Pricing.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Pricing.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Pricing;
 	}();
@@ -5446,17 +5374,13 @@
 	        this.Pricing = pricing;
 	    }
 	
-	    _createClass(Leg, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Leg.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Leg.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Leg;
 	}();
@@ -5472,17 +5396,13 @@
 	        this.Legs = legs;
 	    }
 	
-	    _createClass(Strategy, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Strategy.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Strategy.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Strategy;
 	}();
@@ -5497,17 +5417,13 @@
 	        this.LegData = legData;
 	    }
 	
-	    _createClass(LegData, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    LegData.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    LegData.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return LegData;
 	}();
@@ -5534,12 +5450,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.SimpleMathProvider = exports.SimpleMath = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _fableCore = __webpack_require__(1);
 	
@@ -5589,13 +5501,10 @@
 	        _classCallCheck(this, SimpleMathProvider);
 	    }
 	
-	    _createClass(SimpleMathProvider, [{
-	        key: "cdf",
-	        value: function cdf(x) {
-	            return SimpleMath.cdf(x);
-	        }
-	    }]);
-
+	    SimpleMathProvider.prototype.cdf = function cdf(x) {
+	        return SimpleMath.cdf(x);
+	    };
+	
 	    return SimpleMathProvider;
 	}();
 
@@ -5610,9 +5519,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.StockViewModel = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5660,12 +5567,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.StockInfo = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _fableCore = __webpack_require__(1);
 	
@@ -5680,17 +5583,13 @@
 	        this.CurrentPrice = currentPrice;
 	    }
 	
-	    _createClass(StockInfo, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    StockInfo.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+
+	    StockInfo.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 
 	    return StockInfo;
 	}();
@@ -5704,9 +5603,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.exampleStrategies = exports.exampleStock = exports.expiry = undefined;
 	exports.testStrikes = testStrikes;
 	exports.buildOptionLeg = buildOptionLeg;
@@ -5724,7 +5621,6 @@
 	exports.callSpread = callSpread;
 	exports.putSpread = putSpread;
 	exports.strategiesForStock = strategiesForStock;
-	exports.getStrategy = getStrategy;
 	
 	var _OptionsModel = __webpack_require__(6);
 	
@@ -5866,12 +5762,6 @@
 	}();
 	
 	var exampleStrategies = exports.exampleStrategies = strategiesForStock(exampleStock);
-	
-	function getStrategy(name, stock) {
-	    return _fableCore.Seq.find(function (s) {
-	        return s.Name === name;
-	    }, strategiesForStock(stock));
-	}
 
 
 /***/ },
@@ -5880,9 +5770,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.parseDate = parseDate;
 	exports.toDate = toDate;
 	
@@ -5910,9 +5798,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	
 	var VueHelper = exports.VueHelper = function ($exports) {
 	    var createFromObj = $exports.createFromObj = function createFromObj(data, extraOpts) {
@@ -5921,37 +5807,30 @@
 	        var proto = Object.getPrototypeOf(data);
 	        {
 	            var inputSequence = Object.getOwnPropertyNames(proto);
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
 	
-	            try {
-	                for (var _iterator = inputSequence[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var k = _step.value;
-	                    var prop = Object.getOwnPropertyDescriptor(proto, k);
-	                    var matchValue = prop.value;
+	            for (var _iterator = inputSequence, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+	                var _ref;
 	
-	                    if (matchValue == null) {
-	                        computed[k] = {
-	                            get: prop.get,
-	                            set: prop.set
-	                        };
-	                    } else {
-	                        methods[k] = matchValue;
-	                    }
+	                if (_isArray) {
+	                    if (_i >= _iterator.length) break;
+	                    _ref = _iterator[_i++];
+	                } else {
+	                    _i = _iterator.next();
+	                    if (_i.done) break;
+	                    _ref = _i.value;
 	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator.return) {
-	                        _iterator.return();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
+	
+	                var k = _ref;
+	                var prop = Object.getOwnPropertyDescriptor(proto, k);
+	                var matchValue = prop.value;
+	
+	                if (matchValue == null) {
+	                    computed[k] = {
+	                        get: prop.get,
+	                        set: prop.set
+	                    };
+	                } else {
+	                    methods[k] = matchValue;
 	                }
 	            }
 	        }
@@ -5971,12 +5850,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.PayoffsGenerator = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _fableCore = __webpack_require__(1);
 	
@@ -5991,131 +5866,123 @@
 	        this.pricer = pricer;
 	    }
 	
-	    _createClass(PayoffsGenerator, [{
-	        key: "legPricing",
-	        value: function legPricing(stock, leg) {
-	            var _this = this;
+	    PayoffsGenerator.prototype.legPricing = function legPricing(stock, leg) {
+	        var _this = this;
 	
-	            return leg.Definition.Case === "Option" ? function (arg00) {
-	                return function (arg10) {
-	                    return _this.pricer.priceOption(arg00, arg10);
-	                };
-	            }(stock)(leg.Definition.Fields[0]) : leg.Definition.Case === "Convertible" ? function (arg00) {
-	                return function (arg10) {
-	                    return _this.pricer.priceConvert(arg00, arg10);
-	                };
-	            }(stock)(leg.Definition.Fields[0]) : this.pricer.priceCash(leg.Definition.Fields[0]);
-	        }
-	    }, {
-	        key: "getInterestingPoints",
-	        value: function getInterestingPoints(strategy) {
-	            return _fableCore.Seq.isEmpty(strategy.Legs) ? _fableCore.Seq.empty() : function () {
-	                var strikes = _fableCore.List.map(function (leg) {
-	                    return leg.Definition.Case === "Option" ? leg.Definition.Fields[0].Strike : leg.Definition.Case === "Convertible" ? leg.Definition.Fields[0].ReferencePrice : leg.Definition.Fields[0].Price;
-	                }, strategy.Legs);
-	
-	                var min = 0.5 * _fableCore.Seq.reduce(function (x, y) {
-	                    return Math.min(x, y);
-	                }, strikes);
-	
-	                var max = 1.5 * _fableCore.Seq.reduce(function (x, y) {
-	                    return Math.max(x, y);
-	                }, strikes);
-	
-	                return _fableCore.Seq.delay(function (unitVar) {
-	                    return _fableCore.Seq.append(_fableCore.Seq.singleton(min), _fableCore.Seq.delay(function (unitVar_1) {
-	                        return _fableCore.Seq.append(_fableCore.Seq.sortWith(function (x, y) {
-	                            return _fableCore.Util.compare(x, y);
-	                        }, strikes), _fableCore.Seq.delay(function (unitVar_2) {
-	                            return _fableCore.Seq.singleton(max);
-	                        }));
-	                    }));
-	                });
-	            }();
-	        }
-	    }, {
-	        key: "legPayoff",
-	        value: function legPayoff(leg, pricing, stockPrice) {
-	            return leg.Case === "Option" ? leg.Fields[0].Direction * (_OptionsModel.BasicOptions.optionValue(leg.Fields[0], stockPrice) - pricing.Premium) : leg.Case === "Convertible" ? function () {
-	                throw "Cant price convertible leg with single year payoff calculator";
-	            }() : leg.Fields[0].Direction * (stockPrice - leg.Fields[0].Price);
-	        }
-	    }, {
-	        key: "convertiblePayoff",
-	        value: function convertiblePayoff(convertible, pricing, year) {
-	            return convertible.Direction * (year * convertible.Coupon * convertible.FaceValue - pricing.Premium);
-	        }
-	    }, {
-	        key: "getStrategyData",
-	        value: function getStrategyData(strategy) {
-	            var _this2 = this;
-	
-	            var getLegPricing = function getLegPricing(leg) {
-	                return leg.Pricing == null ? function (arg00) {
-	                    return function (arg10) {
-	                        return _this2.legPricing(arg00, arg10);
-	                    };
-	                }(strategy.Stock)(leg) : leg.Pricing;
+	        return leg.Definition.Case === "Option" ? function (arg00) {
+	            return function (arg10) {
+	                return _this.pricer.priceOption(arg00, arg10);
 	            };
+	        }(stock)(leg.Definition.Fields[0]) : leg.Definition.Case === "Convertible" ? function (arg00) {
+	            return function (arg10) {
+	                return _this.pricer.priceConvert(arg00, arg10);
+	            };
+	        }(stock)(leg.Definition.Fields[0]) : this.pricer.priceCash(leg.Definition.Fields[0]);
+	    };
 	
-	            var payOffsPerLeg = _fableCore.Seq.map(function (leg) {
-	                var pricing = getLegPricing(leg);
-	
-	                var pricedLeg = function () {
-	                    var Pricing = pricing;
-	                    return new _OptionsModel.Leg(leg.Definition, Pricing);
-	                }();
-	
-	                var payoffCalculator = function (arg00) {
-	                    return function (arg10) {
-	                        return function (arg20) {
-	                            return _this2.legPayoff(arg00, arg10, arg20);
-	                        };
-	                    };
-	                }(leg.Definition)(pricing);
-	
-	                return [pricedLeg, payoffCalculator];
+	    PayoffsGenerator.prototype.getInterestingPoints = function getInterestingPoints(strategy) {
+	        return _fableCore.Seq.isEmpty(strategy.Legs) ? _fableCore.Seq.empty() : function () {
+	            var strikes = _fableCore.List.map(function (leg) {
+	                return leg.Definition.Case === "Option" ? leg.Definition.Fields[0].Strike : leg.Definition.Case === "Convertible" ? leg.Definition.Fields[0].ReferencePrice : leg.Definition.Fields[0].Price;
 	            }, strategy.Legs);
 	
-	            var interestingPoints = this.getInterestingPoints(strategy);
+	            var min = 0.5 * _fableCore.Seq.reduce(function (x, y) {
+	                return Math.min(x, y);
+	            }, strikes);
 	
-	            var legsData = _fableCore.Seq.map(function (tupledArg) {
-	                return [tupledArg[0], _fableCore.Seq.toList(_fableCore.Seq.delay(function (unitVar) {
-	                    return _fableCore.Seq.map(function (stockPrice) {
-	                        return [stockPrice, tupledArg[1](stockPrice)];
-	                    }, interestingPoints);
-	                }))];
-	            }, payOffsPerLeg);
+	            var max = 1.5 * _fableCore.Seq.reduce(function (x, y) {
+	                return Math.max(x, y);
+	            }, strikes);
 	
-	            var strategyData = _fableCore.Seq.toList(_fableCore.Seq.delay(function (unitVar) {
-	                return _fableCore.Seq.map(function (stockPrice) {
-	                    return [stockPrice, _fableCore.Seq.sumBy(function (tupledArg) {
-	                        return tupledArg[1](stockPrice);
-	                    }, payOffsPerLeg)];
-	                }, interestingPoints);
-	            }));
+	            return _fableCore.Seq.delay(function (unitVar) {
+	                return _fableCore.Seq.append(_fableCore.Seq.singleton(min), _fableCore.Seq.delay(function (unitVar_1) {
+	                    return _fableCore.Seq.append(_fableCore.Seq.sortWith(function (x, y) {
+	                        return _fableCore.Util.compare(x, y);
+	                    }, strikes), _fableCore.Seq.delay(function (unitVar_2) {
+	                        return _fableCore.Seq.singleton(max);
+	                    }));
+	                }));
+	            });
+	        }();
+	    };
 	
-	            return [strategyData, legsData];
-	        }
-	    }, {
-	        key: "getConvertiblePayoffData",
-	        value: function getConvertiblePayoffData(convert, pricing) {
-	            var _this3 = this;
+	    PayoffsGenerator.prototype.legPayoff = function legPayoff(leg, pricing, stockPrice) {
+	        return leg.Case === "Option" ? leg.Fields[0].Direction * (_OptionsModel.BasicOptions.optionValue(leg.Fields[0], stockPrice) - pricing.Premium) : leg.Case === "Convertible" ? function () {
+	            throw "Cant price convertible leg with single year payoff calculator";
+	        }() : leg.Fields[0].Direction * (stockPrice - leg.Fields[0].Price);
+	    };
 	
-	            var years = _fableCore.List.ofArray([1, 2, 3]);
+	    PayoffsGenerator.prototype.convertiblePayoff = function convertiblePayoff(convertible, pricing, year) {
+	        return convertible.Direction * (year * convertible.Coupon * convertible.FaceValue - pricing.Premium);
+	    };
 	
-	            return _fableCore.Seq.map(function (year) {
-	                return function (arg00) {
-	                    return function (arg10) {
-	                        return function (arg20) {
-	                            return _this3.convertiblePayoff(arg00, arg10, arg20);
-	                        };
+	    PayoffsGenerator.prototype.getStrategyData = function getStrategyData(strategy) {
+	        var _this2 = this;
+	
+	        var getLegPricing = function getLegPricing(leg) {
+	            return leg.Pricing == null ? function (arg00) {
+	                return function (arg10) {
+	                    return _this2.legPricing(arg00, arg10);
+	                };
+	            }(strategy.Stock)(leg) : leg.Pricing;
+	        };
+	
+	        var payOffsPerLeg = _fableCore.Seq.map(function (leg) {
+	            var pricing = getLegPricing(leg);
+	
+	            var pricedLeg = function () {
+	                var Pricing = pricing;
+	                return new _OptionsModel.Leg(leg.Definition, Pricing);
+	            }();
+	
+	            var payoffCalculator = function (arg00) {
+	                return function (arg10) {
+	                    return function (arg20) {
+	                        return _this2.legPayoff(arg00, arg10, arg20);
 	                    };
-	                }(convert)(pricing)(year);
-	            }, years);
-	        }
-	    }]);
-
+	                };
+	            }(leg.Definition)(pricing);
+	
+	            return [pricedLeg, payoffCalculator];
+	        }, strategy.Legs);
+	
+	        var interestingPoints = this.getInterestingPoints(strategy);
+	
+	        var legsData = _fableCore.Seq.map(function (tupledArg) {
+	            return [tupledArg[0], _fableCore.Seq.toList(_fableCore.Seq.delay(function (unitVar) {
+	                return _fableCore.Seq.map(function (stockPrice) {
+	                    return [stockPrice, tupledArg[1](stockPrice)];
+	                }, interestingPoints);
+	            }))];
+	        }, payOffsPerLeg);
+	
+	        var strategyData = _fableCore.Seq.toList(_fableCore.Seq.delay(function (unitVar) {
+	            return _fableCore.Seq.map(function (stockPrice) {
+	                return [stockPrice, _fableCore.Seq.sumBy(function (tupledArg) {
+	                    return tupledArg[1](stockPrice);
+	                }, payOffsPerLeg)];
+	            }, interestingPoints);
+	        }));
+	
+	        return [strategyData, legsData];
+	    };
+	
+	    PayoffsGenerator.prototype.getConvertiblePayoffData = function getConvertiblePayoffData(convert, pricing) {
+	        var _this3 = this;
+	
+	        var years = _fableCore.List.ofArray([1, 2, 3]);
+	
+	        return _fableCore.Seq.map(function (year) {
+	            return function (arg00) {
+	                return function (arg10) {
+	                    return function (arg20) {
+	                        return _this3.convertiblePayoff(arg00, arg10, arg20);
+	                    };
+	                };
+	            }(convert)(pricing)(year);
+	        }, years);
+	    };
+	
 	    return PayoffsGenerator;
 	}();
 

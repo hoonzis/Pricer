@@ -91,40 +91,36 @@ type BinomialTests() =
         let optionVal = id
         
         let prices = Binomial.generateEndNodePrices 100.0 1.25 periods optionVal
-        prices.[0] |> should equal {
-            Stock = lowest
-            Option = lowest
-            PreviousOption = 0.0
-        }
+        prices.[0] |> should equal { 
+            Binomial.emptyNode with
+                Stock = lowest
+                Option = lowest
+            }
 
         prices.[1] |> should equal {
-            Stock = lowest*1.25*1.25
-            Option = lowest*1.25*1.25
-            PreviousOption = 0.0
-        }
+            Binomial.emptyNode with
+                Stock = lowest*1.25*1.25
+                Option = lowest*1.25*1.25
+            }
      
     [<Test>]
     member this.``single binomial step test`` () =
         let prices = [|
-            {
+            { Binomial.emptyNode with
                 Stock = 1.0
                 Option = 1.0
-                PreviousOption = 0.0
             }
-            {
+            { Binomial.emptyNode with
                 Stock = 2.0
                 Option = 2.0
-                PreviousOption = 0.0
             }
-            {
+            { Binomial.emptyNode with
                 Stock = 3.0
                 Option = 2.0
-                PreviousOption = 0.0
             }
-            {
+            { Binomial.emptyNode with
                 Stock = 4.0
                 Option = 4.0
-                PreviousOption = 0.0
             }
         |]
 

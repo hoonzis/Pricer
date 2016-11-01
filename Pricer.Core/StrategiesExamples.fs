@@ -195,6 +195,3 @@ module StrategiesExamples =
     }
     
     let exampleStrategies = strategiesForStock exampleStock
-
-    let getStrategy name stock = 
-        strategiesForStock stock |> Seq.find(fun s->s.Name = name)

@@ -46,9 +46,7 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.random = undefined;
 	exports.randomValues = randomValues;
 	exports.drawChart = drawChart;
@@ -4684,12 +4682,8 @@
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	exports.__esModule = true;
 	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _fableCore = __webpack_require__(1);
 	
@@ -4713,17 +4707,13 @@
 	        this.y = y;
 	    }
 	
-	    _createClass(Value, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Value.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Value.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Value;
 	}();
@@ -4739,17 +4729,13 @@
 	        this.size = size;
 	    }
 	
-	    _createClass(DateScatterValue, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    DateScatterValue.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    DateScatterValue.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return DateScatterValue;
 	}();
@@ -4764,17 +4750,13 @@
 	        this.values = values;
 	    }
 	
-	    _createClass(Series, [{
-	        key: "Equals",
-	        value: function Equals(other) {
-	            return _fableCore.Util.equalsRecords(this, other);
-	        }
-	    }, {
-	        key: "CompareTo",
-	        value: function CompareTo(other) {
-	            return _fableCore.Util.compareRecords(this, other);
-	        }
-	    }]);
+	    Series.prototype.Equals = function Equals(other) {
+	        return _fableCore.Util.equalsRecords(this, other);
+	    };
+	
+	    Series.prototype.CompareTo = function CompareTo(other) {
+	        return _fableCore.Util.compareRecords(this, other);
+	    };
 	
 	    return Series;
 	}();
@@ -4797,17 +4779,14 @@
 	    function LineChart() {
 	        _classCallCheck(this, LineChart);
 	
-	        var _this = _possibleConstructorReturn(this, (LineChart.__proto__ || Object.getPrototypeOf(LineChart)).call(this));
+	        var _this = _possibleConstructorReturn(this, _Chart.call(this));
 	
 	        return _this;
 	    }
 	
-	    _createClass(LineChart, [{
-	        key: "useInteractiveGuideline",
-	        value: function useInteractiveGuideline(value) {
-	            throw "JSOnly";
-	        }
-	    }]);
+	    LineChart.prototype.useInteractiveGuideline = function useInteractiveGuideline(value) {
+	        throw "JSOnly";
+	    };
 	
 	    return LineChart;
 	}(Chart);
@@ -4820,17 +4799,14 @@
 	    function ScatterChart() {
 	        _classCallCheck(this, ScatterChart);
 	
-	        var _this2 = _possibleConstructorReturn(this, (ScatterChart.__proto__ || Object.getPrototypeOf(ScatterChart)).call(this));
+	        var _this2 = _possibleConstructorReturn(this, _Chart2.call(this));
 	
 	        return _this2;
 	    }
 	
-	    _createClass(ScatterChart, [{
-	        key: "pointRange",
-	        value: function pointRange(value) {
-	            throw "JSOnly";
-	        }
-	    }]);
+	    ScatterChart.prototype.pointRange = function pointRange(value) {
+	        throw "JSOnly";
+	    };
 	
 	    return ScatterChart;
 	}(Chart);

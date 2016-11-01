@@ -90,15 +90,15 @@ module PayoffCharts =
 
 
     type StrategyListViewModel(examples) = 
-        let mutable strategies = examples |> List.map (fun s -> new StrategyViewModel(s)) |> Array.ofList
+        // let mutable strategies = examples |> List.map (fun s -> new StrategyViewModel(s)) |> Array.ofList
         let mutable selectedStrategy: StrategyViewModel option = None
 
-        member __.allStrategies = strategies
-        member __.select strat = 
+        member x.strategies = examples |> List.map (fun s -> new StrategyViewModel(s)) |> Array.ofList
+        member x.select (strat: StrategyViewModel) = 
+            strat.generatePayoff()
             selectedStrategy <- Some strat
-            selectedStrategy.Value.generatePayoff()
-
-        member __.strategy = selectedStrategy
+            
+        member x.strategy = selectedStrategy
        
     
 
@@ -108,6 +108,6 @@ module PayoffCharts =
         ]
 
     let vm = StrategyListViewModel(StrategiesExamples.exampleStrategies)
-    vm.select vm.allStrategies.[4]
+    vm.select vm.strategies.[4] 
     vm.strategy.Value.generatePayoff()
     let app = VueHelper.createFromObj(vm, extraOpts)
