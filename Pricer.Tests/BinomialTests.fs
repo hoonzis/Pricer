@@ -156,11 +156,10 @@ type BinomialTests() =
         // 3*0.6 - 1.8
         // 4*0.6 - 2.4
         
-        newPrices.[0] |> should equal {
-            Stock = 1.2
-            Option = 1.6
-            PreviousOption = 2.0
-        }
+        let firstNode = newPrices.[0]
+
+        firstNode.Stock |> should equal 1.2
+        firstNode.Option |> should equal 1.6
 
         let secondNode = newPrices.[1]
         secondNode.Stock |> should (equalWithin 0.0000001) 1.8
