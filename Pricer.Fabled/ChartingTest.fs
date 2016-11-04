@@ -29,7 +29,7 @@ module ChartingTest =
                     values = randomValues()
                 }
             |]
-            
-        Charting.drawScatter series "#chart"
+
+        Charting.drawDateScatter series "#chart" "X axis" "Y axis"
 
     drawChart()

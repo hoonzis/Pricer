@@ -46,7 +46,9 @@
 
 	"use strict";
 	
-	exports.__esModule = true;
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	exports.random = undefined;
 	exports.randomValues = randomValues;
 	exports.drawChart = drawChart;
@@ -66,7 +68,7 @@
 	function drawChart() {
 	    var series = [new _Charting.Series("Series 1", randomValues()), new _Charting.Series("Series 2", randomValues())];
 	
-	    _Charting.Charting.drawScatter(series, "#chart");
+	    _Charting.Charting.drawDateScatter(series, "#chart", "X axis", "Y axis");
 	}
 	
 	drawChart();
@@ -4682,8 +4684,12 @@
 
 	"use strict";
 	
-	exports.__esModule = true;
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _fableCore = __webpack_require__(1);
 	
@@ -4707,13 +4713,17 @@
 	        this.y = y;
 	    }
 	
-	    Value.prototype.Equals = function Equals(other) {
-	        return _fableCore.Util.equalsRecords(this, other);
-	    };
-	
-	    Value.prototype.CompareTo = function CompareTo(other) {
-	        return _fableCore.Util.compareRecords(this, other);
-	    };
+	    _createClass(Value, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
 	
 	    return Value;
 	}();
@@ -4729,13 +4739,17 @@
 	        this.size = size;
 	    }
 	
-	    DateScatterValue.prototype.Equals = function Equals(other) {
-	        return _fableCore.Util.equalsRecords(this, other);
-	    };
-	
-	    DateScatterValue.prototype.CompareTo = function CompareTo(other) {
-	        return _fableCore.Util.compareRecords(this, other);
-	    };
+	    _createClass(DateScatterValue, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
 	
 	    return DateScatterValue;
 	}();
@@ -4750,13 +4764,17 @@
 	        this.values = values;
 	    }
 	
-	    Series.prototype.Equals = function Equals(other) {
-	        return _fableCore.Util.equalsRecords(this, other);
-	    };
-	
-	    Series.prototype.CompareTo = function CompareTo(other) {
-	        return _fableCore.Util.compareRecords(this, other);
-	    };
+	    _createClass(Series, [{
+	        key: "Equals",
+	        value: function Equals(other) {
+	            return _fableCore.Util.equalsRecords(this, other);
+	        }
+	    }, {
+	        key: "CompareTo",
+	        value: function CompareTo(other) {
+	            return _fableCore.Util.compareRecords(this, other);
+	        }
+	    }]);
 	
 	    return Series;
 	}();
@@ -4779,14 +4797,17 @@
 	    function LineChart() {
 	        _classCallCheck(this, LineChart);
 	
-	        var _this = _possibleConstructorReturn(this, _Chart.call(this));
+	        var _this = _possibleConstructorReturn(this, (LineChart.__proto__ || Object.getPrototypeOf(LineChart)).call(this));
 	
 	        return _this;
 	    }
 	
-	    LineChart.prototype.useInteractiveGuideline = function useInteractiveGuideline(value) {
-	        throw "JSOnly";
-	    };
+	    _createClass(LineChart, [{
+	        key: "useInteractiveGuideline",
+	        value: function useInteractiveGuideline(value) {
+	            throw "JSOnly";
+	        }
+	    }]);
 	
 	    return LineChart;
 	}(Chart);
@@ -4799,14 +4820,17 @@
 	    function ScatterChart() {
 	        _classCallCheck(this, ScatterChart);
 	
-	        var _this2 = _possibleConstructorReturn(this, _Chart2.call(this));
+	        var _this2 = _possibleConstructorReturn(this, (ScatterChart.__proto__ || Object.getPrototypeOf(ScatterChart)).call(this));
 	
 	        return _this2;
 	    }
 	
-	    ScatterChart.prototype.pointRange = function pointRange(value) {
-	        throw "JSOnly";
-	    };
+	    _createClass(ScatterChart, [{
+	        key: "pointRange",
+	        value: function pointRange(value) {
+	            throw "JSOnly";
+	        }
+	    }]);
 	
 	    return ScatterChart;
 	}(Chart);
@@ -4870,18 +4894,18 @@
 	        return new DateScatterValue(l.Expiry, l.Strike, price);
 	    };
 	
-	    var drawScatter = $exports.drawScatter = function drawScatter(data, chartSelector) {
+	    var drawDateScatter = $exports.drawDateScatter = function drawDateScatter(data, chartSelector, xLabel, yLabel) {
 	        var colors = _d.scale.category10();
 	
 	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
 	
 	        var timeFormat = _d.time.format("%x");
 	
-	        chart.yAxis.axisLabel("Strike");
+	        chart.yAxis.axisLabel(yLabel);
 	        chart.xAxis.tickFormat(function (x) {
 	            var dateValue = new Date(x);
 	            return timeFormat(dateValue);
-	        }).axisLabel("Expiry");
+	        }).axisLabel(xLabel);
 	        drawChart(chart, data, chartSelector);
 	    };
 	

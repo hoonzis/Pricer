@@ -116,13 +116,13 @@ module Charting =
             size = price
         }
         
-    let drawScatter (data: Series<DateScatterValue> array) (chartSelector:string) = 
+    let drawDateScatter (data: Series<DateScatterValue> array) (chartSelector:string) xLabel yLabel = 
         let colors = D3.Scale.Globals.category10()
         let chart = nv.models.scatterChart().pointRange([|10.0;800.0|]).showLegend(true).showXAxis(true).color(colors.range())
         let timeFormat = D3.Time.Globals.format("%x")
-        chart.yAxis.axisLabel("Strike") |> ignore
+        chart.yAxis.axisLabel(yLabel) |> ignore
         chart.xAxis.tickFormat(fun x -> 
             let dateValue = DateUtils.fromTicks(x :?> int)
             timeFormat.Invoke(dateValue)
-        ).axisLabel("Expiry") |> ignore
+        ).axisLabel(xLabel) |> ignore
         drawChart chart data chartSelector
