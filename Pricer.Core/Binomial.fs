@@ -47,45 +47,46 @@ module Binomial =
         let call = exp(-rate) * (q*cu + (1.0-q)*cd)
         call
 
-    let buildPricingResult previousOptionPrice optionPrice pricing = 
+    let buildPricingResult previousOptionPrice optionPrice ctx = 
         let optionPriceChange = previousOptionPrice - optionPrice
-        let underlyingPriceChange = pricing.Ref*pricing.Up - pricing.Ref
+        let underlyingPriceChange = ctx.Ref*ctx.Up - ctx.Ref
         let delta = optionPriceChange / underlyingPriceChange
         {
             Premium = optionPrice
             Delta = delta
         }
 
-    let binomialPricing (pricing:BinomialContext) =
+    let binomialPricing (ctx: BinomialContext) =
         
         // this array holds the prices of the underlying in given period
-        let prices = Array.zeroCreate pricing.Periods
+        let prices = Array.zeroCreate ctx.Periods
+        let option = ctx.Option
         
-        // retursn a function used to calculate the option prices in the period i.
+        // returns a function used to calculate the option prices in the period i.
         // it looks into the underlying prices array and compares with strike
         let optionValueInPeriod = 
-            match pricing.Option.Kind with
-                    | Call -> fun i -> max 0.0 (prices.[i] - pricing.Option.Strike)
-                    | Put -> fun i -> max 0.0 (pricing.Option.Strike - prices.[i])
+            match option.Kind with
+                    | Call -> fun i -> max 0.0 (prices.[i] - option.Strike)
+                    | Put -> fun i -> max 0.0 (option.Strike - prices.[i])
                                  
         // initialize the last price (the underlying wen down * period times)
-        prices.[0] <- pricing.Ref*(pricing.Down**(float pricing.Periods))
-        let optionValues = Array.zeroCreate pricing.Periods
+        prices.[0] <- ctx.Ref*(ctx.Down**(float ctx.Periods))
+        let optionValues = Array.zeroCreate ctx.Periods
 
         optionValues.[0]<- optionValueInPeriod 0
-        for i in 1 ..pricing.Periods-1 do
-            prices.[i] <- prices.[i-1]*pricing.Up*pricing.Up
+        for i in 1 ..ctx.Periods-1 do
+            prices.[i] <- prices.[i-1]*ctx.Up*ctx.Up
             optionValues.[i]<- optionValueInPeriod i
 
-        let counter = pricing.Periods-2
+        let counter = ctx.Periods-2
         for step = counter downto 0 do
             for j in 0 .. step do
-                optionValues.[j] <- (pricing.PUp*optionValues.[j+1]+pricing.PDown*optionValues.[j])*(1.0/pricing.Rate)
-                if pricing.Option.Style = American then
-                    prices.[j] <- pricing.Down*prices.[j+1]
+                optionValues.[j] <- (ctx.PUp*optionValues.[j+1]+ctx.PDown*optionValues.[j])*(1.0/ctx.Rate)
+                if option.Style = American then
+                    prices.[j] <- ctx.Down*prices.[j+1]
                     optionValues.[j] <- max optionValues.[j] (optionValueInPeriod j)
 
-        buildPricingResult optionValues.[1] optionValues.[0] pricing
+        buildPricingResult optionValues.[1] optionValues.[0] ctx
     
     // Creates an array of BinomialNodes - the leafs of the CRR tree
     let generateEndNodePrices (ref:float) (up:float) (periods:int) optionVal =
@@ -134,14 +135,14 @@ module Binomial =
             |> Array.pairwise 
             |> Array.map (fun (downNode,upNode) -> mergeNodes downNode upNode optionVal pricing)
             
-    let binomialPricingFunc (pricing:BinomialContext) =
-        let optionValue = BasicOptions.optionValue pricing.Option
+    let binomialPricingFunc (ctx:BinomialContext) =
+        let optionValue = BasicOptions.optionValue ctx.Option
 
         // that's the leafs of the derivative tree
-        let prices = generateEndNodePrices pricing.Ref pricing.Up pricing.Periods optionValue
+        let prices = generateEndNodePrices ctx.Ref ctx.Up ctx.Periods optionValue
         
         // define a reduction step which will generate new layer
-        let reductionStep = step pricing optionValue
+        let reductionStep = step ctx optionValue
         
         // apply the reduction till we have only one node in the list
         let rec reducePrices prices =
@@ -150,7 +151,7 @@ module Binomial =
                     | prs -> reducePrices (reductionStep prs)
 
         let premium, previousPremium = reducePrices prices
-        buildPricingResult previousPremium premium pricing
+        buildPricingResult previousPremium premium ctx
 
     let buildPricingContext (stock:StockInfo) (option:OptionLeg) (steps:int) = 
         // we need to construct the binomial pricing model, using the CRR (Cox, Ross and Rubinstein)
