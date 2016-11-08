@@ -35,7 +35,7 @@ module OptionPrices =
                 }
             |]
             
-            Charting.drawDateScatter series "#optionPricesChart" "Expiry" "Strike"
+            Charting.drawDateScatter series "#optionPricesChart" "Expiry" "Strike" 500
 
             let merged = puts |> Array.zip calls |> Array.map (fun ((put, putPrice), (call, callPrice)) -> 
                 createObj [

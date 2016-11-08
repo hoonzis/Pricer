@@ -1,8 +1,7 @@
 ﻿module.exports = {
     entry: {
         payoffCharts: "./CompiledJs/Pricer.Fabled/PayoffCharts",
-        optionPrices: "./CompiledJs/Pricer.Fabled/OptionPrices",
-        chartingTest: "./CompiledJs/Pricer.Fabled/ChartingTest"
+        optionPrices: "./CompiledJs/Pricer.Fabled/OptionPrices"
     },
     output: {
         filename: "[name].bundle.js",
