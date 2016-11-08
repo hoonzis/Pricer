@@ -63,13 +63,15 @@
 	
 	var _OptionsModel = __webpack_require__(6);
 	
+	var _FinanceCharting = __webpack_require__(13);
+	
 	var _Charting = __webpack_require__(2);
 	
 	var _fableCore = __webpack_require__(1);
 	
-	var _Tools = __webpack_require__(13);
+	var _Tools = __webpack_require__(14);
 	
-	var _VueHelpers = __webpack_require__(14);
+	var _VueHelpers = __webpack_require__(15);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -101,13 +103,13 @@
 	
 	            var scatterCalls = function (array) {
 	                return array.map(function (tupledArg) {
-	                    return _Charting.Charting.legAndPriceToScatterPoint(tupledArg[0], tupledArg[1]);
+	                    return (0, _FinanceCharting.legAndPriceToScatterPoint)(tupledArg[0], tupledArg[1]);
 	                });
 	            }(calls);
 	
 	            var scatterPuts = function (array) {
 	                return array.map(function (tupledArg) {
-	                    return _Charting.Charting.legAndPriceToScatterPoint(tupledArg[0], tupledArg[1]);
+	                    return (0, _FinanceCharting.legAndPriceToScatterPoint)(tupledArg[0], tupledArg[1]);
 	                });
 	            }(puts);
 	
@@ -120,7 +122,7 @@
 	            }(puts).map(function (tupledArg) {
 	                return {
 	                    strike: new Number(tupledArg[0][0].Strike).toFixed(2),
-	                    expiry: (0, _Tools.toDate)(tupledArg[0][0].Expiry),
+	                    expiry: _Tools.Tools.toDate(tupledArg[0][0].Expiry),
 	                    putPrice: new Number(tupledArg[0][1]).toFixed(4),
 	                    callPrice: new Number(tupledArg[1][1]).toFixed(4)
 	                };
@@ -4758,7 +4760,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
+	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.Series = exports.DateScatterValue = exports.Value = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -4852,10 +4854,6 @@
 	
 	_fableCore.Util.setInterfaces(Series.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Series");
 	
-	var DateUtils = exports.DateUtils = function ($exports) {
-	    return $exports;
-	}({});
-	
 	var Chart = exports.Chart = function Chart() {
 	    _classCallCheck(this, Chart);
 	};
@@ -4915,18 +4913,39 @@
 	        }, data));
 	    };
 	
-	    var buildLines = $exports.buildLines = function buildLines(data) {
-	        return _fableCore.Seq.map(function (tupledArg) {
-	            return new Series(tupledArg[0].Definition.Name, tuplesToPoints(tupledArg[1]));
-	        }, data);
-	    };
+	    var prepareLineChart = $exports.prepareLineChart = function prepareLineChart(xLabel, yLabel, data, height) {
+	        var max = _fableCore.Seq.reduce(function (f) {
+	            return function (x, y) {
+	                return f(x) > f(y) ? x : y;
+	            };
+	        }(function (v) {
+	            return v.y;
+	        }), Array.from(_fableCore.Seq.collect(function (serie) {
+	            return serie.values;
+	        }, data)));
 	
-	    var prepareLineChart = $exports.prepareLineChart = function () {
-	        var chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true);
-	        chart.xAxis.axisLabel("Underlying Price").tickFormat(d3.format(",.1f"));
-	        chart.yAxis.axisLabel("Profit").tickFormat(d3.format(",.1f"));
+	        var min = _fableCore.Seq.reduce(function (f) {
+	            return function (x, y) {
+	                return f(x) < f(y) ? x : y;
+	            };
+	        }(function (v) {
+	            return v.y;
+	        }), Array.from(_fableCore.Seq.collect(function (serie) {
+	            return serie.values;
+	        }, data)));
+	
+	        var maxY = Math.round(max.y + 0.1 * max.y);
+	        var minY = Math.ceil(min.y - Math.abs(0.1 * min.y));
+	        var margin = {
+	            left: 80,
+	            right: 80
+	        };
+	        var range = [minY, maxY];
+	        var chart = nv.models.lineChart().useInteractiveGuideline(true).margin(margin).showLegend(true).showXAxis(true).showYAxis(true).forceY(range);
+	        chart.xAxis.axisLabel(xLabel).tickFormat(d3.format(".f"));
+	        chart.yAxis.axisLabel(yLabel).tickFormat(d3.format(".1f"));
 	        return chart;
-	    }();
+	    };
 	
 	    var clearAndGetParentChartDiv = $exports.clearAndGetParentChartDiv = function clearAndGetParentChartDiv(selector) {
 	        var element = d3.select(selector);
@@ -4934,41 +4953,24 @@
 	        return element;
 	    };
 	
-	    var drawChart = $exports.drawChart = function drawChart(chart, data, chartSelector) {
+	    var drawChart = $exports.drawChart = function drawChart(chart, data, chartSelector, height) {
 	        var chartElement = clearAndGetParentChartDiv(chartSelector);
-	        chartElement.style("height", "500px");
+	        chartElement.style("height", _fableCore.String.fsFormat("%ipx")(function (x) {
+	            return x;
+	        })(height));
 	        chartElement.datum(data).call(chart);
 	    };
 	
-	    var drawLineChart = $exports.drawLineChart = function drawLineChart(data, chartSelector) {
-	        var chart = prepareLineChart;
-	        drawChart(chart, data, chartSelector);
-	    };
-	
-	    var drawPayoff = $exports.drawPayoff = function drawPayoff(strategyData, legsData) {
-	        var legLines = buildLines(legsData);
-	        var strategyLine = new Series("Strategy", tuplesToPoints(strategyData));
-	
-	        var payoff = _fableCore.Seq.delay(function (unitVar) {
-	            return _fableCore.Seq.append(legLines, _fableCore.Seq.delay(function (unitVar_1) {
-	                return _fableCore.Seq.singleton(strategyLine);
-	            }));
-	        });
-	
-	        var data = Array.from(payoff);
-	        return function (chartSelector) {
-	            drawLineChart(data, chartSelector);
-	        };
-	    };
-	
-	    var legAndPriceToScatterPoint = $exports.legAndPriceToScatterPoint = function legAndPriceToScatterPoint(l, price) {
-	        return new DateScatterValue(l.Expiry, l.Strike, price);
+	    var drawLineChart = $exports.drawLineChart = function drawLineChart(data, chartSelector, xLabel, yLabel) {
+	        var height = 500;
+	        var chart = prepareLineChart(xLabel, yLabel, data, height);
+	        drawChart(chart, data, chartSelector, height);
 	    };
 	
 	    var drawDateScatter = $exports.drawDateScatter = function drawDateScatter(data, chartSelector, xLabel, yLabel) {
 	        var colors = _d.scale.category10();
 	
-	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
+	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).showYAxis(true).color(colors.range());
 	
 	        var timeFormat = _d.time.format("%x");
 	
@@ -4977,7 +4979,9 @@
 	            var dateValue = new Date(x);
 	            return timeFormat(dateValue);
 	        }).axisLabel(xLabel);
-	        drawChart(chart, data, chartSelector);
+	        return function (height) {
+	            drawChart(chart, data, chartSelector, height);
+	        };
 	    };
 	
 	    return $exports;
@@ -5831,47 +5835,37 @@
 	        return call;
 	    };
 	
-	    var buildPricingResult = $exports.buildPricingResult = function buildPricingResult(previousOptionPrice, optionPrice, pricing) {
+	    var buildPricingResult = $exports.buildPricingResult = function buildPricingResult(previousOptionPrice, optionPrice, ctx) {
 	        var optionPriceChange = previousOptionPrice - optionPrice;
-	        var underlyingPriceChange = pricing.Ref * pricing.Up - pricing.Ref;
+	        var underlyingPriceChange = ctx.Ref * ctx.Up - ctx.Ref;
 	        var delta = optionPriceChange / underlyingPriceChange;
 	        return new _OptionsModel.Pricing(delta, optionPrice);
 	    };
 	
-	    var binomialPricing = $exports.binomialPricing = function binomialPricing(pricing) {
-	        var prices = new Float64Array(pricing.Periods);
-	
-	        var optionValueInPeriod = function () {
-	            var matchValue = pricing.Option.Kind;
-	
-	            if (matchValue.Case === "Put") {
-	                return function (i) {
-	                    return 0 > pricing.Option.Strike - prices[i] ? 0 : pricing.Option.Strike - prices[i];
-	                };
-	            } else {
-	                return function (i) {
-	                    return 0 > prices[i] - pricing.Option.Strike ? 0 : prices[i] - pricing.Option.Strike;
-	                };
-	            }
-	        }();
-	
-	        prices[0] = pricing.Ref * Math.pow(pricing.Down, pricing.Periods);
-	        var optionValues = new Float64Array(pricing.Periods);
+	    var binomialPricing = $exports.binomialPricing = function binomialPricing(ctx) {
+	        var prices = new Float64Array(ctx.Periods);
+	        var optionValueInPeriod = ctx.Option.Kind.Case === "Put" ? function (i) {
+	            return 0 > ctx.Option.Strike - prices[i] ? 0 : ctx.Option.Strike - prices[i];
+	        } : function (i) {
+	            return 0 > prices[i] - ctx.Option.Strike ? 0 : prices[i] - ctx.Option.Strike;
+	        };
+	        prices[0] = ctx.Ref * Math.pow(ctx.Down, ctx.Periods);
+	        var optionValues = new Float64Array(ctx.Periods);
 	        optionValues[0] = optionValueInPeriod(0);
 	
-	        for (var i = 1; i <= pricing.Periods - 1; i++) {
-	            prices[i] = prices[i - 1] * pricing.Up * pricing.Up;
+	        for (var i = 1; i <= ctx.Periods - 1; i++) {
+	            prices[i] = prices[i - 1] * ctx.Up * ctx.Up;
 	            optionValues[i] = optionValueInPeriod(i);
 	        }
 	
-	        var counter = pricing.Periods - 2;
+	        var counter = ctx.Periods - 2;
 	
 	        for (var _step = counter; _step >= 0; _step--) {
 	            for (var j = 0; j <= _step; j++) {
-	                optionValues[j] = (pricing.PUp * optionValues[j + 1] + pricing.PDown * optionValues[j]) * (1 / pricing.Rate);
+	                optionValues[j] = (ctx.PUp * optionValues[j + 1] + ctx.PDown * optionValues[j]) * (1 / ctx.Rate);
 	
-	                if (pricing.Option.Style.Equals(new _OptionsModel.OptionStyle("American", []))) {
-	                    prices[j] = pricing.Down * prices[j + 1];
+	                if (ctx.Option.Style.Equals(new _OptionsModel.OptionStyle("American", []))) {
+	                    prices[j] = ctx.Down * prices[j + 1];
 	
 	                    if (optionValues[j] > optionValueInPeriod(j)) {
 	                        optionValues[j] = optionValues[j];
@@ -5882,7 +5876,7 @@
 	            }
 	        }
 	
-	        return buildPricingResult(optionValues[1], optionValues[0], pricing);
+	        return buildPricingResult(optionValues[1], optionValues[0], ctx);
 	    };
 	
 	    var generateEndNodePrices = $exports.generateEndNodePrices = function generateEndNodePrices(ref, up, periods, optionVal) {
@@ -5931,15 +5925,15 @@
 	        });
 	    };
 	
-	    var binomialPricingFunc = $exports.binomialPricingFunc = function binomialPricingFunc(pricing) {
+	    var binomialPricingFunc = $exports.binomialPricingFunc = function binomialPricingFunc(ctx) {
 	        var optionValue = function optionValue(stockPrice) {
-	            return _OptionsModel.BasicOptions.optionValue(pricing.Option, stockPrice);
+	            return _OptionsModel.BasicOptions.optionValue(ctx.Option, stockPrice);
 	        };
 	
-	        var prices = generateEndNodePrices(pricing.Ref, pricing.Up, pricing.Periods, optionValue);
+	        var prices = generateEndNodePrices(ctx.Ref, ctx.Up, ctx.Periods, optionValue);
 	
 	        var reductionStep = function reductionStep(prices_1) {
-	            return step(pricing, optionValue, prices_1);
+	            return step(ctx, optionValue, prices_1);
 	        };
 	
 	        var reducePrices = function reducePrices(prices_1) {
@@ -5950,7 +5944,7 @@
 	        };
 	
 	        var patternInput = reducePrices(prices);
-	        return buildPricingResult(patternInput[1], patternInput[0], pricing);
+	        return buildPricingResult(patternInput[1], patternInput[0], ctx);
 	    };
 	
 	    var buildPricingContext = $exports.buildPricingContext = function buildPricingContext(stock, option, steps) {
@@ -6080,7 +6074,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.exampleStrategies = exports.exampleStock = exports.expiry = undefined;
+	exports.exampleStrategies = exports.exampleStock = undefined;
 	exports.testStrikes = testStrikes;
 	exports.buildOptionLeg = buildOptionLeg;
 	exports.strangle = strangle;
@@ -6105,20 +6099,14 @@
 	var _StocksModel = __webpack_require__(11);
 	
 	function testStrikes(stock) {
-	    return [Math.floor(stock.CurrentPrice * 1.1), Math.floor(stock.CurrentPrice * 1.4)];
+	    return [Math.floor(stock.CurrentPrice * 1.05), Math.floor(stock.CurrentPrice * 1.1)];
 	}
 	
 	function buildOptionLeg(direction, strike, expiry, kind) {
 	    return new _OptionsModel.Leg(new _OptionsModel.LegInfo("Option", [new _OptionsModel.OptionLeg(direction, strike, expiry, kind, new _OptionsModel.OptionStyle("European", []), _fableCore.Date.now())]));
 	}
 	
-	var expiry = exports.expiry = function () {
-	    var copyOfStruct = _fableCore.Date.now();
-	
-	    return _fableCore.Date.addDays(copyOfStruct, 60);
-	}();
-	
-	function strangle(stock) {
+	function strangle(stock, expiry) {
 	    var patternInput = testStrikes(stock);
 	    var Name = "Long Strangle";
 	
@@ -6127,7 +6115,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function straddle(stock) {
+	function straddle(stock, expiry) {
 	    var patternInput = testStrikes(stock);
 	    var Name = "Straddle";
 	
@@ -6136,7 +6124,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function butterfly(stock) {
+	function butterfly(stock, expiry) {
 	    var Name = "Butterfly";
 	
 	    var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.05, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, stock.CurrentPrice * 1.15, expiry, new _OptionsModel.OptionKind("Call", []))]);
@@ -6144,7 +6132,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function riskReversal(stock) {
+	function riskReversal(stock, expiry) {
 	    var Name = "Risk Reversal";
 	
 	    var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.1, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(-1, stock.CurrentPrice * 0.9, expiry, new _OptionsModel.OptionKind("Put", []))]);
@@ -6152,7 +6140,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function collar(stock) {
+	function collar(stock, expiry) {
 	    var Name = "Collar";
 	
 	    var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", [])), buildOptionLeg(1, stock.CurrentPrice * 0.8, expiry, new _OptionsModel.OptionKind("Put", [])), new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", [new _OptionsModel.CashLeg(1, stock.CurrentPrice)]))]);
@@ -6160,7 +6148,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function coveredCall(stock) {
+	function coveredCall(stock, expiry) {
 	    var Name = "Covered Call";
 	
 	    var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", [])), new _OptionsModel.Leg(new _OptionsModel.LegInfo("Cash", [new _OptionsModel.CashLeg(1, stock.CurrentPrice)]))]);
@@ -6172,7 +6160,7 @@
 	    return ref - strike;
 	}
 	
-	function condor(stock) {
+	function condor(stock, expiry) {
 	    var strike1 = Math.floor(stock.CurrentPrice * 0.6);
 	    var strike2 = Math.floor(stock.CurrentPrice * 0.9);
 	    var strike3 = Math.floor(stock.CurrentPrice) * 1.1;
@@ -6184,7 +6172,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function boxOption(stock) {
+	function boxOption(stock, expiry) {
 	    var patternInput = testStrikes(stock);
 	    var Name = "Box Option";
 	
@@ -6193,23 +6181,23 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function longCall(stock) {
+	function longCall(stock, expiry) {
 	    var Name = "Long Call - Out Of Money";
 	
-	    var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", []))]);
+	    var Legs = _fableCore.List.ofArray([buildOptionLeg(1, stock.CurrentPrice * 1.05, expiry, new _OptionsModel.OptionKind("Call", []))]);
 	
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function shortCall(stock) {
+	function shortCall(stock, expiry) {
 	    var Name = "Short Call - Out Of Money";
 	
-	    var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.2, expiry, new _OptionsModel.OptionKind("Call", []))]);
+	    var Legs = _fableCore.List.ofArray([buildOptionLeg(-1, stock.CurrentPrice * 1.05, expiry, new _OptionsModel.OptionKind("Call", []))]);
 	
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function callSpread(stock) {
+	function callSpread(stock, expiry) {
 	    var patternInput = testStrikes(stock);
 	    var Name = "Bull Call Spread";
 	
@@ -6218,7 +6206,7 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function putSpread(stock) {
+	function putSpread(stock, expiry) {
 	    var patternInput = testStrikes(stock);
 	    var Name = "Bull Put Spread";
 	
@@ -6227,8 +6215,8 @@
 	    return new _OptionsModel.Strategy(stock, Name, Legs);
 	}
 	
-	function strategiesForStock(stock) {
-	    return _fableCore.List.ofArray([longCall(stock), shortCall(stock), callSpread(stock), putSpread(stock), straddle(stock), strangle(stock), butterfly(stock), riskReversal(stock), collar(stock), condor(stock), boxOption(stock), coveredCall(stock)]);
+	function strategiesForStock(stock, expiry) {
+	    return _fableCore.List.ofArray([longCall(stock, expiry), shortCall(stock, expiry), callSpread(stock, expiry), putSpread(stock, expiry), straddle(stock, expiry), strangle(stock, expiry), butterfly(stock, expiry), riskReversal(stock, expiry), collar(stock, expiry), condor(stock, expiry), boxOption(stock, expiry), coveredCall(stock, expiry)]);
 	}
 	
 	var exampleStock = exports.exampleStock = function () {
@@ -6237,7 +6225,9 @@
 	    return new _StocksModel.StockInfo(0.03, Volatility, CurrentPrice);
 	}();
 	
-	var exampleStrategies = exports.exampleStrategies = strategiesForStock(exampleStock);
+	var exampleStrategies = exports.exampleStrategies = function exampleStrategies(expiry) {
+	    return strategiesForStock(exampleStock, expiry);
+	};
 
 
 /***/ },
@@ -6249,29 +6239,89 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.parseDate = parseDate;
-	exports.toDate = toDate;
+	exports.buildLines = buildLines;
+	exports.drawPayoff = drawPayoff;
+	exports.legAndPriceToScatterPoint = legAndPriceToScatterPoint;
 	
 	var _fableCore = __webpack_require__(1);
 	
-	function parseDate(exp) {
-	    var groups = _fableCore.RegExp.match(exp, "([0-9]+)-([0-9]+)\\-([0-9]+)");
+	var _Charting = __webpack_require__(2);
 	
-	    var year = Number.parseInt(groups[1]);
-	    var month = Number.parseInt(groups[2]);
-	    var day = Number.parseInt(groups[3]);
-	    return _fableCore.Date.create(year, month, day);
+	function buildLines(data) {
+	    return _fableCore.Seq.map(function (tupledArg) {
+	        return new _Charting.Series(tupledArg[0].Definition.Name, _Charting.Charting.tuplesToPoints(tupledArg[1]));
+	    }, data);
 	}
 	
-	function toDate(date) {
-	    return _fableCore.String.fsFormat("%i-%02i-%02i")(function (x) {
-	        return x;
-	    })(_fableCore.Date.year(date))(_fableCore.Date.month(date))(_fableCore.Date.day(date));
+	function drawPayoff(data, selector) {
+	    var legLines = buildLines(data.LegsSeries);
+	    var strategyLine = new _Charting.Series("Strategy", _Charting.Charting.tuplesToPoints(data.StrategySerie));
+	
+	    var payoff = _fableCore.Seq.delay(function (unitVar) {
+	        return _fableCore.Seq.append(legLines, _fableCore.Seq.delay(function (unitVar_1) {
+	            return _fableCore.Seq.singleton(strategyLine);
+	        }));
+	    });
+	
+	    _Charting.Charting.drawLineChart(Array.from(payoff), selector, "Underlying price", "Profit");
+	}
+	
+	function legAndPriceToScatterPoint(l, price) {
+	    return new _Charting.DateScatterValue(l.Expiry, l.Strike, price);
 	}
 
 
 /***/ },
 /* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.NumberUtils = exports.RangeUtils = exports.DateUtils = exports.Tools = undefined;
+	
+	var _fableCore = __webpack_require__(1);
+	
+	var Tools = exports.Tools = function ($exports) {
+	    var parseDate = $exports.parseDate = function parseDate(exp) {
+	        var groups = _fableCore.RegExp.match(exp, "([0-9]+)-([0-9]+)\\-([0-9]+)");
+	
+	        var year = Number.parseInt(groups[1]);
+	        var month = Number.parseInt(groups[2]);
+	        var day = Number.parseInt(groups[3]);
+	        return _fableCore.Date.create(year, month, day);
+	    };
+	
+	    var toDate = $exports.toDate = function toDate(date) {
+	        return _fableCore.String.fsFormat("%i-%02i-%02i")(function (x) {
+	            return x;
+	        })(_fableCore.Date.year(date))(_fableCore.Date.month(date))(_fableCore.Date.day(date));
+	    };
+	
+	    return $exports;
+	}({});
+	
+	var DateUtils = exports.DateUtils = function ($exports) {
+	    return $exports;
+	}({});
+	
+	var RangeUtils = exports.RangeUtils = function ($exports) {
+	    return $exports;
+	}({});
+	
+	var NumberUtils = exports.NumberUtils = function ($exports) {
+	    var toFixed = $exports.toFixed = function toFixed(n, d) {
+	        return new Number(n).toFixed(d);
+	    };
+	
+	    return $exports;
+	}({});
+
+
+/***/ },
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";

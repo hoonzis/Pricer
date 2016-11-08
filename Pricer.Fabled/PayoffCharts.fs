@@ -19,7 +19,9 @@ module PayoffCharts =
         let mutable strike = "0.0"
         let mutable expiry = "test"
         let mutable kind = "Option"
-        let mutable direction = "Buy"       
+        let mutable direction = "Buy"
+        let mutable delta = "0.0"   
+        let mutable premium = "0.0"
 
         do 
             match l.Definition with
@@ -31,6 +33,12 @@ module PayoffCharts =
                     | Cash cash -> 
                         kind <- "Cash"
                         direction <- cash.BuyVsSell
+                    | _ -> ()
+
+            match l.Pricing with
+                    | Some price -> 
+                        delta <- NumberUtils.toFixed price.Delta 2
+                        premium <-  NumberUtils.toFixed price.Premium 2
                     | _ -> ()
         
         member __.getLeg = 
@@ -85,7 +93,8 @@ module PayoffCharts =
                 Stock = stock.buildStock
             }
             let data = payoffsGenerator.getStrategyData newStrategy
-            Charting.drawPayoff data "#payoffChart"
+            legs <- data.LegsSeries |> Seq.map (fun (l, payoff) -> new LegViewModel(l)) |> Array.ofSeq
+            FinanceCharting.drawPayoff data "#payoffChart"
 
 
 
@@ -107,7 +116,13 @@ module PayoffCharts =
             "el" ==> ".payoffapp"           
         ]
 
-    let vm = StrategyListViewModel(StrategiesExamples.exampleStrategies)
+    let exampleStock = {
+        CurrentPrice = 3000.0
+        Volatility = 0.23
+        Rate = 0.02
+    }
+
+    let vm = StrategyListViewModel(StrategiesExamples.strategiesForStock exampleStock (DateTime.Now.AddDays 180.0))
     vm.select vm.strategies.[4] 
     vm.strategy.Value.generatePayoff()
     let app = VueHelper.createFromObj(vm, extraOpts)

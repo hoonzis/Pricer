@@ -2,6 +2,9 @@
 
 open System
 open System.Text.RegularExpressions
+open Fable.Core
+open Fable.Import
+open Fable.Import.Browser
 
 module Tools = 
     let parseDate exp = 
@@ -14,3 +17,15 @@ module Tools =
 
     let toDate (date:DateTime) = 
         sprintf "%i-%02i-%02i" date.Year date.Month date.Day
+
+module DateUtils = 
+
+    [<Emit("new Date($0)")>]
+    let fromTicks (ticks: int): DateTime = jsNative
+
+module RangeUtils = 
+    [<Emit("[$0,$1]")>]
+    let range (left: float) (right: float): float array = jsNative
+
+module NumberUtils = 
+    let toFixed n (d:int) = (Fable.Import.JS.Number.Create n).toFixed(float d)

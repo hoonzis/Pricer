@@ -58,23 +58,19 @@
     <Compile Include="SimpleMath.fs" />
     <Compile Include="SimplePricer.fs" />
     <Compile Include="Fable.Import.D3.fs" />
-    <Compile Include="Charting.fs" />
     <Compile Include="Tools.fs" />
+    <Compile Include="Charting.fs" />
     <Compile Include="ShareViewModels.fs" />
     <Compile Include="VueHelpers.fs" />
+    <Compile Include="FinanceCharting.fs" />
     <Compile Include="PayoffCharts.fs" />
     <Compile Include="OptionPrices.fs" />
     <None Include="index.html" />
     <None Include="package.json" />
-    <Content Include="App.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="optionPrices.html" />
     <None Include="fableconfig.json" />
     <Content Include="webpack.config.js" />
     <None Include="about.html" />
-    <None Include="chartingTest.html" />
-    <Compile Include="ChartingTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fable.Core">

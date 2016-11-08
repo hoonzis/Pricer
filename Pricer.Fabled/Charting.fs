@@ -4,7 +4,7 @@ open System
 open Fable.Core
 open Fable.Import
 open Fable.Import.Browser
-open Pricer.Core
+open Fable.Core.JsInterop
 
 type Value = {
     x: int
@@ -25,19 +25,18 @@ type Series<'a> = {
 type Axis = 
     abstract axisLabel: string -> Axis
     abstract tickFormat: System.Func<Object,string> -> Axis
-
-module DateUtils = 
-    [<Emit("new Date($0)")>]
-    let fromTicks (ticks: int): DateTime = jsNative
+    abstract tickSize: int -> Axis
 
 [<AbstractClass>]
 type Chart() = 
     abstract xAxis: Axis
     abstract yAxis: Axis
+    abstract forceY: float array -> Chart
     abstract showLegend: bool -> Chart
     abstract showXAxis: bool -> Chart
     abstract showYAxis: bool -> Chart
     abstract color: string[] -> Chart
+    abstract margin: obj -> Chart
 
 [<AbstractClass>]
 type LineChart() = inherit Chart()
@@ -66,17 +65,30 @@ module Charting =
                 }
             ) |> Array.ofList
 
-    let buildLines (data:(Leg*(float*float) list) seq)= 
-        data |> Seq.map (fun (leg,linedata) -> 
-            {
-                key = leg.Definition.Name
-                values = linedata |> tuplesToPoints
-            })
+    let prepareLineChart xLabel yLabel (data: Series<Value> array) height = 
+        let max = data |> Array.collect (fun serie -> serie.values) |> Array.maxBy (fun v-> v.y)
+        let min = data |> Array.collect (fun serie -> serie.values) |> Array.minBy (fun v-> v.y)
+        let maxY = Math.Round(max.y + (0.1 * max.y))
+        let minY = Math.Ceiling(min.y - abs(0.1 * min.y))
+        
+        let margin = createObj [
+                        "left" ==> 80
+                        "right" ==> 80
+                    ]
 
-    let prepareLineChart = 
-        let chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true)
-        chart.xAxis.axisLabel("Underlying Price").tickFormat(D3.Globals.format(",.1f")) |> ignore
-        chart.yAxis.axisLabel("Profit").tickFormat(D3.Globals.format(",.1f")) |> ignore
+        let range = RangeUtils.range minY maxY
+        let chart = 
+                nv.models
+                    .lineChart()
+                    .useInteractiveGuideline(true)
+                    .margin(margin)
+                    .showLegend(true)
+                    .showXAxis(true)
+                    .showYAxis(true)
+                    .forceY(range)
+
+        chart.xAxis.axisLabel(xLabel).tickFormat(D3.Globals.format(".f")) |> ignore
+        chart.yAxis.axisLabel(yLabel).tickFormat(D3.Globals.format(".1f"))|> ignore
         chart
 
 
@@ -85,40 +97,20 @@ module Charting =
         element.html("") |> ignore
         element
     
-    let drawChart (chart:Chart) (data: Object) (chartSelector: string) = 
+    let drawChart (chart:Chart) (data: Object) (chartSelector: string) height = 
         let chartElement = clearAndGetParentChartDiv(chartSelector)
-        chartElement.style("height","500px") |> ignore
+        chartElement.style("height",sprintf "%ipx" height) |> ignore
         chartElement.datum(data).call(chart) |> ignore
 
 
-    let drawLineChart (data: Series<Value> array) (chartSelector:string) =      
-        let chart = prepareLineChart
-        drawChart chart data chartSelector
-
-    let drawPayoff (strategyData, legsData) =
-        let legLines = buildLines legsData
-        let strategyLine = {
-            key = "Strategy"
-            values = strategyData |> tuplesToPoints
-        }
-               
-        let payoff = seq {
-            yield! legLines
-            yield strategyLine
-        } 
-
-        drawLineChart (payoff |> Array.ofSeq)
-
-    let legAndPriceToScatterPoint (l,price) = 
-        {
-            x = l.Expiry
-            y = l.Strike
-            size = price
-        }
-        
+    let drawLineChart (data: Series<Value> array) (chartSelector:string) xLabel yLabel =      
+        let height = 500
+        let chart = prepareLineChart xLabel yLabel data height
+        drawChart chart data chartSelector height
+    
     let drawDateScatter (data: Series<DateScatterValue> array) (chartSelector:string) xLabel yLabel = 
         let colors = D3.Scale.Globals.category10()
-        let chart = nv.models.scatterChart().pointRange([|10.0;800.0|]).showLegend(true).showXAxis(true).color(colors.range())
+        let chart = nv.models.scatterChart().pointRange([|10.0;800.0|]).showLegend(true).showXAxis(true).showYAxis(true).color(colors.range())
         let timeFormat = D3.Time.Globals.format("%x")
         chart.yAxis.axisLabel(yLabel) |> ignore
         chart.xAxis.tickFormat(fun x -> 

@@ -5,7 +5,7 @@ open System
 module StrategiesExamples = 
 
     let testStrikes stock =
-        floor(stock.CurrentPrice*1.1),floor(stock.CurrentPrice*1.4)
+        floor(stock.CurrentPrice*1.05),floor(stock.CurrentPrice*1.1)
 
     let buildOptionLeg direction strike expiry kind = 
         {
@@ -20,8 +20,7 @@ module StrategiesExamples =
             Pricing = None
         }
 
-    let expiry = DateTime.Now.AddDays(60.0)
-    let strangle stock = 
+    let strangle stock expiry = 
         let strike1, strike2 = testStrikes stock
         {
             Name = "Long Strangle"
@@ -32,7 +31,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let straddle stock = 
+    let straddle stock expiry =  
         let strike,_ = testStrikes stock
         {
             Name = "Straddle"
@@ -43,7 +42,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let butterfly stock = 
+    let butterfly stock expiry = 
         {
             Name = "Butterfly"
             Legs = [ 
@@ -55,7 +54,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let riskReversal stock = 
+    let riskReversal stock expiry = 
         {
             Name = "Risk Reversal"
             Legs = [ 
@@ -67,7 +66,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let collar stock = {
+    let collar stock expiry =  {
             Name = "Collar"
             Legs = [ 
                     //sell 1 out of money call
@@ -86,7 +85,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let coveredCall stock = 
+    let coveredCall stock expiry =  
         {
             Name = "Covered Call"
             Legs = [ 
@@ -106,7 +105,7 @@ module StrategiesExamples =
 
     let cashPayOff strike ref = ref - strike
 
-    let condor stock = 
+    let condor stock expiry = 
         let strike1 = floor(stock.CurrentPrice*0.6)
         let strike2 = floor(stock.CurrentPrice*0.9)
         let strike3 = floor stock.CurrentPrice*1.1
@@ -122,7 +121,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let boxOption stock = 
+    let boxOption stock expiry = 
         let strike1, strike2 = testStrikes stock
         {
             Name = "Box Option"
@@ -135,23 +134,23 @@ module StrategiesExamples =
             Stock = stock
     }
 
-    let longCall stock = {
+    let longCall stock expiry =  {
         Name = "Long Call - Out Of Money"
         Legs = [
-                buildOptionLeg 1.0 (stock.CurrentPrice*1.2) expiry Call
+                buildOptionLeg 1.0 (stock.CurrentPrice*1.05) expiry Call
         ]
         Stock = stock
     }
 
-    let shortCall stock = {
+    let shortCall stock expiry =  {
         Name = "Short Call - Out Of Money"
         Legs = [
-                buildOptionLeg -1.0 (stock.CurrentPrice*1.2) expiry Call
+                buildOptionLeg -1.0 (stock.CurrentPrice*1.05) expiry Call
         ]
         Stock = stock
     }
 
-    let callSpread stock = 
+    let callSpread stock expiry =  
         let strike1,strike2 = testStrikes stock
         {
             Name = "Bull Call Spread"
@@ -162,7 +161,7 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let putSpread stock = 
+    let putSpread stock expiry = 
         let strike1,strike2 = testStrikes stock
         {
             Name = "Bull Put Spread"
@@ -173,19 +172,19 @@ module StrategiesExamples =
             Stock = stock
         }
 
-    let strategiesForStock stock = [
-        longCall stock
-        shortCall stock
-        callSpread stock
-        putSpread stock
-        straddle stock
-        strangle stock
-        butterfly stock
-        riskReversal stock
-        collar stock
-        condor stock
-        boxOption stock
-        coveredCall stock
+    let strategiesForStock stock expiry = [
+        longCall stock expiry
+        shortCall stock expiry
+        callSpread stock expiry
+        putSpread stock expiry
+        straddle stock expiry
+        strangle stock expiry
+        butterfly stock expiry
+        riskReversal stock expiry
+        collar stock expiry
+        condor stock expiry
+        boxOption stock expiry
+        coveredCall stock expiry
     ]
 
     let exampleStock = {

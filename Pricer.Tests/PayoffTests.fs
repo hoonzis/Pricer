@@ -29,18 +29,18 @@ type PayoffTests() =
                 ]
             Stock = TestData.stock
         }
-        let (strategy, legs) = payoffGenerator.getStrategyData strat
-        legs |> Seq.length |> should equal 1
-        let firstLeg, legsData = legs |> Seq.head
+        let data = payoffGenerator.getStrategyData strat
+        data.LegsSeries |> Seq.length |> should equal 1
+        let firstLeg, legsData = data.LegsSeries |> Seq.head
         let x,y = legsData |> Seq.head
         //this is the minimal value
         y |> should equal -2.8237329844670001
 
     [<Test>]
     member this.``butterlfy payoff tests`` () =        
-        let strat = StrategiesExamples.butterfly TestData.stock
-        let (strategy, legs) = payoffGenerator.getStrategyData strat
-        legs |> Seq.length |> should equal 4
+        let strat = StrategiesExamples.butterfly TestData.stock (DateTime.Now.AddDays 50.0)
+        let data = payoffGenerator.getStrategyData strat
+        data.LegsSeries |> Seq.length |> should equal 4
 
     [<Test>]
     member this.``cash leg payoff test`` () =
@@ -58,15 +58,15 @@ type PayoffTests() =
                 ]
             Stock = TestData.stock
         }
-        let (strategy, legs) = payoffGenerator.getStrategyData strat
-        legs |> Seq.length |> should equal 1
-        let leg,legData = legs |> Seq.head
+        let data = payoffGenerator.getStrategyData strat
+        data.LegsSeries |> Seq.length |> should equal 1
+        let leg,legData = data.LegsSeries |> Seq.head
         match leg.Definition with
                 | Cash cl -> cl.Price |> should equal 1.0
                 | _ -> failwith "Not good"
                    
         // points - min,max and the only strike
-        strategy |> should haveLength 3        
+        data.StrategySerie |> should haveLength 3        
 
     [<Test>]
     member this.``getting strategy data of strategy with no legs`` () =
@@ -76,7 +76,7 @@ type PayoffTests() =
             Legs = List.empty
         }
 
-        let (strategy, legsData) = payoffGenerator.getStrategyData strategy
-        strategy |> List.ofSeq |> should haveLength 0
+        let data = payoffGenerator.getStrategyData strategy
+        data.StrategySerie |> List.ofSeq |> should haveLength 0
         
         

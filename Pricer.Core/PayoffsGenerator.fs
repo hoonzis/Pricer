@@ -2,6 +2,13 @@
 
 open System
 
+type PayoffSerie = (float*float) list
+
+type PayoffChartData = {
+    LegsSeries: (Leg * PayoffSerie) seq
+    StrategySerie: PayoffSerie
+}
+
 type PayoffsGenerator (pricer:IPricer) =
 
     member this.legPricing stock leg =
@@ -20,8 +27,8 @@ type PayoffsGenerator (pricer:IPricer) =
                     | Option option -> option.Strike
                     | Convertible convertible -> convertible.ReferencePrice 
             )
-            let min = 0.5*(strikes |> Seq.min)
-            let max = 1.5*(strikes |> Seq.max)
+            let min = 0.8*(strikes |> Seq.min)
+            let max = 1.2*(strikes |> Seq.max)
             seq {
                 yield min
                 yield! (strikes |> Seq.sort)
@@ -58,7 +65,11 @@ type PayoffsGenerator (pricer:IPricer) =
         )
 
         let strategyData = [for stockPrice in interestingPoints do yield stockPrice, payOffsPerLeg |> Seq.sumBy (fun (leg,payOff) -> payOff stockPrice)]
-        strategyData, legsData
+        {
+            LegsSeries = legsData
+            StrategySerie = strategyData
+        }       
+
         
     member this.getConvertiblePayoffData (convert:ConvertibleLeg) pricing = 
         let years = [1;2;3]

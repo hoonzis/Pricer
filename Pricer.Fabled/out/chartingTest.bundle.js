@@ -4687,7 +4687,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.DateUtils = exports.Series = exports.DateScatterValue = exports.Value = undefined;
+	exports.Charting = exports.ScatterChart = exports.LineChart = exports.Chart = exports.Series = exports.DateScatterValue = exports.Value = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -4781,10 +4781,6 @@
 	
 	_fableCore.Util.setInterfaces(Series.prototype, ["FSharpRecord", "System.IEquatable", "System.IComparable"], "Pricer.Fabled.Series");
 	
-	var DateUtils = exports.DateUtils = function ($exports) {
-	    return $exports;
-	}({});
-	
 	var Chart = exports.Chart = function Chart() {
 	    _classCallCheck(this, Chart);
 	};
@@ -4844,18 +4840,39 @@
 	        }, data));
 	    };
 	
-	    var buildLines = $exports.buildLines = function buildLines(data) {
-	        return _fableCore.Seq.map(function (tupledArg) {
-	            return new Series(tupledArg[0].Definition.Name, tuplesToPoints(tupledArg[1]));
-	        }, data);
-	    };
+	    var prepareLineChart = $exports.prepareLineChart = function prepareLineChart(xLabel, yLabel, data, height) {
+	        var max = _fableCore.Seq.reduce(function (f) {
+	            return function (x, y) {
+	                return f(x) > f(y) ? x : y;
+	            };
+	        }(function (v) {
+	            return v.y;
+	        }), Array.from(_fableCore.Seq.collect(function (serie) {
+	            return serie.values;
+	        }, data)));
 	
-	    var prepareLineChart = $exports.prepareLineChart = function () {
-	        var chart = nv.models.lineChart().useInteractiveGuideline(true).showLegend(true).showXAxis(true);
-	        chart.xAxis.axisLabel("Underlying Price").tickFormat(d3.format(",.1f"));
-	        chart.yAxis.axisLabel("Profit").tickFormat(d3.format(",.1f"));
+	        var min = _fableCore.Seq.reduce(function (f) {
+	            return function (x, y) {
+	                return f(x) < f(y) ? x : y;
+	            };
+	        }(function (v) {
+	            return v.y;
+	        }), Array.from(_fableCore.Seq.collect(function (serie) {
+	            return serie.values;
+	        }, data)));
+	
+	        var maxY = Math.round(max.y + 0.1 * max.y);
+	        var minY = Math.ceil(min.y - Math.abs(0.1 * min.y));
+	        var margin = {
+	            left: 80,
+	            right: 80
+	        };
+	        var range = [minY, maxY];
+	        var chart = nv.models.lineChart().useInteractiveGuideline(true).margin(margin).showLegend(true).showXAxis(true).showYAxis(true).forceY(range);
+	        chart.xAxis.axisLabel(xLabel).tickFormat(d3.format(".f"));
+	        chart.yAxis.axisLabel(yLabel).tickFormat(d3.format(".1f"));
 	        return chart;
-	    }();
+	    };
 	
 	    var clearAndGetParentChartDiv = $exports.clearAndGetParentChartDiv = function clearAndGetParentChartDiv(selector) {
 	        var element = d3.select(selector);
@@ -4863,41 +4880,24 @@
 	        return element;
 	    };
 	
-	    var drawChart = $exports.drawChart = function drawChart(chart, data, chartSelector) {
+	    var drawChart = $exports.drawChart = function drawChart(chart, data, chartSelector, height) {
 	        var chartElement = clearAndGetParentChartDiv(chartSelector);
-	        chartElement.style("height", "500px");
+	        chartElement.style("height", _fableCore.String.fsFormat("%ipx")(function (x) {
+	            return x;
+	        })(height));
 	        chartElement.datum(data).call(chart);
 	    };
 	
-	    var drawLineChart = $exports.drawLineChart = function drawLineChart(data, chartSelector) {
-	        var chart = prepareLineChart;
-	        drawChart(chart, data, chartSelector);
-	    };
-	
-	    var drawPayoff = $exports.drawPayoff = function drawPayoff(strategyData, legsData) {
-	        var legLines = buildLines(legsData);
-	        var strategyLine = new Series("Strategy", tuplesToPoints(strategyData));
-	
-	        var payoff = _fableCore.Seq.delay(function (unitVar) {
-	            return _fableCore.Seq.append(legLines, _fableCore.Seq.delay(function (unitVar_1) {
-	                return _fableCore.Seq.singleton(strategyLine);
-	            }));
-	        });
-	
-	        var data = Array.from(payoff);
-	        return function (chartSelector) {
-	            drawLineChart(data, chartSelector);
-	        };
-	    };
-	
-	    var legAndPriceToScatterPoint = $exports.legAndPriceToScatterPoint = function legAndPriceToScatterPoint(l, price) {
-	        return new DateScatterValue(l.Expiry, l.Strike, price);
+	    var drawLineChart = $exports.drawLineChart = function drawLineChart(data, chartSelector, xLabel, yLabel) {
+	        var height = 500;
+	        var chart = prepareLineChart(xLabel, yLabel, data, height);
+	        drawChart(chart, data, chartSelector, height);
 	    };
 	
 	    var drawDateScatter = $exports.drawDateScatter = function drawDateScatter(data, chartSelector, xLabel, yLabel) {
 	        var colors = _d.scale.category10();
 	
-	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).color(colors.range());
+	        var chart = nv.models.scatterChart().pointRange(new Float64Array([10, 800])).showLegend(true).showXAxis(true).showYAxis(true).color(colors.range());
 	
 	        var timeFormat = _d.time.format("%x");
 	
@@ -4906,7 +4906,9 @@
 	            var dateValue = new Date(x);
 	            return timeFormat(dateValue);
 	        }).axisLabel(xLabel);
-	        drawChart(chart, data, chartSelector);
+	        return function (height) {
+	            drawChart(chart, data, chartSelector, height);
+	        };
 	    };
 	
 	    return $exports;

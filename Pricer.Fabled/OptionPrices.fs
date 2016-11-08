@@ -5,6 +5,8 @@ open Fable.Core
 open Fable.Import
 open Pricer.Core
 open Fable.Core.JsInterop
+// can't import js
+// open Fable.Import.JS
 
 module OptionPrices =
     let pricer = new SimplePricer()
@@ -19,8 +21,8 @@ module OptionPrices =
             let puts = optionsAnalyzer.optionPricesExamples stockValue Put |> Array.ofSeq
             let calls = optionsAnalyzer.optionPricesExamples stockValue Call |> Array.ofSeq
 
-            let scatterCalls = calls |> Array.map Charting.legAndPriceToScatterPoint
-            let scatterPuts = puts |> Array.map Charting.legAndPriceToScatterPoint
+            let scatterCalls = calls |> Array.map FinanceCharting.legAndPriceToScatterPoint
+            let scatterPuts = puts |> Array.map FinanceCharting.legAndPriceToScatterPoint
             
             let series = [|
                 {
