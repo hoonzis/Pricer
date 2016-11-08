@@ -71,15 +71,6 @@ type Strategy = {
     Legs: Leg list
 }
 
-type LegData = {
-    Leg:Leg
-    LegData: float*float list
-}
-
-type SingleLine =  (float*float) list
-
-type LegsData = Leg * SingleLine
-
 module BasicOptions = 
     let optionValue option stockPrice =
         match option.Kind with

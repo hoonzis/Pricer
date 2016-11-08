@@ -62,13 +62,14 @@
     <Content Include="app.config" />
     <Compile Include="TestData.fs" />
     <Compile Include="OptionsTests.fs" />
-    <None Include="TestScript.fsx" />
+    <None Include="PayoffTests.fsx" />
     <Compile Include="PerfTests.fs" />
     <Compile Include="FabledTests.fs" />
     <Compile Include="StocksTests.fs" />
     <None Include="MarketTests.fsx" />
     <Compile Include="BinomialTests.fs" />
     <Compile Include="PayoffTests.fs" />
+    <None Include="ConvertTests.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

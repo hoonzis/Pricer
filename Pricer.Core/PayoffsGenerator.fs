@@ -2,11 +2,13 @@
 
 open System
 
-type PayoffSerie = (float*float) list
+
+type SingleLine =  (float*float) list
+type LegData = Leg * SingleLine
 
 type PayoffChartData = {
-    LegsSeries: (Leg * PayoffSerie) seq
-    StrategySerie: PayoffSerie
+    LegsSeries: LegData seq
+    StrategySerie: SingleLine
 }
 
 type PayoffsGenerator (pricer:IPricer) =
