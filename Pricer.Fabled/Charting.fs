@@ -5,21 +5,22 @@ open Fable.Core
 open Fable.Import
 open Fable.Import.Browser
 open Fable.Core.JsInterop
+open Pricer.Core
 
 type Value = {
     x: int
     y: float
 }
 
+type Series<'a> = {
+    key: string
+    values: 'a array
+}
+
 type DateScatterValue = {
     x: DateTime
     y: float
     size: float
-}
-
-type Series<'a> = {
-    key: string
-    values: 'a array
 }
 
 type Axis = 
@@ -40,7 +41,7 @@ type Chart() =
 
 [<AbstractClass>]
 type LineChart() = inherit Chart()
-        with member __.useInteractiveGuideline (value:bool): Chart = failwith "JSOnly"
+    with member __.useInteractiveGuideline (value:bool): Chart = failwith "JSOnly"
 
 [<AbstractClass>]
 type ScatterChart() = inherit Chart()
@@ -57,13 +58,13 @@ module nv =
 
 module Charting =
  
-    let tuplesToPoints (data: (float*float) list): Value array = 
-            data |> List.map (fun (x,y) -> 
-                {
-                    Value.x = int x
-                    Value.y = y
-                }
-            ) |> Array.ofList
+    let tuplesToPoints (data:SingleLine) =
+        data |> List.map (fun (x,y) -> 
+            {
+                Value.x = int x
+                Value.y = y
+            }
+        ) |> Array.ofList
 
     let prepareLineChart xLabel yLabel (data: Series<Value> array) height = 
         let max = data |> Array.collect (fun serie -> serie.values) |> Array.maxBy (fun v-> v.y)

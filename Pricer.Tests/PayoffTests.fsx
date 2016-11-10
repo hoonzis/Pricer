@@ -23,6 +23,15 @@ let option =  {
     PurchaseDate = DateTime.Now
 }
 
+let option2 =  {
+    Strike = 265.0
+    Expiry = DateTime.Now.AddDays(90.)
+    Direction = 1.0
+    Kind = Put
+    Style = European
+    PurchaseDate = DateTime.Now
+}
+
 let stock = {
   CurrentPrice = 201.0
   Volatility = 0.25
@@ -32,7 +41,11 @@ let stock = {
 let strategy = {
     Name = "Strategy One"
     Stock = stock
-    Legs = [{ Definition = Option option; Pricing = None}]
+    Legs = 
+        [
+            { Definition = Option option; Pricing = None}
+            { Definition = Option option2; Pricing = None}
+        ]
 }
 
 let realProvider = new MathNetProvider() :> IMathProvider
@@ -40,7 +53,10 @@ let pricer = new SimplePricer() :> IPricer
 let payoffGenerator = new PayoffsGenerator(pricer)
 
 let chartSingleYear strategy (payoff:PayoffChartData) =
-    let strategyLine = Chart.Line(payoff.StrategySerie ,Name = strategy.Name) |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
+    let strategyLine = 
+        Chart.Line(payoff.StrategySerie ,Name = strategy.Name) 
+        |> Chart.WithSeries.Style(Color = Color.Red, BorderWidth = 5)
+
     let legsLines = payoff.LegsSeries |> Seq.mapi (fun i (leg,legData) -> Chart.Line(legData,(sprintf "Leg %i %s" i leg.Definition.Name)))
     let allLines = legsLines |> Seq.append [strategyLine]
     let chart = Chart.Combine allLines |> Chart.WithLegend(true)
@@ -48,6 +64,8 @@ let chartSingleYear strategy (payoff:PayoffChartData) =
 
 
 let data = payoffGenerator.getStrategyData strategy
+
+
 chartSingleYear strategy data
 
 

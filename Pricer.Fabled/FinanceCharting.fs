@@ -8,19 +8,18 @@ open Pricer.Core
 
 module FinanceCharting =
  
-    let buildLines (data:(Leg*(float*float) list) seq)= 
-        data |> Seq.map (fun (leg,linedata) -> 
-            {
-                key = leg.Definition.Name
-                values = linedata |> Charting.tuplesToPoints
-            })
-
     let drawPayoff (data:PayoffChartData) (selector:string) =
-        let legLines = buildLines data.LegsSeries
         let strategyLine = {
             key = "Strategy"
             values = data.StrategySerie |> Charting.tuplesToPoints
         }
+
+        let legLines = 
+            data.LegsSeries |> Seq.map (fun (leg,linedata) -> 
+            {
+                key = leg.Definition.Name
+                values = linedata |> Charting.tuplesToPoints
+            })
                
         let payoff = seq {
             yield! legLines
