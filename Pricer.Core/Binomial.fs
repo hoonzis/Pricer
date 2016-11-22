@@ -125,8 +125,8 @@ module Binomial =
         {
             Stock = stockValue
             Option = option'
-            UpParent = Some upNode
-            DownParent = Some downNode
+            UpParent = Some { upNode with UpParent = None; DownParent = None }
+            DownParent = Some { downNode with UpParent = None; DownParent = None }
         }
 
     // takes one layer of the binomial tree and generates the next layer

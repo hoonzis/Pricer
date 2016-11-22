@@ -23,6 +23,10 @@ let projectDescription = "Pricer for options and other financial products"
 let version = "0.20.0"
 let nugetKey = getBuildParamOrDefault "nugetKey" ""
 
+let Exec command args =
+    let result = Shell.Exec(command, args)
+    if result <> 0 then failwithf "%s exited with error %d" command result
+
 // Targets
 Target "Clean" (fun _ ->
     CleanDirs [buildDir; testDir; deployDir]
@@ -31,13 +35,13 @@ Target "Clean" (fun _ ->
 Target "CompilePricer" (fun _ ->
     [@"Pricer/Pricer.fsproj"]
       |> MSBuildRelease buildDir "Build"
-      |> Log "AppBuild-Output: "
+      |> Log "Pricer compilation output: "
 )
 
 Target "CompileMarketData" (fun _ ->
     [@"Pricer.MarketData\Pricer.MarketData.fsproj"]
-      |> MSBuildDebug testDir "Build"
-      |> Log "TestBuild-Output: "
+      |> MSBuildDebug buildDir "Build"
+      |> Log "Market Data Build - Output: "
 )
 
 Target "CompileTest" (fun _ ->
@@ -54,6 +58,11 @@ Target "Test" (fun _ ->
                    OutputFile = testDir + @"TestResults.xml"})
 )
 
+Target "CompileBenchmark" (fun _ -> 
+    [@"Pricer.Benchmark\Pricer.Benchmark.fsproj"]
+      |> MSBuildDebug buildDir "Build"
+      |> Log "Benchmark Build - Output: "
+)
 
 let updateNugetPackage p =  {
     p with
@@ -86,7 +95,13 @@ Target "Zip" (fun _ ->
         -- "*.zip"
         |> Zip buildDir (deployDir + "Pricer." + version + ".zip")
 )
-// Dependenciesf
+
+Target "RunBenchmark" (fun _ -> 
+    let path = sprintf "%s\\Pricer.Benchmark.exe" buildDir
+    Exec path ""
+)
+
+// Dependencies
 
 "Clean"
   ==> "CompilePricer"
@@ -99,8 +114,8 @@ Target "Zip" (fun _ ->
 "CompilePricer"
   ==> "CompileMarketData"
   ==> "CompileTest"
-  ==> "Test"
-  ==> "CreatePackage"
-
+  ==> "CompileBenchmark"
+  ==> "RunBenchmark"
+  
 // start build
 RunTargetOrDefault "Test"

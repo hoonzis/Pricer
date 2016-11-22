@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{B5890CFD-19B9-430D-B3A4-99465647ED83}"
 	ProjectSection(SolutionItems) = preProject
 		paket.dependencies = paket.dependencies
+		paket.lock = paket.lock
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Core", "Pricer.Core\Pricer.Core.fsproj", "{BDC61E99-5A38-4EB0-9738-A1EEE82D76AC}"
@@ -31,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{CD4C
 		scripts\build.fsx = scripts\build.fsx
 		scripts\prebuild.cmd = scripts\prebuild.cmd
 	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Benchmark", "Pricer.Benchmark\Pricer.Benchmark.fsproj", "{B6F00746-8EB4-4E05-8D87-D5E423BF9FE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +61,10 @@ Global
 		{27CF805C-AA6B-4789-8AB7-0614E746CB14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27CF805C-AA6B-4789-8AB7-0614E746CB14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27CF805C-AA6B-4789-8AB7-0614E746CB14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6F00746-8EB4-4E05-8D87-D5E423BF9FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6F00746-8EB4-4E05-8D87-D5E423BF9FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6F00746-8EB4-4E05-8D87-D5E423BF9FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6F00746-8EB4-4E05-8D87-D5E423BF9FE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
