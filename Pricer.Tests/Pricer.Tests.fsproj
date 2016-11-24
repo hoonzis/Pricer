@@ -60,15 +60,16 @@
   <ItemGroup>
     <Content Include="paket.references" />
     <Content Include="app.config" />
+    <Compile Include="MonteCarloTests.fs" />
     <Compile Include="TestData.fs" />
     <Compile Include="OptionsTests.fs" />
     <Compile Include="FabledTests.fs" />
     <Compile Include="StocksTests.fs" />
     <None Include="MarketTests.fsx" />
-    <Compile Include="BinomialTests.fs" />
     <Compile Include="PayoffTests.fs" />
     <None Include="ConvertTests.fsx" />
     <None Include="PayoffTests.fsx" />
+    <Compile Include="BinomialTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

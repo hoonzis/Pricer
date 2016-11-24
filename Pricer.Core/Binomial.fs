@@ -106,16 +106,16 @@ module Binomial =
 
 
     // merge two nodes
-    let mergeNodes downNode upNode optionVal pricing = 
+    let mergeNodes downNode upNode optionVal context = 
         // calculate the value of the next option, using the CRR
-        let derValue = (pricing.PUp * upNode.Option + pricing.PDown * downNode.Option)*(1.0/pricing.Rate)
+        let derValue = (context.PUp * upNode.Option + context.PDown * downNode.Option)*(1.0/context.Rate)
 
         // calculate the value of the next stock - simply by raising the old stock
-        let stockValue = upNode.Stock * pricing.Down
+        let stockValue = upNode.Stock * context.Down
 
         // check for premature execution - if it's american option
         let option' = 
-            match pricing.Option.Style with
+            match context.Option.Style with
                 | American -> 
                     let prematureExValue = optionVal stockValue
                     max derValue prematureExValue

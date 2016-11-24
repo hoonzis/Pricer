@@ -7,17 +7,25 @@ open System.Collections.Generic
 open FSharp.Data
 open System.Net
 open Pricer.Core
+open Pricer
 open MathNet.Numerics.Distributions
 
 module StockAnalysis = 
     let simulatePrice exchange ticker startDate endDate =
-            let name,data = MarketProviders.stock exchange ticker startDate endDate
-            let (vol, drift) = data |> Stocks.closingLogRatios |> Stocks.estimateVolFromReturns
-            let dist = Normal(0.0, 1.0)
-            let dates = data |> Seq.map (fun tick->tick.Date.DayOfYear) |> List.ofSeq |> List.rev
-            let firstClose = data |> Seq.minBy Stocks.tradingDay |> Stocks.closingPrice
-            let randoms = Stocks.randomPrice drift vol 0.005 firstClose dist
-            Seq.zip dates randoms
+        let name,data = MarketProviders.stock exchange ticker startDate endDate
+        let (vol, drift) = data |> Stocks.closingLogRatios |> Stocks.estimateVolFromReturns
+        let dist = Normal(0.0, 1.0)
+        let dates = data |> Seq.map (fun tick->tick.Date.DayOfYear) |> List.ofSeq |> List.rev
+        let firstClose = data |> Seq.minBy Stocks.tradingDay |> Stocks.closingPrice
+
+        let stock = {
+            Rate = drift
+            CurrentPrice = firstClose
+            Volatility = vol
+        }
+
+        let randoms = Stocks.randomPrice stock dist 0.005
+        Seq.zip dates randoms
 
     let stockInfo exchange ticker startDate endDate =
         let name,data = MarketProviders.stock exchange ticker startDate endDate

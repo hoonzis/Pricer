@@ -73,7 +73,6 @@
     <EmbeddedResource Include="euronextdataset.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Compile Include="Stocks.fs" />
     <Compile Include="StockAnalysis.fs" />
     <None Include="paket.references" />
   </ItemGroup>
@@ -90,6 +89,11 @@
     <ProjectReference Include="..\Pricer.Core\Pricer.Core.fsproj">
       <Name>Pricer.Core</Name>
       <Project>{bdc61e99-5a38-4eb0-9738-a1eee82d76ac}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Pricer\Pricer.fsproj">
+      <Name>Pricer</Name>
+      <Project>{27cf805c-aa6b-4789-8ab7-0614e746cb14}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

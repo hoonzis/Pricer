@@ -56,6 +56,8 @@
     <Compile Include="FullPricer.fs" />
     <Compile Include="FinChartsData.fs" />
     <None Include="paket.references" />
+    <Compile Include="Stocks.fs" />
+    <Compile Include="MonteCarloPricer.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

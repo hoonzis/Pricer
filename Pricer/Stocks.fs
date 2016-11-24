@@ -1,9 +1,10 @@
-﻿namespace Pricer.MarketData
+﻿namespace Pricer
 
 open System
 open System.Collections.Generic
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.Distributions
+open Pricer.Core
 open Pricer
 
 
@@ -45,16 +46,15 @@ module Stocks =
             | CloseVsClose -> estimateVolFromReturns (closingLogRatios stockData) |> fst
             | CloseVsOpen -> closingVsOpenVolEstimate stockData
 
-    let randomPrice drift volatility dt initial (dist:Normal) =
-        // Calculate parameters of the exponential
-        let driftExp = (drift - 0.5 * pown volatility 2) * dt
-        let randExp = volatility * (sqrt dt)
+    let randomPrice (stock:StockInfo) (dist:Normal) dt =
 
-        // Recursive loop that actually generates the price
+        let driftExp = (stock.Rate - 0.5 * pown stock.Volatility 2) * dt
+        let randExp = stock.Volatility * (sqrt dt)
+
         let rec loop price = seq {
             yield price
             let price = price * exp (driftExp + randExp * dist.Sample())
-            yield! loop price }
+            yield! loop price 
+        }
 
-        // Return path starting at 'initial'
-        loop initial
+        loop stock.CurrentPrice

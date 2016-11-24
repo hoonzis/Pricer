@@ -7,6 +7,7 @@ open System.Reflection
 open System.IO
 open FsUnit
 open NUnit.Framework
+open Pricer
 
 let stock = {
     Volatility = 0.05

@@ -9,3 +9,14 @@ type StockInfo =
         Volatility: float
         CurrentPrice: float
     }
+
+type Tick = {
+    Date:DateTime
+    Close:float
+    Open: float option
+}
+
+type VolatilityEstimationMethod = 
+    | CloseVsClose
+    | CloseVsOpen
+
