@@ -7,10 +7,10 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>27cf805c-aa6b-4789-8ab7-0614e746cb14</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Pricer.Full</RootNamespace>
+    <RootNamespace>Pricer</RootNamespace>
     <AssemblyName>Pricer</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Pricer</Name>
     <TargetFrameworkProfile />
@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Pricer.Full.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Pricer.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Pricer.Full.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Pricer.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

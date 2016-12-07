@@ -132,7 +132,8 @@ module Binomial =
     // takes one layer of the binomial tree and generates the next layer
     let step pricing optionVal (prices:BinomialNode []) =
         prices 
-            |> Array.pairwise 
+            |> Seq.pairwise
+            |> Array.ofSeq
             |> Array.map (fun (downNode,upNode) -> mergeNodes downNode upNode optionVal pricing)
             
     let binomialPricingFunc (ctx:BinomialContext) =
