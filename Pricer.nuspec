@@ -14,7 +14,7 @@
     <tags>Options Pricing</tags>
     <dependencies>
       <group>
-        <dependency id="MathNet.Numerics" version="3.8.0"/>
+        <dependency id="MathNet.Numerics" version="[3.8.0]"/>
       </group>
     </dependencies>
   </metadata>
