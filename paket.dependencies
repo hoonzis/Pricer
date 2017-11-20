@@ -1,16 +1,21 @@
+// NUnit tests need fsharp.core specific, paket will do redirects for us
+redirects: on
+
 source https://api.nuget.org/v3/index.json
 source https://www.nuget.org/api/v2/
 
+nuget FAKE
 nuget NuGet.CommandLine
 nuget FSharp.Charting framework: >= net461
 nuget FSharp.Data framework: >= net461
 nuget FsUnit framework: >= net461
 nuget MathNet.Numerics 3.8.0 framework: >= net461
-nuget NUnit framework: >= net461
-nuget Antlr framework: >= net461
 nuget FSharp.Core framework: >= net461
 nuget FSharp.Interop.Dynamic framework: >= net461
 nuget MSBuild.Extension.Pack framework: >= net461
 nuget Newtonsoft.Json framework: >= net461
 nuget BenchmarkDotNet framework: >= net461
 nuget BenchmarkDotNet.Diagnostics.Windows framework: >= net461
+
+nuget NUnit.Runners framework: >= net461
+nuget NUnit framework: >= net461

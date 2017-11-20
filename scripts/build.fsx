@@ -1,8 +1,10 @@
 // include Fake lib
-#r @"..\tools\FAKE\tools\FakeLib.dll"
+#r @"..\packages\FAKE\tools\FakeLib.dll"
+
+let nunitRunnerPath = "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe"
 
 open Fake
-open Fake.AssemblyInfoFile
+open Fake.Testing
 
 RestorePackages()
 
@@ -57,10 +59,9 @@ Target "CompileTest" (fun _ ->
 
 Target "Test" (fun _ ->
     !! (testDir + @"\Pricer.Tests.dll")
-      |> NUnit (fun p ->
+      |> NUnit3 (fun p ->
                  {p with
-                   DisableShadowCopy = true;
-                   OutputFile = testDir + @"TestResults.xml"})
+                   ToolPath = nunitRunnerPath})
 )
 
 Target "CompileBenchmark" (fun _ -> 

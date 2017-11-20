@@ -1,6 +1,6 @@
+REDIRECTS: ON
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    Antlr (3.5.0.2) - restriction: >= net461
     BenchmarkDotNet (0.10.10) - restriction: >= net461
       BenchmarkDotNet.Core (>= 0.10.10) - restriction: || (>= net46) (>= netcoreapp1.1)
       BenchmarkDotNet.Toolchains.Roslyn (>= 0.10.10) - restriction: >= net46
@@ -19,17 +19,16 @@ NUGET
       Microsoft.CodeAnalysis.CSharp (>= 2.0) - restriction: >= net46
       System.Threading.Tasks (>= 4.3) - restriction: >= net46
     Dynamitey (1.0.2) - restriction: >= net461
+    FAKE (4.63.2)
     FSharp.Charting (0.91.1) - restriction: >= net461
     FSharp.Core (4.2.3) - restriction: >= net461
     FSharp.Data (2.4.2) - restriction: >= net461
     FSharp.Interop.Dynamic (3.0) - restriction: >= net461
       Dynamitey (>= 1.0.2)
       FSharp.Core (>= 3.1.2.1)
-    FsUnit (3.0) - restriction: >= net461
-      FSharp.Core (>= 3.1.2.5) - restriction: < netstandard1.6
-      FSharp.Core (>= 4.1) - restriction: >= netstandard1.6
-      NETStandard.Library (>= 1.6) - restriction: >= netstandard1.6
-      NUnit (>= 3.6)
+    FsUnit (1.4.1) - restriction: >= net461
+      FSharp.Core (>= 3.1.2.5)
+      NUnit (2.6.4)
     MathNet.Numerics (3.8) - restriction: >= net461
     Microsoft.CodeAnalysis.Analyzers (1.1) - restriction: >= net461
     Microsoft.CodeAnalysis.Common (2.4) - restriction: >= net461
@@ -77,16 +76,29 @@ NUGET
     Microsoft.Diagnostics.Tracing.TraceEvent (1.0.41) - restriction: >= net461
     Microsoft.DotNet.InternalAbstractions (1.0) - restriction: >= net461
     Microsoft.DotNet.PlatformAbstractions (2.0.3) - restriction: >= net461
-    Microsoft.NETCore.Platforms (2.0.1) - restriction: || (&& (>= monotouch) (>= net461)) (&& (< net45) (>= net461) (>= netstandard1.5) (< netstandard1.6)) (&& (< net45) (>= net461) (< netstandard1.5)) (&& (< net45) (>= net461) (>= netstandard2.0)) (&& (>= net461) (>= netcoreapp2.0)) (&& (>= net461) (< netstandard1.0)) (&& (>= net461) (< netstandard1.3)) (&& (>= net461) (< netstandard1.4)) (&& (>= net461) (>= netstandard1.6)) (&& (>= net461) (< netstandard2.0)) (&& (>= net461) (< portable-net45+win8+wpa81)) (&& (>= net461) (< portable-net451+win81+wpa81)) (&& (>= net461) (>= uap10.0)) (&& (>= net461) (>= xamarinios)) (&& (>= net461) (>= xamarinmac)) (&& (>= net461) (>= xamarintvos)) (&& (>= net461) (>= xamarinwatchos))
+    Microsoft.NETCore.Platforms (2.0.1) - restriction: || (&& (>= monotouch) (>= net461)) (&& (< net45) (>= net461) (>= netstandard1.5) (< netstandard1.6)) (&& (< net45) (>= net461) (< netstandard1.5)) (&& (>= net461) (< netstandard1.0)) (&& (>= net461) (< netstandard1.3)) (&& (>= net461) (< netstandard1.4)) (&& (>= net461) (< netstandard2.0)) (&& (>= net461) (< portable-net45+win8+wpa81)) (&& (>= net461) (< portable-net451+win81+wpa81)) (&& (>= net461) (>= uap10.0)) (&& (>= net461) (>= xamarinios)) (&& (>= net461) (>= xamarinmac)) (&& (>= net461) (>= xamarintvos)) (&& (>= net461) (>= xamarinwatchos))
     Microsoft.Win32.Registry (4.4) - restriction: >= net461
       System.Security.AccessControl (>= 4.4) - restriction: || (&& (>= monoandroid) (< netstandard1.3)) (>= monotouch) (&& (< net46) (>= netstandard2.0)) (>= net461) (>= netcoreapp2.0) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
       System.Security.Principal.Windows (>= 4.4) - restriction: || (&& (>= monoandroid) (< netstandard1.3)) (>= monotouch) (&& (< net46) (>= netstandard2.0)) (>= net461) (>= netcoreapp2.0) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
     MSBuild.Extension.Pack (1.9.1) - restriction: >= net461
-    NETStandard.Library (2.0.1) - restriction: || (&& (>= net461) (>= netstandard1.6)) (&& (>= net461) (< netstandard2.0))
+    NETStandard.Library (2.0.1) - restriction: && (>= net461) (< netstandard2.0)
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (>= monoandroid) (< netstandard1.0)) (&& (< monoandroid) (< net45) (>= netstandard1.2) (< netstandard1.3) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.3) (< netstandard1.4) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.4) (< netstandard1.5) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.5) (< netstandard1.6)) (&& (< monoandroid) (< netstandard1.0) (>= portable-net451+win81+wpa81)) (>= monotouch) (&& (>= net45) (< portable-net451+win81+wpa81)) (&& (< net45) (>= netstandard1.1) (< portable-net451+win81+wpa81)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0)) (&& (< net45) (>= netstandard2.0)) (&& (>= net451) (< netstandard1.3)) (&& (>= net46) (< netstandard1.4)) (>= net461) (>= netcoreapp2.0) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wpa81) (< portable-net451+win81+wpa81)) (&& (< netstandard1.3) (>= wpa81)) (>= uap10.0) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
     Newtonsoft.Json (10.0.3) - restriction: >= net461
     NuGet.CommandLine (4.3)
-    NUnit (3.9) - restriction: >= net461
+    NUnit (2.6.4) - restriction: >= net461
+    NUnit.ConsoleRunner (3.7) - restriction: >= net461
+    NUnit.Extension.NUnitProjectLoader (3.6) - restriction: >= net461
+    NUnit.Extension.NUnitV2Driver (3.7) - restriction: >= net461
+    NUnit.Extension.NUnitV2ResultWriter (3.6) - restriction: >= net461
+    NUnit.Extension.TeamCityEventListener (1.0.2) - restriction: >= net461
+    NUnit.Extension.VSProjectLoader (3.7) - restriction: >= net461
+    NUnit.Runners (3.7) - restriction: >= net461
+      NUnit.ConsoleRunner (>= 3.7)
+      NUnit.Extension.NUnitProjectLoader (>= 3.5)
+      NUnit.Extension.NUnitV2Driver (>= 3.6)
+      NUnit.Extension.NUnitV2ResultWriter (>= 3.5)
+      NUnit.Extension.TeamCityEventListener (>= 1.0.2)
+      NUnit.Extension.VSProjectLoader (>= 3.5)
     System.AppContext (4.3) - restriction: >= net461
     System.Collections (4.3) - restriction: >= net461
     System.Collections.Concurrent (4.3) - restriction: >= net461
