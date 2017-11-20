@@ -61,7 +61,7 @@ type MonteCarloTests() =
 
 
     [<Test>]
-    [<Ignore>]
+    [<Ignore "Tests to see that Monte Carlo simul convergaces to something, too many iterations, not really a unit test">]
     member this.``monte carlo pricing european call`` () =
         let price = MonteCarloPricer.run stock europeanCall 5000
         price.Premium |> should equal callPrice
@@ -69,7 +69,7 @@ type MonteCarloTests() =
 
     // American and European call have the same price
     [<Test>]
-    [<Ignore>]
+    [<Ignore "Tests to see that Monte Carlo simul convergaces to something, too many iterations, not really a unit test">]
     member this.``monte carlo american call`` () = 
         let price = MonteCarloPricer.run stock americanCall 5000
         price.Premium |> should equal callPrice
@@ -77,7 +77,7 @@ type MonteCarloTests() =
         
     
     [<Test>]
-    [<Ignore>]
+    [<Ignore "Tests to see that Monte Carlo simul convergaces to something, too many iterations, not really a unit test">]
     member this.``monte carlo euroean put`` () =        
         let price = MonteCarloPricer.run stock europeanPut 5000
         price.Premium |> should equal europeanPutPrice
@@ -85,7 +85,7 @@ type MonteCarloTests() =
 
     // American put has higher premium then european put and as well higher delta
     [<Test>]
-    [<Ignore>]
+    [<Ignore "Tests to see that Monte Carlo simul convergaces to something, too many iterations, not really a unit test">]
     member this.``monte carlo american put`` () =        
         let price = MonteCarloPricer.run stock americanPut 5000
         price.Premium |> should equal 2.3156625779008477

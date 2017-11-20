@@ -1,7 +1,7 @@
 ﻿#r "bin/Debug/Pricer.Core.dll"
 #r "bin/Debug/Pricer.dll"
 #r "bin/Debug/Pricer.Fabled.exe"
-#load "../packages/FSharp.Charting/FSharp.Charting.fsx"
+#load @"../packages/FSharp.Charting/lib/net45/FSharp.Charting.fsx"
 #r "../packages/MathNet.Numerics/lib/net40/MathNet.Numerics.dll"
 
 open System

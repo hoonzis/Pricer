@@ -34,7 +34,7 @@ type StocksTests() =
     let endDate = new DateTime(2015,3,30)
 
     [<Test>]
-    [<Ignore>]
+    [<Ignore "Integration tests for quandl market data provider">]
     member this.``test single lse stock from quandl`` () =
         let ticker,data = MarketProviders.stock LSE "VOD" (Some startDate) (Some endDate)
         let firstDay = data |> getFirstDay
@@ -55,8 +55,7 @@ type StocksTests() =
         abs (vol - vol2) |> should be (lessThan 0.08)
 
     [<Test>]
-    [<Ignore>]
-    //this invokes directly quandl web service
+    [<Ignore "Integration tests for quandl market data provider">]
     member this.``test euronext stock info - `` () =
         let stockInfo = StockAnalysis.stockInfo EURONEXT "ATI" (Some startDate) (Some endDate)
         stockInfo.CurrentPrice |> should equal 6.76

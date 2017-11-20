@@ -1,24 +1,10 @@
 ﻿namespace Pricer.Benchmark
 
 open System
-open Pricer
 open Pricer.Core
 open BenchmarkDotNet.Attributes
-open BenchmarkDotNet.Running
-open BenchmarkDotNet.Configs
-open BenchmarkDotNet.Jobs
-open BenchmarkDotNet.Diagnostics.Windows
                   
-type BenchConfig () =
-    inherit ManualConfig()
-    do 
-        base.Add Job.RyuJitX64
-        #if MONO
-        #else
-        base.Add(new MemoryDiagnoser())
-        #endif
-
-[<Config (typeof<BenchConfig>)>]
+[<MemoryDiagnoser>]
 type BinomialBenchmark () =    
     
     let stock = {
