@@ -12,7 +12,6 @@ RestorePackages()
 let buildDir  = @".\build\"
 let testDir   = @".\test\"
 let deployDir = @".\deploy\"
-let packagesDir = @".\packages"
 let packagingDir = @".\packaging"
 
 let authors = ["Jan Fajfr"]
@@ -20,8 +19,10 @@ let projectName = "Pricer"
 let projectSummary = "Library with several methods to price options and estimate historical volatility"
 let projectDescription = "Pricer for options and other financial products"
 
-// version info - I will have to add AssemblyInfo fsharp style and upgrade version from it
-let version = "0.23.0"
+let getVersion() =
+    let buildCandidate = (environVar "APPVEYOR_BUILD_NUMBER")
+    if buildCandidate = "" || buildCandidate = null then "1.0.0" else (sprintf "1.0.0.%s" buildCandidate)
+
 let nugetKey = getBuildParamOrDefault "nugetKey" ""
 
 let Exec command args =
@@ -78,7 +79,7 @@ let updateNugetPackage p =  {
         OutputPath = deployDir
         Summary = projectSummary
         WorkingDir = packagingDir
-        Version = version
+        Version = getVersion()
         AccessKey = nugetKey
         Publish = hasBuildParam "nugetkey"
     }
@@ -92,9 +93,10 @@ let copyFiles net4Dir =
     CopyFile net4Dir (buildDir @@ "Pricer.Core.pdb")
 
 Target "CreatePackage" (fun _ ->
-    let net4Dir = packagingDir @@ "lib/net40/"
-    CleanDirs [net4Dir]
-    copyFiles net4Dir
+    CreateDir deployDir
+    let net461Dir = packagingDir @@ "lib/net461/"
+    CleanDirs [net461Dir]
+    copyFiles net461Dir
     trace (sprintf "Pushing Nuget Package using Key:%s" nugetKey)
     NuGet updateNugetPackage "Pricer.nuspec"
 )
@@ -102,7 +104,7 @@ Target "CreatePackage" (fun _ ->
 Target "Zip" (fun _ ->
     !! (buildDir + "\**\*.*")
         -- "*.zip"
-        |> Zip buildDir (deployDir + "Pricer." + version + ".zip")
+        |> Zip buildDir (deployDir + "Pricer." + getVersion() + ".zip")
 )
 
 Target "RunBenchmark" (fun _ -> 
