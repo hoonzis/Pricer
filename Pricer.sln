@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{B5890CFD-19B9-430D-B3A4-99465647ED83}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,7 +30,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{CD4C8327-792A-4D32-999D-3F9D7A383BBE}"
 	ProjectSection(SolutionItems) = preProject
 		scripts\build.fsx = scripts\build.fsx
-		scripts\prebuild.cmd = scripts\prebuild.cmd
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pricer.Benchmark", "Pricer.Benchmark\Pricer.Benchmark.fsproj", "{B6F00746-8EB4-4E05-8D87-D5E423BF9FE7}"
@@ -68,5 +67,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3004642C-44ED-487B-9F50-D16BC418E485}
 	EndGlobalSection
 EndGlobal
