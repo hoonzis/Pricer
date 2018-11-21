@@ -41,13 +41,13 @@ type OptionsTests() =
         let buyingDate = DateTime.Now.Date
         let exp = buyingDate.AddDays(30.0)
         let quickPrice = fullPricer.europeanPrice 0.03m 1.0 230m 0.05m 231m exp Put buyingDate
-        quickPrice.Premium |> should equal 1.1121748574738319
-        quickPrice.Delta |> should equal 0.45086688431953909
+        quickPrice.Premium |> should equal 1.5432874726200509
+        quickPrice.Delta |> should equal -0.54913311568046086
 
     [<Test>]
     member this.``black sholes quick price put from now with fixed dates``() =
         let buyingDate = new DateTime(2014, 1, 1)
         let exp = new DateTime(2014, 4, 1)
         let quickPrice = fullPricer.europeanPrice 0.0125m 1.0 10m 0.01m 10m exp Put buyingDate
-        quickPrice.Premium |> should equal 0.038859227821443021
-        quickPrice.Delta |> should equal 0.73341925514973461
+        quickPrice.Premium |> should equal 0.0080847607807861266
+        quickPrice.Delta |> should equal -0.26658074485026539
