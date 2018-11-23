@@ -80,10 +80,10 @@ module BasicOptions =
     let buildLeg kind strike direction style expiry buyingDate =
         {
             Strike=strike
-            Kind = Call
+            Kind = kind
             Direction = direction
             Expiry = expiry
-            Style = European
+            Style = style
             PurchaseDate = buyingDate
         }
 
