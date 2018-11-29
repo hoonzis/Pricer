@@ -81,7 +81,7 @@ let updateNugetPackage p =  {
         WorkingDir = packagingDir
         Version = getVersion()
         AccessKey = nugetKey
-        Publish = hasBuildParam "nugetKey"
+        Publish = hasBuildParam "nugetKey" || environVarOrNone  "nugetKey" |> Option.isSome
     }
 
 let copyFiles net4Dir =
@@ -98,6 +98,8 @@ Target "CreatePackage" (fun _ ->
     CleanDirs [net461Dir]
     copyFiles net461Dir
     trace (sprintf "Pushing Nuget Package")
+    trace (sprintf "hasBuildParam:%b" (hasBuildParam "nugetKey"))
+    trace (sprintf "environVarOrNone:%b" (environVarOrNone  "nugetKey" |> Option.isSome))    
     NuGet updateNugetPackage "Pricer.nuspec"
 )
 
