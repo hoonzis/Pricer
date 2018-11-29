@@ -65,7 +65,7 @@ Target "Test" (fun _ ->
                    ToolPath = nunitRunnerPath})
 )
 
-Target "CompileBenchmark" (fun _ -> 
+Target "CompileBenchmark" (fun _ ->
     [@"Pricer.Benchmark\Pricer.Benchmark.fsproj"]
       |> MSBuildDebug buildDir "Build"
       |> Log "Benchmark Build - Output: "
@@ -94,12 +94,12 @@ let copyFiles net4Dir =
 
 Target "CreatePackage" (fun _ ->
     CreateDir deployDir
-    let net461Dir = packagingDir @@ "lib/net461/"
-    CleanDirs [net461Dir]
-    copyFiles net461Dir
+    let net45Dir = packagingDir @@ "lib/net45/"
+    CleanDirs [net45Dir]
+    copyFiles net45Dir
     trace (sprintf "Pushing Nuget Package")
     trace (sprintf "hasBuildParam:%b" (hasBuildParam "nugetKey"))
-    trace (sprintf "environVarOrNone:%b" (environVarOrNone  "nugetKey" |> Option.isSome))    
+    trace (sprintf "environVarOrNone:%b" (environVarOrNone  "nugetKey" |> Option.isSome))
     NuGet updateNugetPackage "Pricer.nuspec"
 )
 
@@ -109,7 +109,7 @@ Target "Zip" (fun _ ->
         |> Zip buildDir (deployDir + "Pricer." + getVersion() + ".zip")
 )
 
-Target "RunBenchmark" (fun _ -> 
+Target "RunBenchmark" (fun _ ->
     let path = sprintf "%s\\Pricer.Benchmark.exe" buildDir
     Exec path ""
 )
@@ -121,13 +121,13 @@ Target "RunBenchmark" (fun _ ->
 
 "CompilePricer"
   ==> "CompilePricerCore"
-  
+
 "CompilePricer"
   ==> "CreatePackage"
   ==> "CompileMarketData"
   ==> "CompileTest"
   ==> "CompileBenchmark"
-  
+
 "CompileTest"
   ==> "Test"
 
