@@ -36,4 +36,4 @@ for:
     api_key:
       secure: hkMPM8pUCqV+7f/1SgssqTAIdnD93ilnK7tQ8LHiWQVoBWnFxf63q8+C/UNxYueu
     skip_symbols: true
-artifact: /.*\.nupkg/
+    artifact: /.*\.nupkg/
