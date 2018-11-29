@@ -9,7 +9,7 @@ nuget NuGet.CommandLine
 nuget FSharp.Charting framework: >= net461
 nuget FSharp.Data framework: >= net461
 nuget FsUnit framework: >= net461
-nuget MathNet.Numerics 3.8.0 framework: >= net461
+nuget MathNet.Numerics 3.8.0
 nuget FSharp.Core framework: >= net461
 nuget FSharp.Interop.Dynamic framework: >= net461
 nuget MSBuild.Extension.Pack framework: >= net461
